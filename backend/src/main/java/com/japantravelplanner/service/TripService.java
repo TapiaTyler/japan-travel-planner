@@ -21,17 +21,19 @@ public class TripService {
         this.userRepository = userRepository;
     }
 
-    public List<Trip> getTripsByUserId(Long userId) {
-        return tripRepository.findByUser_Id(userId);
+    public List<Trip> getTripsByUsername(String username) {
+        return tripRepository.findByUser_Username(username);
     }
 
-    public Trip getTripById(Long tripId) {
-        return tripRepository.findById(tripId).orElseThrow(() -> new TripNotFoundException());
+    public Trip getTripById(Long tripId, String username) {
+        return tripRepository.findByIdAndUser_Username(tripId, username).orElseThrow(() -> new TripNotFoundException());
     }
 
-    public Trip createTrip(Long userId, TripRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+    public Trip createTrip(String username, TripRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User account could not be found.")
+                );
 
         Trip trip = new Trip(
                 user,
@@ -46,8 +48,10 @@ public class TripService {
         return tripRepository.save(trip);
     }
 
-    public Trip updateTrip(Long tripId, TripRequest request) {
-        Trip existingTrip = tripRepository.findById(tripId)
+    public Trip updateTrip(Long tripId, String username, TripRequest request) {
+
+        Trip existingTrip = tripRepository
+                .findByIdAndUser_Username(tripId, username)
                 .orElseThrow(TripNotFoundException::new);
 
         existingTrip.setName(request.getName());
@@ -68,8 +72,9 @@ public class TripService {
         }
     }
 
-    public void deleteTrip(Long tripId) {
-        Trip existingTrip = tripRepository.findById(tripId)
+    public void deleteTrip(Long tripId, String username) {
+        Trip existingTrip = tripRepository
+                .findByIdAndUser_Username(tripId, username)
                 .orElseThrow(TripNotFoundException::new);
 
         tripRepository.delete(existingTrip);

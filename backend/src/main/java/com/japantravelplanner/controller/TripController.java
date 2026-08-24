@@ -7,6 +7,7 @@ import com.japantravelplanner.service.TripService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,11 +34,12 @@ public class TripController {
         );
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TripResponse>> getTripsByUserId(
-            @PathVariable Long userId) {
+    @GetMapping
+    public ResponseEntity<List<TripResponse>> getTrips(
+            Authentication authentication) {
 
-        List<TripResponse> trips = tripService.getTripsByUserId(userId)
+        List<TripResponse> trips = tripService
+                .getTripsByUsername(authentication.getName())
                 .stream()
                 .map(this::toTripResponse)
                 .toList();
@@ -46,27 +48,58 @@ public class TripController {
     }
 
     @GetMapping("/{tripId}")
-    public ResponseEntity<TripResponse> getTripById(@PathVariable Long tripId) {
-        Trip trip = tripService.getTripById(tripId);
+    public ResponseEntity<TripResponse> getTripById(
+            @PathVariable Long tripId,
+            Authentication authentication) {
+
+        Trip trip = tripService.getTripById(
+                tripId,
+                authentication.getName()
+        );
 
         return ResponseEntity.ok(toTripResponse(trip));
     }
 
-    @PostMapping("/user/{userId}")
-    public ResponseEntity<TripResponse> createTrip(@PathVariable Long userId, @Valid @RequestBody TripRequest tripRequest) {
-        Trip createdTrip = tripService.createTrip(userId, tripRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toTripResponse(createdTrip));
+    @PostMapping
+    public ResponseEntity<TripResponse> createTrip(
+            @Valid @RequestBody TripRequest request,
+            Authentication authentication) {
+
+        Trip createdTrip = tripService.createTrip(
+                authentication.getName(),
+                request
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(toTripResponse(createdTrip));
     }
 
     @PutMapping("/{tripId}")
-    public ResponseEntity<TripResponse> updateTrip(@PathVariable Long tripId, @Valid @RequestBody TripRequest tripRequest) {
-        Trip updatedTrip = tripService.updateTrip(tripId, tripRequest);
+    public ResponseEntity<TripResponse> updateTrip(
+            @PathVariable Long tripId,
+            @Valid @RequestBody TripRequest request,
+            Authentication authentication) {
+
+        Trip updatedTrip = tripService.updateTrip(
+                tripId,
+                authentication.getName(),
+                request
+        );
+
         return ResponseEntity.ok(toTripResponse(updatedTrip));
     }
 
     @DeleteMapping("/{tripId}")
-    public ResponseEntity<Trip> deleteTrip(@PathVariable Long tripId) {
-        tripService.deleteTrip(tripId);
+    public ResponseEntity<Void> deleteTrip(
+            @PathVariable Long tripId,
+            Authentication authentication) {
+
+        tripService.deleteTrip(
+                tripId,
+                authentication.getName()
+        );
+
         return ResponseEntity.noContent().build();
     }
 
