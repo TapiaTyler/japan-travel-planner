@@ -9,7 +9,9 @@ import com.japantravelplanner.repository.TripItemRepository;
 import com.japantravelplanner.repository.TripRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -126,9 +128,43 @@ public class TripItemService {
 
     public List<TripItem> getTripItems(Long tripId, String username) {
 
-        tripRepository.findByIdAndUser_Username(tripId, username).orElseThrow(TripNotFoundException::new);
+        tripRepository
+                .findByIdAndUser_Username(tripId, username)
+                .orElseThrow(TripNotFoundException::new);
 
-        return tripItemRepository.findByTrip_IdOrderByDateAsc(tripId);
+        List<TripItem> tripItems =
+                tripItemRepository.findByTrip_Id(tripId);
+
+        tripItems.sort(
+                Comparator
+                        .comparing(
+                                TripItem::getDate,
+                                Comparator.nullsLast(Comparator.naturalOrder())
+                        )
+                        .thenComparing(
+                                this::getSortTime,
+                                Comparator.nullsLast(Comparator.naturalOrder())
+                        )
+                        .thenComparing(
+                                TripItem::getName,
+                                String.CASE_INSENSITIVE_ORDER
+                        )
+        );
+
+        return tripItems;
+    }
+
+    private LocalTime getSortTime(TripItem tripItem) {
+
+        if (tripItem instanceof Activity activity) {
+            return activity.getStartTime();
+        }
+
+        if (tripItem instanceof Transportation transportation) {
+            return transportation.getDepartureTime();
+        }
+
+        return null;
     }
 
     //Validation methods
