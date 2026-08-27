@@ -33,7 +33,6 @@ function AddTripForm({ onCancel, onSave }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h3>New Trip</h3>
 
             {formError && (
                 <p className="form-error">

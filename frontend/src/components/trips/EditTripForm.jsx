@@ -32,7 +32,6 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h3>Edit Trip</h3>
 
             {formError && (
                 <p className="form-error">

@@ -54,7 +54,6 @@ function AddItemForm({ onCancel, onSave }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h3>Add Itinerary Item</h3>
 
             {formError && (
                 <p className="form-error">

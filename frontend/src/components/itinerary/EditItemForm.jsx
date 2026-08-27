@@ -34,7 +34,6 @@ function EditItemForm({ item, onCancel, onSave }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h3>Edit {item.itemType}</h3>
 
             {formError && (
                 <p className="form-error">

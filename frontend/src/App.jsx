@@ -4,6 +4,9 @@ import "./App.css";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
 
+import Modal from "./components/common/Modal";
+import ConfirmDialog from "./components/common/ConfirmDialog";
+
 import AddTripForm from "./components/trips/AddTripForm";
 import EditTripForm from "./components/trips/EditTripForm";
 import TripList from "./components/trips/TripList";
@@ -16,6 +19,7 @@ import ItineraryItem from "./components/itinerary/ItineraryItem";
 import QuickJumpNav from "./components/itinerary/QuickJumpNav";
 
 import PrintableItinerary from "./components/reports/PrintableItinerary";
+import PrintableItineraryOptions from "./components/reports/PrintableItineraryOptions.jsx";
 
 import {
     createActivity,
@@ -83,8 +87,10 @@ function App() {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeSearchQuery, setActiveSearchQuery] = useState("");
     const [searching, setSearching] = useState(false);
-    const [showPrintableItinerary, setShowPrintableItinerary] =
-        useState(false);
+    const [printModalOpen, setPrintModalOpen] = useState(false);
+    const [printOptions, setPrintOptions] = useState(null);
+    const [tripToDelete, setTripToDelete] = useState(null);
+    const [itemToDelete, setItemToDelete] = useState(null);
 
     // General errors
     const [error, setError] = useState("");
@@ -242,13 +248,17 @@ function App() {
 
             setAddingTrip(false);
             setEditingTrip(null);
+            setTripToDelete(null);
             setAddingItem(false);
             setEditingItem(null);
+            setItemToDelete(null);
 
             setSearchQuery("");
             setActiveSearchQuery("");
             setGroupBy("date");
-            setShowPrintableItinerary(false);
+
+            setPrintModalOpen(false);
+            setPrintOptions(null);
 
             setAuthMode("login");
             setError("");
@@ -267,9 +277,12 @@ function App() {
 
         setAddingItem(false);
         setEditingItem(null);
+        setItemToDelete(null);
 
         setGroupBy("date");
-        setShowPrintableItinerary(false);
+
+        setPrintModalOpen(false);
+        setPrintOptions(null);
 
         setError("");
     }
@@ -284,12 +297,25 @@ function App() {
     }
 
     async function handleSaveTrip(formData) {
-        await updateTrip(editingTrip.id, formData);
+        const updatedTrip = await updateTrip(
+            editingTrip.id,
+            formData
+        );
+
+        setTrips((currentTrips) =>
+            currentTrips.map((trip) =>
+                trip.id === updatedTrip.id
+                    ? updatedTrip
+                    : trip
+            )
+        );
+
+        if (selectedTrip?.id === updatedTrip.id) {
+            setSelectedTrip(updatedTrip);
+        }
 
         setEditingTrip(null);
         setError("");
-
-        await loadTrips();
     }
 
     async function handleDuplicateTrip(trip) {
@@ -303,21 +329,17 @@ function App() {
         }
     }
 
-    async function handleDeleteTrip(trip) {
-        const confirmed = window.confirm(
-            `Permanently delete "${trip.name}"?\n\n` +
-            "This will permanently delete the trip and all of its itinerary items. " +
-            "This action cannot be undone."
-        );
-
-        if (!confirmed) {
+    async function handleConfirmDeleteTrip() {
+        if (!tripToDelete) {
             return;
         }
 
         try {
-            await deleteTrip(trip.id);
+            await deleteTrip(tripToDelete.id);
 
+            setTripToDelete(null);
             setError("");
+
             await loadTrips();
         } catch (error) {
             setError(error.message);
@@ -330,12 +352,15 @@ function App() {
 
         setAddingItem(false);
         setEditingItem(null);
+        setItemToDelete(null);
 
         setSearchQuery("");
         setActiveSearchQuery("");
 
+        setPrintModalOpen(false);
+        setPrintOptions(null);
+
         setGroupBy("date");
-        setShowPrintableItinerary(false);
 
         setError("");
     }
@@ -429,28 +454,24 @@ function App() {
         return savedItem;
     }
 
-    async function handleDeleteItem(item) {
-        const confirmed = window.confirm(
-            `Are you sure you want to delete "${item.name}"?`
-        );
-
-        if (!confirmed) {
+    async function handleConfirmDeleteItem() {
+        if (!itemToDelete || !selectedTrip) {
             return;
         }
 
         try {
             await deleteTripItem(
                 selectedTrip.id,
-                item.id
+                itemToDelete.id
             );
 
             setItems((currentItems) =>
                 currentItems.filter(
-                    (currentItem) =>
-                        currentItem.id !== item.id
+                    (item) => item.id !== itemToDelete.id
                 )
             );
 
+            setItemToDelete(null);
             setError("");
         } catch (error) {
             setError(error.message);
@@ -545,9 +566,9 @@ function App() {
 
                 {currentUser && (
                     <div className="user-controls">
-            <span>
-              Signed in as {currentUser.username}
-            </span>
+                <span>
+                  Signed in as {currentUser.username}
+                </span>
 
                         <button
                             type="button"
@@ -601,26 +622,49 @@ function App() {
                         onDuplicateTrip={
                             handleDuplicateTrip
                         }
-                        onDeleteTrip={handleDeleteTrip}
+                        onDeleteTrip={setTripToDelete}
                     />
 
                     {addingTrip && (
-                        <AddTripForm
-                            onCancel={() =>
-                                setAddingTrip(false)
-                            }
-                            onSave={handleAddTrip}
-                        />
+                        <Modal
+                            title="New Trip"
+                            onClose={() => setAddingTrip(false)}
+                        >
+                            <AddTripForm
+                                onCancel={() => setAddingTrip(false)}
+                                onSave={handleAddTrip}
+                            />
+                        </Modal>
                     )}
 
                     {editingTrip && (
-                        <EditTripForm
-                            trip={editingTrip}
-                            onCancel={() =>
-                                setEditingTrip(null)
-                            }
-                            onSave={handleSaveTrip}
-                        />
+                        <Modal
+                            title={`Edit ${editingTrip.name}`}
+                            onClose={() => setEditingTrip(null)}
+                        >
+                            <EditTripForm
+                                trip={editingTrip}
+                                onCancel={() => setEditingTrip(null)}
+                                onSave={handleSaveTrip}
+                            />
+                        </Modal>
+                    )}
+
+                    {tripToDelete && (
+                        <Modal
+                            title="Delete Trip"
+                            onClose={() => setTripToDelete(null)}
+                        >
+                            <ConfirmDialog
+                                message={`Permanently delete "${tripToDelete.name}"?`}
+                                warning={
+                                    "This will permanently delete the trip and all of its itinerary items. This action cannot be undone."
+                                }
+                                confirmLabel="Delete Trip"
+                                onCancel={() => setTripToDelete(null)}
+                                onConfirm={handleConfirmDeleteTrip}
+                            />
+                        </Modal>
                     )}
                 </>
             )}
@@ -631,26 +675,45 @@ function App() {
                         type="button"
                         onClick={handleBackToTrips}
                     >
-                        ← Back to My Trips
+                        ← Back to Trips
                     </button>
 
                     <section className="trip-header">
-                        <h2>{selectedTrip.name}</h2>
+                        <div className="trip-header-top">
+                            <div>
+                                <h2>{selectedTrip.name}</h2>
 
-                        <p>
-                            {formatDateLabel(
-                                selectedTrip.startDate
-                            )}{" "}
-                            -{" "}
-                            {formatDateLabel(
-                                selectedTrip.endDate
-                            )}
-                        </p>
+                                <p>
+                                    {formatDateLabel(selectedTrip.startDate)} -{" "}
+                                    {formatDateLabel(selectedTrip.endDate)}
+                                </p>
 
-                        {selectedTrip.notes && (
-                            <p>{selectedTrip.notes}</p>
-                        )}
+                                {selectedTrip.notes && (
+                                    <p>{selectedTrip.notes}</p>
+                                )}
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setEditingTrip(selectedTrip)}
+                            >
+                                Edit Trip Details
+                            </button>
+                        </div>
                     </section>
+
+                    {editingTrip && selectedTrip && (
+                        <Modal
+                            title={`Edit ${editingTrip.name}`}
+                            onClose={() => setEditingTrip(null)}
+                        >
+                            <EditTripForm
+                                trip={editingTrip}
+                                onCancel={() => setEditingTrip(null)}
+                                onSave={handleSaveTrip}
+                            />
+                        </Modal>
+                    )}
 
                     {outsideTripItemCount > 0 && (
                         <div className="trip-date-warning">
@@ -682,59 +745,104 @@ function App() {
 
                         <button
                             type="button"
-                            onClick={() =>
-                                setShowPrintableItinerary(true)
-                            }
+                            onClick={() => {
+                                setPrintOptions(null);
+                                setPrintModalOpen(true);
+                            }}
                         >
                             Generate Printable Itinerary
                         </button>
                     </div>
 
-                    {addingItem && (
-                        <AddItemForm
-                            onCancel={() =>
-                                setAddingItem(false)
+                    {printModalOpen && (
+                        <Modal
+                            title={
+                                printOptions
+                                    ? "Printable Itinerary Preview"
+                                    : "Printable Itinerary Options"
                             }
-                            onSave={handleAddItem}
-                        />
+                            onClose={() => {
+                                setPrintModalOpen(false);
+                                setPrintOptions(null);
+                            }}
+                            className="print-modal"
+                        >
+                            {!printOptions ? (
+                                <PrintableItineraryOptions
+                                    onCancel={() => {
+                                        setPrintModalOpen(false);
+                                        setPrintOptions(null);
+                                    }}
+                                    onGenerate={(options) => {
+                                        setPrintOptions(options);
+                                    }}
+                                />
+                            ) : (
+                                <>
+                                    <div className="print-preview-actions">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPrintOptions(null)}
+                                        >
+                                            Back to Options
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => window.print()}
+                                        >
+                                            Print / Save as PDF
+                                        </button>
+                                    </div>
+
+                                    <PrintableItinerary
+                                        trip={selectedTrip}
+                                        items={displayItems}
+                                        options={printOptions}
+                                    />
+                                </>
+                            )}
+                        </Modal>
+                    )}
+
+                    {addingItem && (
+                        <Modal
+                            title="Add Itinerary Item"
+                            onClose={() => setAddingItem(false)}
+                        >
+                            <AddItemForm
+                                onCancel={() => setAddingItem(false)}
+                                onSave={handleAddItem}
+                            />
+                        </Modal>
                     )}
 
                     {editingItem && (
-                        <EditItemForm
-                            item={editingItem}
-                            onCancel={() =>
-                                setEditingItem(null)
-                            }
-                            onSave={handleSaveItem}
-                        />
+                        <Modal
+                            title={`Edit ${editingItem.name}`}
+                            onClose={() => setEditingItem(null)}
+                        >
+                            <EditItemForm
+                                item={editingItem}
+                                onCancel={() => setEditingItem(null)}
+                                onSave={handleSaveItem}
+                            />
+                        </Modal>
                     )}
 
-                    {showPrintableItinerary && (
-                        <div className="print-preview">
-                            <div className="print-preview-actions">
-                                <button
-                                    type="button"
-                                    onClick={() => window.print()}
-                                >
-                                    Print / Save as PDF
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setShowPrintableItinerary(false)
-                                    }
-                                >
-                                    Close Preview
-                                </button>
-                            </div>
-
-                            <PrintableItinerary
-                                trip={selectedTrip}
-                                groupedByDate={groupedByDate}
-                                items={displayItems}
+                    {itemToDelete && (
+                        <Modal
+                            title="Delete Itinerary Item"
+                            onClose={() => setItemToDelete(null)}
+                        >
+                            <ConfirmDialog
+                                message={`Permanently delete "${itemToDelete.name}"?`}
+                                warning="This itinerary item will be permanently deleted. This action cannot be undone."
+                                confirmLabel="Delete Item"
+                                onCancel={() => setItemToDelete(null)}
+                                onConfirm={handleConfirmDeleteItem}
                             />
-                        </div>
+                        </Modal>
                     )}
 
                     <form
@@ -834,7 +942,7 @@ function App() {
                                                 handleEditItem
                                             }
                                             onDelete={
-                                                handleDeleteItem
+                                                setItemToDelete
                                             }
                                         />
                                     ))}
@@ -863,7 +971,7 @@ function App() {
                                                     handleEditItem
                                                 }
                                                 onDelete={
-                                                    handleDeleteItem
+                                                    setItemToDelete
                                                 }
                                             />
                                         )
