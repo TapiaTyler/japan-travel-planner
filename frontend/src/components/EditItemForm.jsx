@@ -1,4 +1,8 @@
 import { useState } from "react";
+import {
+    COST_STATUS_OPTIONS,
+    TRANSPORTATION_TYPE_OPTIONS,
+} from "../config/options";
 
 function EditItemForm({ item, onCancel, onSave }) {
     const [formData, setFormData] = useState({
@@ -113,13 +117,15 @@ function EditItemForm({ item, onCancel, onSave }) {
                                 onChange={handleChange}
                             >
                                 <option value="">Select type</option>
-                                <option value="FLIGHT">Flight</option>
-                                <option value="TRAIN">Train</option>
-                                <option value="SUBWAY">Subway</option>
-                                <option value="BUS">Bus</option>
-                                <option value="TAXI">Taxi</option>
-                                <option value="FERRY">Ferry</option>
-                                <option value="OTHER">Other</option>
+
+                                {TRANSPORTATION_TYPE_OPTIONS.map((option) => (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </option>
+                                ))}
                             </select>
                         </label>
                     </div>
@@ -259,9 +265,14 @@ function EditItemForm({ item, onCancel, onSave }) {
                         value={formData.costStatus ?? "UNKNOWN"}
                         onChange={handleChange}
                     >
-                        <option value="UNKNOWN">Unknown</option>
-                        <option value="ESTIMATED">Estimated</option>
-                        <option value="CONFIRMED">Confirmed</option>
+                        {COST_STATUS_OPTIONS.map((option) => (
+                            <option
+                                key={option.value}
+                                value={option.value}
+                            >
+                                {option.label}
+                            </option>
+                        ))}
                     </select>
                 </label>
             </div>
