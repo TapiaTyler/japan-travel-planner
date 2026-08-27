@@ -122,6 +122,23 @@ public class TripItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toActivityResponse(activity));
     }
 
+    @PutMapping("/{itemId}/activities")
+    public ResponseEntity<ActivityResponse> updateActivity(
+            @PathVariable Long tripId,
+            @PathVariable Long itemId,
+            @Valid @RequestBody ActivityRequest request,
+            Authentication authentication) {
+
+        Activity activity = tripItemService.updateActivity(
+                tripId,
+                itemId,
+                authentication.getName(),
+                request
+        );
+
+        return ResponseEntity.ok(toActivityResponse(activity));
+    }
+
     private ActivityResponse toActivityResponse(Activity activity) {
         return new ActivityResponse(
                 activity.getId(),
@@ -155,6 +172,26 @@ public class TripItemController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(toTransportationResponse(transportation));
+    }
+
+    @PutMapping("/{itemId}/transportation")
+    public ResponseEntity<TransportationResponse> updateTransportation(
+            @PathVariable Long tripId,
+            @PathVariable Long itemId,
+            @Valid @RequestBody TransportationRequest request,
+            Authentication authentication) {
+
+        Transportation transportation =
+                tripItemService.updateTransportation(
+                        tripId,
+                        itemId,
+                        authentication.getName(),
+                        request
+                );
+
+        return ResponseEntity.ok(
+                toTransportationResponse(transportation)
+        );
     }
 
     private TransportationResponse toTransportationResponse(
@@ -197,6 +234,25 @@ public class TripItemController {
                 .body(toLodgingResponse(lodging));
     }
 
+    @PutMapping("/{itemId}/lodging")
+    public ResponseEntity<LodgingResponse> updateLodging(
+            @PathVariable Long tripId,
+            @PathVariable Long itemId,
+            @Valid @RequestBody LodgingRequest request,
+            Authentication authentication) {
+
+        Lodging lodging = tripItemService.updateLodging(
+                tripId,
+                itemId,
+                authentication.getName(),
+                request
+        );
+
+        return ResponseEntity.ok(
+                toLodgingResponse(lodging)
+        );
+    }
+
     private LodgingResponse toLodgingResponse(Lodging lodging) {
 
         Long numberOfNights = null;
@@ -225,5 +281,47 @@ public class TripItemController {
                 lodging.getCreatedAt(),
                 lodging.getUpdatedAt()
         );
+    }
+
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<Void> deleteTripItem(
+            @PathVariable Long tripId,
+            @PathVariable Long itemId,
+            Authentication authentication) {
+
+        tripItemService.deleteTripItem(
+                tripId,
+                itemId,
+                authentication.getName()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TripItemResponse>> searchTripItems(
+            @PathVariable Long tripId,
+            @RequestParam String query,
+            Authentication authentication) {
+
+        Trip trip = tripService.getTripById(
+                tripId,
+                authentication.getName()
+        );
+
+        List<TripItemResponse> response =
+                tripItemService
+                        .searchTripItems(
+                                tripId,
+                                authentication.getName(),
+                                query
+                        )
+                        .stream()
+                        .map(item ->
+                                toTripItemResponse(item, trip)
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(response);
     }
 }

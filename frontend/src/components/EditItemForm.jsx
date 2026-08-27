@@ -1,0 +1,292 @@
+import { useState } from "react";
+
+function EditItemForm({ item, onCancel, onSave }) {
+    const [formData, setFormData] = useState({
+        ...item,
+    });
+
+    const [formError, setFormError] = useState("");
+
+    function handleChange(event) {
+        const { name, value } = event.target;
+
+        setFormData((current) => ({
+            ...current,
+            [name]: value,
+        }));
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+
+        setFormError("");
+
+        try {
+            await onSave(formData);
+        } catch (error) {
+            setFormError(error.message);
+        }
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <h3>Edit {item.itemType}</h3>
+
+            {formError && (
+                <p className="form-error">
+                    {formError}
+                </p>
+            )}
+
+            <div>
+                <label>
+                    Name
+                    <input
+                        type="text"
+                        name="name"
+                        value={formData.name ?? ""}
+                        onChange={handleChange}
+                    />
+                </label>
+            </div>
+
+            {item.itemType === "Activity" && (
+                <>
+                    <div>
+                        <label>
+                            Location
+                            <input
+                                type="text"
+                                name="location"
+                                value={formData.location ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Date
+                            <input
+                                type="date"
+                                name="date"
+                                value={formData.date ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Start Time
+                            <input
+                                type="time"
+                                name="startTime"
+                                value={formData.startTime?.slice(0, 5) ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            End Time
+                            <input
+                                type="time"
+                                name="endTime"
+                                value={formData.endTime?.slice(0, 5) ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+                </>
+            )}
+
+            {item.itemType === "Transportation" && (
+                <>
+                    <div>
+                        <label>
+                            Type
+                            <select
+                                name="transportationType"
+                                value={formData.transportationType ?? ""}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select type</option>
+                                <option value="FLIGHT">Flight</option>
+                                <option value="TRAIN">Train</option>
+                                <option value="SUBWAY">Subway</option>
+                                <option value="BUS">Bus</option>
+                                <option value="TAXI">Taxi</option>
+                                <option value="FERRY">Ferry</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Departure Location
+                            <input
+                                type="text"
+                                name="departureLocation"
+                                value={formData.departureLocation ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Arrival Location
+                            <input
+                                type="text"
+                                name="arrivalLocation"
+                                value={formData.arrivalLocation ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Departure Date
+                            <input
+                                type="date"
+                                name="departureDate"
+                                value={formData.departureDate ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Departure Time
+                            <input
+                                type="time"
+                                name="departureTime"
+                                value={formData.departureTime?.slice(0, 5) ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Arrival Date
+                            <input
+                                type="date"
+                                name="arrivalDate"
+                                value={formData.arrivalDate ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Arrival Time
+                            <input
+                                type="time"
+                                name="arrivalTime"
+                                value={formData.arrivalTime?.slice(0, 5) ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+                </>
+            )}
+
+            {item.itemType === "Lodging" && (
+                <>
+                    <div>
+                        <label>
+                            Location
+                            <input
+                                type="text"
+                                name="location"
+                                value={formData.location ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Check-In Date
+                            <input
+                                type="date"
+                                name="checkInDate"
+                                value={formData.checkInDate ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+
+                    <div>
+                        <label>
+                            Check-Out Date
+                            <input
+                                type="date"
+                                name="checkOutDate"
+                                value={formData.checkOutDate ?? ""}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </div>
+                </>
+            )}
+
+            <div>
+                <label>
+                    Cost
+                    <input
+                        type="number"
+                        name="cost"
+                        min="0"
+                        value={formData.cost ?? ""}
+                        onChange={handleChange}
+                    />
+                </label>
+            </div>
+
+            <div>
+                <label>
+                    Cost Status
+                    <select
+                        name="costStatus"
+                        value={formData.costStatus ?? "UNKNOWN"}
+                        onChange={handleChange}
+                    >
+                        <option value="UNKNOWN">Unknown</option>
+                        <option value="ESTIMATED">Estimated</option>
+                        <option value="CONFIRMED">Confirmed</option>
+                    </select>
+                </label>
+            </div>
+
+            <div>
+                <label>
+                    Notes
+                    <textarea
+                        name="notes"
+                        value={formData.notes ?? ""}
+                        onChange={handleChange}
+                    />
+                </label>
+            </div>
+
+            <button type="submit">Save</button>
+
+            <button
+                type="button"
+                onClick={onCancel}
+            >
+                Cancel
+            </button>
+        </form>
+    );
+}
+
+export default EditItemForm;

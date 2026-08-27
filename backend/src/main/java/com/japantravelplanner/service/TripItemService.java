@@ -8,6 +8,7 @@ import com.japantravelplanner.model.*;
 import com.japantravelplanner.repository.TripItemRepository;
 import com.japantravelplanner.repository.TripRepository;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -24,6 +25,70 @@ public class TripItemService {
         this.tripItemRepository = tripItemRepository;
         this.tripRepository = tripRepository;
     }
+
+    //Search functionality
+    public List<TripItem> searchTripItems(
+            Long tripId,
+            String username,
+            String query) {
+
+        List<TripItem> tripItems = getTripItems(tripId, username);
+
+        if (query == null || query.isBlank()) {
+            return tripItems;
+        }
+
+        String searchTerm = query.trim().toLowerCase();
+
+        return tripItems.stream()
+                .filter(item -> matchesSearch(item, searchTerm))
+                .toList();
+    }
+
+    private boolean matchesSearch(
+            TripItem tripItem,
+            String searchTerm) {
+
+        if (containsIgnoreCase(tripItem.getName(), searchTerm)
+                || containsIgnoreCase(tripItem.getNotes(), searchTerm)) {
+            return true;
+        }
+
+        if (tripItem instanceof Activity activity) {
+            return containsIgnoreCase(
+                    activity.getLocation(),
+                    searchTerm
+            );
+        }
+
+        if (tripItem instanceof Transportation transportation) {
+            return containsIgnoreCase(
+                    transportation.getDepartureLocation(),
+                    searchTerm
+            ) || containsIgnoreCase(
+                    transportation.getArrivalLocation(),
+                    searchTerm
+            );
+        }
+
+        if (tripItem instanceof Lodging lodging) {
+            return containsIgnoreCase(
+                    lodging.getLocation(),
+                    searchTerm
+            );
+        }
+
+        return false;
+    }
+
+    private boolean containsIgnoreCase(
+            String value,
+            String searchTerm) {
+
+        return value != null
+                && value.toLowerCase().contains(searchTerm);
+    }
+    //End search functionality
 
     public Activity createActivity(
             Long tripId,
@@ -124,6 +189,168 @@ public class TripItemService {
         }
 
         return tripItemRepository.save(tripItem);
+    }
+
+    //Update functions
+    public Activity updateActivity(
+            Long tripId,
+            Long itemId,
+            String username,
+            ActivityRequest request) {
+
+        Trip trip = tripRepository
+                .findByIdAndUser_Username(tripId, username)
+                .orElseThrow(TripNotFoundException::new);
+
+        TripItem tripItem = tripItemRepository
+                .findById(itemId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "The requested itinerary item could not be found."
+                        )
+                );
+
+        if (!tripItem.getTrip().getId().equals(trip.getId())) {
+            throw new IllegalArgumentException(
+                    "The requested itinerary item could not be found."
+            );
+        }
+
+        if (!(tripItem instanceof Activity activity)) {
+            throw new IllegalArgumentException(
+                    "The requested itinerary item is not an activity."
+            );
+        }
+
+        activity.setName(request.getName());
+        activity.setDate(request.getDate());
+        activity.setCost(request.getCost());
+        activity.setCostStatus(request.getCostStatus());
+        activity.setNotes(request.getNotes());
+        activity.setLocation(request.getLocation());
+        activity.setStartTime(request.getStartTime());
+        activity.setEndTime(request.getEndTime());
+
+        validateActivity(activity);
+        validateCost(activity);
+
+        return tripItemRepository.save(activity);
+    }
+
+    public Transportation updateTransportation(
+            Long tripId,
+            Long itemId,
+            String username,
+            TransportationRequest request) {
+
+        Trip trip = tripRepository
+                .findByIdAndUser_Username(tripId, username)
+                .orElseThrow(TripNotFoundException::new);
+
+        TripItem tripItem = tripItemRepository
+                .findById(itemId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "The requested itinerary item could not be found."
+                        )
+                );
+
+        if (!tripItem.getTrip().getId().equals(trip.getId())) {
+            throw new IllegalArgumentException(
+                    "The requested itinerary item could not be found."
+            );
+        }
+
+        if (!(tripItem instanceof Transportation transportation)) {
+            throw new IllegalArgumentException(
+                    "The requested itinerary item is not transportation."
+            );
+        }
+
+        transportation.setName(request.getName());
+        transportation.setCost(request.getCost());
+        transportation.setCostStatus(request.getCostStatus());
+        transportation.setNotes(request.getNotes());
+        transportation.setTransportationType(request.getTransportationType());
+        transportation.setDepartureLocation(request.getDepartureLocation());
+        transportation.setArrivalLocation(request.getArrivalLocation());
+        transportation.setDepartureDate(request.getDepartureDate());
+        transportation.setDepartureTime(request.getDepartureTime());
+        transportation.setArrivalDate(request.getArrivalDate());
+        transportation.setArrivalTime(request.getArrivalTime());
+
+        validateTransportation(transportation);
+        validateCost(transportation);
+
+        return tripItemRepository.save(transportation);
+    }
+
+    public Lodging updateLodging(
+            Long tripId,
+            Long itemId,
+            String username,
+            LodgingRequest request) {
+
+        Trip trip = tripRepository
+                .findByIdAndUser_Username(tripId, username)
+                .orElseThrow(TripNotFoundException::new);
+
+        TripItem tripItem = tripItemRepository
+                .findById(itemId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "The requested itinerary item could not be found."
+                        )
+                );
+
+        if (!tripItem.getTrip().getId().equals(trip.getId())) {
+            throw new IllegalArgumentException(
+                    "The requested itinerary item could not be found."
+            );
+        }
+
+        if (!(tripItem instanceof Lodging lodging)) {
+            throw new IllegalArgumentException(
+                    "The requested itinerary item is not lodging."
+            );
+        }
+
+        lodging.setName(request.getName());
+        lodging.setCost(request.getCost());
+        lodging.setCostStatus(request.getCostStatus());
+        lodging.setNotes(request.getNotes());
+        lodging.setLocation(request.getLocation());
+        lodging.setCheckInDate(request.getCheckInDate());
+        lodging.setCheckOutDate(request.getCheckOutDate());
+
+        validateLodging(lodging);
+        validateCost(lodging);
+
+        return tripItemRepository.save(lodging);
+    }
+
+    //Delete Trip Item
+    public void deleteTripItem(Long tripId, Long itemId, String username) {
+
+        Trip trip = tripRepository
+                .findByIdAndUser_Username(tripId, username)
+                .orElseThrow(TripNotFoundException::new);
+
+        TripItem tripItem = tripItemRepository
+                .findById(itemId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "The requested itinerary item could not be found."
+                        )
+                );
+
+        if (!tripItem.getTrip().getId().equals(trip.getId())) {
+            throw new IllegalArgumentException(
+                    "The requested itinerary item could not be found."
+            );
+        }
+
+        tripItemRepository.delete(tripItem);
     }
 
     public List<TripItem> getTripItems(Long tripId, String username) {
