@@ -5,6 +5,7 @@ function TripList({
                       onSelectTrip,
                       onAddTrip,
                       onEditTrip,
+                      onDuplicateTrip,
                       onDeleteTrip,
                   }) {
     const [openMenuId, setOpenMenuId] = useState(null);
@@ -67,6 +68,16 @@ function TripList({
                                             }}
                                         >
                                             Edit
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setOpenMenuId(null);
+                                                onDuplicateTrip(trip);
+                                            }}
+                                        >
+                                            Duplicate
                                         </button>
 
                                         <button

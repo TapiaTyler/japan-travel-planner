@@ -2,10 +2,11 @@ package com.japantravelplanner.service;
 
 import com.japantravelplanner.dto.TripRequest;
 import com.japantravelplanner.exception.TripNotFoundException;
-import com.japantravelplanner.model.Trip;
-import com.japantravelplanner.model.User;
+import com.japantravelplanner.model.*;
+import com.japantravelplanner.repository.TripItemRepository;
 import com.japantravelplanner.repository.TripRepository;
 import com.japantravelplanner.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +16,12 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final TripItemRepository tripItemRepository;
 
-    public TripService(TripRepository tripRepository, UserRepository userRepository) {
+    public TripService(TripRepository tripRepository, UserRepository userRepository, TripItemRepository tripItemRepository) {
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
+        this.tripItemRepository = tripItemRepository;
     }
 
     public List<Trip> getTripsByUsername(String username) {
@@ -72,12 +75,103 @@ public class TripService {
         }
     }
 
+    @Transactional
     public void deleteTrip(Long tripId, String username) {
-        Trip existingTrip = tripRepository
+
+        Trip trip = tripRepository
                 .findByIdAndUser_Username(tripId, username)
                 .orElseThrow(TripNotFoundException::new);
 
-        tripRepository.delete(existingTrip);
+        tripItemRepository.deleteByTrip_Id(tripId);
+
+        tripRepository.delete(trip);
+    }
+
+    @Transactional
+    public Trip duplicateTrip(
+            Long tripId,
+            String username) {
+
+        Trip originalTrip = tripRepository
+                .findByIdAndUser_Username(tripId, username)
+                .orElseThrow(TripNotFoundException::new);
+
+        Trip duplicatedTrip = new Trip(
+                originalTrip.getUser(),
+                originalTrip.getName() + " - Copy",
+                originalTrip.getStartDate(),
+                originalTrip.getEndDate(),
+                originalTrip.getNotes()
+        );
+
+        Trip savedTrip = tripRepository.save(duplicatedTrip);
+
+        List<TripItem> originalItems =
+                tripItemRepository.findByTrip_Id(tripId);
+
+        for (TripItem originalItem : originalItems) {
+            TripItem duplicatedItem =
+                    duplicateTripItem(originalItem, savedTrip);
+
+            tripItemRepository.save(duplicatedItem);
+        }
+
+        return savedTrip;
+    }
+
+    private TripItem duplicateTripItem(
+            TripItem originalItem,
+            Trip duplicatedTrip) {
+
+        if (originalItem instanceof Activity activity) {
+            return new Activity(
+                    duplicatedTrip,
+                    activity.getName(),
+                    activity.getDate(),
+                    activity.getCost(),
+                    activity.getCostStatus(),
+                    activity.getNotes(),
+                    activity.getLocation(),
+                    activity.getStartTime(),
+                    activity.getEndTime()
+            );
+        }
+
+        if (originalItem instanceof Transportation transportation) {
+            return new Transportation(
+                    duplicatedTrip,
+                    transportation.getName(),
+                    transportation.getDate(),
+                    transportation.getCost(),
+                    transportation.getCostStatus(),
+                    transportation.getNotes(),
+                    transportation.getTransportationType(),
+                    transportation.getDepartureLocation(),
+                    transportation.getArrivalLocation(),
+                    transportation.getDepartureDate(),
+                    transportation.getDepartureTime(),
+                    transportation.getArrivalDate(),
+                    transportation.getArrivalTime()
+            );
+        }
+
+        if (originalItem instanceof Lodging lodging) {
+            return new Lodging(
+                    duplicatedTrip,
+                    lodging.getName(),
+                    lodging.getDate(),
+                    lodging.getCost(),
+                    lodging.getCostStatus(),
+                    lodging.getNotes(),
+                    lodging.getLocation(),
+                    lodging.getCheckInDate(),
+                    lodging.getCheckOutDate()
+            );
+        }
+
+        throw new IllegalArgumentException(
+                "Unsupported itinerary item type."
+        );
     }
 
 }

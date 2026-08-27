@@ -2,34 +2,14 @@ import { useState } from "react";
 import {
     COST_STATUS_OPTIONS,
     TRANSPORTATION_TYPE_OPTIONS,
-} from "../config/options";
+} from "../../config/options.js";
 
-function AddItemForm({ onCancel, onSave }) {
-    const [itemType, setItemType] = useState("Activity");
-    const [formError, setFormError] = useState("");
-
+function EditItemForm({ item, onCancel, onSave }) {
     const [formData, setFormData] = useState({
-        name: "",
-        cost: "",
-        costStatus: "UNKNOWN",
-        notes: "",
-
-        location: "",
-        date: "",
-        startTime: "",
-        endTime: "",
-
-        transportationType: "",
-        departureLocation: "",
-        arrivalLocation: "",
-        departureDate: "",
-        departureTime: "",
-        arrivalDate: "",
-        arrivalTime: "",
-
-        checkInDate: "",
-        checkOutDate: "",
+        ...item,
     });
+
+    const [formError, setFormError] = useState("");
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -46,7 +26,7 @@ function AddItemForm({ onCancel, onSave }) {
         setFormError("");
 
         try {
-            await onSave(itemType, formData);
+            await onSave(formData);
         } catch (error) {
             setFormError(error.message);
         }
@@ -54,7 +34,7 @@ function AddItemForm({ onCancel, onSave }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h3>Add Itinerary Item</h3>
+            <h3>Edit {item.itemType}</h3>
 
             {formError && (
                 <p className="form-error">
@@ -64,31 +44,17 @@ function AddItemForm({ onCancel, onSave }) {
 
             <div>
                 <label>
-                    Item Type
-                    <select
-                        value={itemType}
-                        onChange={(event) => setItemType(event.target.value)}
-                    >
-                        <option value="Activity">Activity</option>
-                        <option value="Transportation">Transportation</option>
-                        <option value="Lodging">Lodging</option>
-                    </select>
-                </label>
-            </div>
-
-            <div>
-                <label>
                     Name
                     <input
                         type="text"
                         name="name"
-                        value={formData.name}
+                        value={formData.name ?? ""}
                         onChange={handleChange}
                     />
                 </label>
             </div>
 
-            {itemType === "Activity" && (
+            {item.itemType === "Activity" && (
                 <>
                     <div>
                         <label>
@@ -96,7 +62,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="text"
                                 name="location"
-                                value={formData.location}
+                                value={formData.location ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -108,7 +74,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="date"
                                 name="date"
-                                value={formData.date}
+                                value={formData.date ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -120,7 +86,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="time"
                                 name="startTime"
-                                value={formData.startTime}
+                                value={formData.startTime?.slice(0, 5) ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -132,7 +98,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="time"
                                 name="endTime"
-                                value={formData.endTime}
+                                value={formData.endTime?.slice(0, 5) ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -140,14 +106,14 @@ function AddItemForm({ onCancel, onSave }) {
                 </>
             )}
 
-            {itemType === "Transportation" && (
+            {item.itemType === "Transportation" && (
                 <>
                     <div>
                         <label>
                             Type
                             <select
                                 name="transportationType"
-                                value={formData.transportationType}
+                                value={formData.transportationType ?? ""}
                                 onChange={handleChange}
                             >
                                 <option value="">Select type</option>
@@ -170,7 +136,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="text"
                                 name="departureLocation"
-                                value={formData.departureLocation}
+                                value={formData.departureLocation ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -182,7 +148,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="text"
                                 name="arrivalLocation"
-                                value={formData.arrivalLocation}
+                                value={formData.arrivalLocation ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -194,7 +160,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="date"
                                 name="departureDate"
-                                value={formData.departureDate}
+                                value={formData.departureDate ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -206,7 +172,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="time"
                                 name="departureTime"
-                                value={formData.departureTime}
+                                value={formData.departureTime?.slice(0, 5) ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -218,7 +184,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="date"
                                 name="arrivalDate"
-                                value={formData.arrivalDate}
+                                value={formData.arrivalDate ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -230,7 +196,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="time"
                                 name="arrivalTime"
-                                value={formData.arrivalTime}
+                                value={formData.arrivalTime?.slice(0, 5) ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -238,7 +204,7 @@ function AddItemForm({ onCancel, onSave }) {
                 </>
             )}
 
-            {itemType === "Lodging" && (
+            {item.itemType === "Lodging" && (
                 <>
                     <div>
                         <label>
@@ -246,7 +212,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="text"
                                 name="location"
-                                value={formData.location}
+                                value={formData.location ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -258,7 +224,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="date"
                                 name="checkInDate"
-                                value={formData.checkInDate}
+                                value={formData.checkInDate ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -270,7 +236,7 @@ function AddItemForm({ onCancel, onSave }) {
                             <input
                                 type="date"
                                 name="checkOutDate"
-                                value={formData.checkOutDate}
+                                value={formData.checkOutDate ?? ""}
                                 onChange={handleChange}
                             />
                         </label>
@@ -285,7 +251,7 @@ function AddItemForm({ onCancel, onSave }) {
                         type="number"
                         name="cost"
                         min="0"
-                        value={formData.cost}
+                        value={formData.cost ?? ""}
                         onChange={handleChange}
                     />
                 </label>
@@ -296,7 +262,7 @@ function AddItemForm({ onCancel, onSave }) {
                     Cost Status
                     <select
                         name="costStatus"
-                        value={formData.costStatus}
+                        value={formData.costStatus ?? "UNKNOWN"}
                         onChange={handleChange}
                     >
                         {COST_STATUS_OPTIONS.map((option) => (
@@ -316,15 +282,13 @@ function AddItemForm({ onCancel, onSave }) {
                     Notes
                     <textarea
                         name="notes"
-                        value={formData.notes}
+                        value={formData.notes ?? ""}
                         onChange={handleChange}
                     />
                 </label>
             </div>
 
-            <button type="submit">
-                Add Item
-            </button>
+            <button type="submit">Save</button>
 
             <button
                 type="button"
@@ -336,4 +300,4 @@ function AddItemForm({ onCancel, onSave }) {
     );
 }
 
-export default AddItemForm;
+export default EditItemForm;

@@ -1,7 +1,7 @@
 import {
     formatDateHeading,
     formatDateLabel,
-} from "../utils/itineraryUtils";
+} from "../../utils/itineraryUtils.js";
 
 function PrintableItinerary({ trip, groupedByDate, items }) {
     const generatedAt = new Date().toLocaleString("en-US");

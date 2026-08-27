@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-import AddItemForm from "./components/AddItemForm";
-import AddTripForm from "./components/AddTripForm";
-import CostSummary from "./components/CostSummary";
-import EditItemForm from "./components/EditItemForm";
-import EditTripForm from "./components/EditTripForm";
-import GroupToggle from "./components/GroupToggle";
-import ItineraryItem from "./components/ItineraryItem";
-import PrintableItinerary from "./components/PrintableItinerary";
-import QuickJumpNav from "./components/QuickJumpNav";
-import TripList from "./components/TripList";
+import LoginForm from "./components/auth/LoginForm";
+import RegisterForm from "./components/auth/RegisterForm";
+
+import AddTripForm from "./components/trips/AddTripForm";
+import EditTripForm from "./components/trips/EditTripForm";
+import TripList from "./components/trips/TripList";
+
+import AddItemForm from "./components/itinerary/AddItemForm";
+import CostSummary from "./components/itinerary/CostSummary";
+import EditItemForm from "./components/itinerary/EditItemForm";
+import GroupToggle from "./components/itinerary/GroupToggle";
+import ItineraryItem from "./components/itinerary/ItineraryItem";
+import QuickJumpNav from "./components/itinerary/QuickJumpNav";
+
+import PrintableItinerary from "./components/reports/PrintableItinerary";
 
 import {
     createActivity,
@@ -19,9 +24,13 @@ import {
     createTrip,
     deleteTrip,
     deleteTripItem,
+    duplicateTrip,
+    getCurrentUser,
     getTripItems,
     getTrips,
     login,
+    logout,
+    register,
     searchTripItems,
     updateActivity,
     updateLodging,
@@ -46,58 +55,90 @@ function scrollToGroup(groupKey) {
     }
 }
 
+function getDateValue(date) {
+    const [year, month, day] = date.split("-").map(Number);
+
+    return Date.UTC(year, month - 1, day);
+}
+
 function App() {
+    // Authentication
+    const [currentUser, setCurrentUser] = useState(null);
+    const [authMode, setAuthMode] = useState("login");
+    const [checkingSession, setCheckingSession] = useState(true);
+
+    // Trips
     const [trips, setTrips] = useState([]);
     const [selectedTrip, setSelectedTrip] = useState(null);
-
-    const [showPrintableItinerary, setShowPrintableItinerary] = useState(false);
-
-    const [items, setItems] = useState([]);
-
-    const [activeSearchQuery, setActiveSearchQuery] = useState("");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searching, setSearching] = useState(false);
-
     const [addingTrip, setAddingTrip] = useState(false);
     const [editingTrip, setEditingTrip] = useState(null);
 
+    // Itinerary
+    const [items, setItems] = useState([]);
     const [addingItem, setAddingItem] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
+    // Display controls
     const [groupBy, setGroupBy] = useState("date");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeSearchQuery, setActiveSearchQuery] = useState("");
+    const [searching, setSearching] = useState(false);
+    const [showPrintableItinerary, setShowPrintableItinerary] =
+        useState(false);
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [loggedIn, setLoggedIn] = useState(false);
-
+    // General errors
     const [error, setError] = useState("");
 
-    const loadTrips = async () => {
+    async function loadTrips() {
         try {
             const data = await getTrips();
+
             setTrips(data);
             setError("");
+
+            return data;
         } catch (error) {
             setError(error.message);
+            throw error;
         }
-    };
+    }
 
-    const loadItems = async (tripId) => {
+    async function loadItems(tripId) {
         try {
             const data = await getTripItems(tripId);
+
             setItems(data);
             setError("");
+
+            return data;
         } catch (error) {
             setError(error.message);
+            throw error;
         }
-    };
+    }
+
+    async function refreshCurrentItems() {
+        if (!selectedTrip) {
+            return;
+        }
+
+        if (activeSearchQuery) {
+            const data = await searchTripItems(
+                selectedTrip.id,
+                activeSearchQuery
+            );
+
+            setItems(data);
+        } else {
+            await loadItems(selectedTrip.id);
+        }
+    }
 
     /*
-     * Recalculate itinerary day information against the CURRENT trip dates.
+     * Recalculate day numbers against the current trip dates.
      *
-     * This deliberately does not modify the stored item dates.
-     * If the user temporarily changes the trip dates, existing itinerary
-     * items remain untouched and are simply marked as outside the trip.
+     * Existing itinerary dates are never modified when trip dates change.
+     * Items outside the new trip range are simply flagged.
      */
     const displayItems = items.map((item) => {
         if (
@@ -112,9 +153,9 @@ function App() {
             };
         }
 
-        const itemDate = new Date(`${item.date}T00:00:00`);
-        const tripStart = new Date(`${selectedTrip.startDate}T00:00:00`);
-        const tripEnd = new Date(`${selectedTrip.endDate}T00:00:00`);
+        const itemDate = getDateValue(item.date);
+        const tripStart = getDateValue(selectedTrip.startDate);
+        const tripEnd = getDateValue(selectedTrip.endDate);
 
         const outsideTripDates =
             itemDate < tripStart || itemDate > tripEnd;
@@ -126,8 +167,7 @@ function App() {
 
             dayNumber =
                 Math.round(
-                    (itemDate.getTime() - tripStart.getTime()) /
-                    millisecondsPerDay
+                    (itemDate - tripStart) / millisecondsPerDay
                 ) + 1;
         }
 
@@ -150,58 +190,124 @@ function App() {
         return groups;
     }, {});
 
-    const groupedByLocation = displayItems.reduce((groups, item) => {
-        const key = getItemLocation(item);
+    const groupedByLocation = displayItems.reduce(
+        (groups, item) => {
+            const key = getItemLocation(item);
 
-        if (!groups[key]) {
-            groups[key] = [];
-        }
+            if (!groups[key]) {
+                groups[key] = [];
+            }
 
-        groups[key].push(item);
+            groups[key].push(item);
 
-        return groups;
-    }, {});
+            return groups;
+        },
+        {}
+    );
 
     const outsideTripItemCount = displayItems.filter(
         (item) => item.outsideTripDates
     ).length;
 
-    const handleLogin = async (event) => {
-        event.preventDefault();
+    // Authentication handlers
 
+    async function handleLogin(username, password) {
+        const user = await login(username, password);
+
+        setCurrentUser({
+            username: user.username,
+        });
+
+        setAuthMode("login");
+        setError("");
+
+        await loadTrips();
+    }
+
+    async function handleRegister(username, password) {
+        await register(username, password);
+
+        // Automatically log in after successful registration.
+        await handleLogin(username, password);
+    }
+
+    async function handleLogout() {
         try {
-            await login(username, password);
+            await logout();
 
-            setLoggedIn(true);
+            setCurrentUser(null);
+            setTrips([]);
+            setSelectedTrip(null);
+            setItems([]);
+
+            setAddingTrip(false);
+            setEditingTrip(null);
+            setAddingItem(false);
+            setEditingItem(null);
+
+            setSearchQuery("");
+            setActiveSearchQuery("");
+            setGroupBy("date");
+            setShowPrintableItinerary(false);
+
+            setAuthMode("login");
             setError("");
-
-            await loadTrips();
         } catch (error) {
             setError(error.message);
         }
-    };
+    }
 
-    const handleAddTrip = async (formData) => {
+    // Trip handlers
+
+    function handleSelectTrip(trip) {
+        setSelectedTrip(trip);
+
+        setSearchQuery("");
+        setActiveSearchQuery("");
+
+        setAddingItem(false);
+        setEditingItem(null);
+
+        setGroupBy("date");
+        setShowPrintableItinerary(false);
+
+        setError("");
+    }
+
+    async function handleAddTrip(formData) {
         await createTrip(formData);
 
         setAddingTrip(false);
         setError("");
 
         await loadTrips();
-    };
+    }
 
-    const handleSaveTrip = async (formData) => {
+    async function handleSaveTrip(formData) {
         await updateTrip(editingTrip.id, formData);
 
         setEditingTrip(null);
         setError("");
 
         await loadTrips();
-    };
+    }
 
-    const handleDeleteTrip = async (trip) => {
+    async function handleDuplicateTrip(trip) {
+        try {
+            await duplicateTrip(trip.id);
+
+            setError("");
+            await loadTrips();
+        } catch (error) {
+            setError(error.message);
+        }
+    }
+
+    async function handleDeleteTrip(trip) {
         const confirmed = window.confirm(
-            `Are you sure you want to delete "${trip.name}"?`
+            `Permanently delete "${trip.name}"?\n\n` +
+            "This will permanently delete the trip and all of its itinerary items. " +
+            "This action cannot be undone."
         );
 
         if (!confirmed) {
@@ -216,9 +322,27 @@ function App() {
         } catch (error) {
             setError(error.message);
         }
-    };
+    }
 
-    const handleAddItem = async (itemType, formData) => {
+    function handleBackToTrips() {
+        setSelectedTrip(null);
+        setItems([]);
+
+        setAddingItem(false);
+        setEditingItem(null);
+
+        setSearchQuery("");
+        setActiveSearchQuery("");
+
+        setGroupBy("date");
+        setShowPrintableItinerary(false);
+
+        setError("");
+    }
+
+    // Itinerary handlers
+
+    async function handleAddItem(itemType, formData) {
         const normalizedItem = {
             ...formData,
             cost:
@@ -228,30 +352,43 @@ function App() {
         };
 
         if (itemType === "Activity") {
-            await createActivity(selectedTrip.id, normalizedItem);
+            await createActivity(
+                selectedTrip.id,
+                normalizedItem
+            );
         } else if (itemType === "Transportation") {
-            await createTransportation(selectedTrip.id, normalizedItem);
+            await createTransportation(
+                selectedTrip.id,
+                normalizedItem
+            );
         } else if (itemType === "Lodging") {
-            await createLodging(selectedTrip.id, normalizedItem);
+            await createLodging(
+                selectedTrip.id,
+                normalizedItem
+            );
         } else {
-            throw new Error("Unsupported itinerary item type.");
+            throw new Error(
+                "Unsupported itinerary item type."
+            );
         }
 
         setAddingItem(false);
         setError("");
 
-        await loadItems(selectedTrip.id);
-    };
+        await refreshCurrentItems();
+    }
 
-    const handleEditItem = (item) => {
+    function handleEditItem(item) {
+        setAddingItem(false);
         setEditingItem(item);
-    };
+    }
 
-    const handleSaveItem = async (updatedItem) => {
+    async function handleSaveItem(updatedItem) {
         const normalizedItem = {
             ...updatedItem,
             cost:
-                updatedItem.cost === "" || updatedItem.cost === null
+                updatedItem.cost === "" ||
+                updatedItem.cost === null
                     ? null
                     : Number(updatedItem.cost),
         };
@@ -264,7 +401,9 @@ function App() {
                 updatedItem.id,
                 normalizedItem
             );
-        } else if (updatedItem.itemType === "Transportation") {
+        } else if (
+            updatedItem.itemType === "Transportation"
+        ) {
             savedItem = await updateTransportation(
                 selectedTrip.id,
                 updatedItem.id,
@@ -277,18 +416,20 @@ function App() {
                 normalizedItem
             );
         } else {
-            throw new Error("Unsupported itinerary item type.");
+            throw new Error(
+                "Unsupported itinerary item type."
+            );
         }
 
         setEditingItem(null);
         setError("");
 
-        await loadItems(selectedTrip.id);
+        await refreshCurrentItems();
 
         return savedItem;
-    };
+    }
 
-    const handleDeleteItem = async (item) => {
+    async function handleDeleteItem(item) {
         const confirmed = window.confirm(
             `Are you sure you want to delete "${item.name}"?`
         );
@@ -298,11 +439,15 @@ function App() {
         }
 
         try {
-            await deleteTripItem(selectedTrip.id, item.id);
+            await deleteTripItem(
+                selectedTrip.id,
+                item.id
+            );
 
             setItems((currentItems) =>
                 currentItems.filter(
-                    (currentItem) => currentItem.id !== item.id
+                    (currentItem) =>
+                        currentItem.id !== item.id
                 )
             );
 
@@ -310,39 +455,21 @@ function App() {
         } catch (error) {
             setError(error.message);
         }
-    };
+    }
 
-    const handleBackToTrips = () => {
-        setSelectedTrip(null);
-        setItems([]);
+    // Search handlers
 
-        setEditingItem(null);
-        setAddingItem(false);
-
-        setGroupBy("date");
-        setSearchQuery("");
-        setActiveSearchQuery("");
-        setError("");
-    };
-
-    useEffect(() => {
-        if (selectedTrip) {
-            loadItems(selectedTrip.id);
-        }
-    }, [selectedTrip]);
-
-    const handleShowPrintableItinerary = () => {
-        setShowPrintableItinerary(true);
-    };
-
-    const handlePrintItinerary = () => {
-        window.print();
-    };
-
-    const handleSearch = async (event) => {
+    async function handleSearch(event) {
         event.preventDefault();
 
         if (!selectedTrip) {
+            return;
+        }
+
+        const trimmedQuery = searchQuery.trim();
+
+        if (!trimmedQuery) {
+            await handleClearSearch();
             return;
         }
 
@@ -351,73 +478,118 @@ function App() {
 
             const data = await searchTripItems(
                 selectedTrip.id,
-                searchQuery
+                trimmedQuery
             );
 
             setItems(data);
-            setActiveSearchQuery(searchQuery.trim());
+            setActiveSearchQuery(trimmedQuery);
             setError("");
         } catch (error) {
             setError(error.message);
         } finally {
             setSearching(false);
         }
-    };
+    }
 
-    const handleClearSearch = async () => {
+    async function handleClearSearch() {
         setSearchQuery("");
         setActiveSearchQuery("");
 
         if (selectedTrip) {
             await loadItems(selectedTrip.id);
         }
-    };
+    }
+
+    // Restore an existing Spring session after refresh.
+
+    useEffect(() => {
+        async function restoreSession() {
+            try {
+                const user = await getCurrentUser();
+
+                if (user) {
+                    setCurrentUser(user);
+                    await loadTrips();
+                }
+            } catch (error) {
+                setError(error.message);
+            } finally {
+                setCheckingSession(false);
+            }
+        }
+
+        restoreSession();
+    }, []);
+
+    // Load itinerary whenever a trip is selected.
+
+    useEffect(() => {
+        if (selectedTrip) {
+            loadItems(selectedTrip.id);
+        }
+    }, [selectedTrip]);
+
+    if (checkingSession) {
+        return (
+            <main>
+                <h1>Japan Travel Planner</h1>
+                <p>Loading...</p>
+            </main>
+        );
+    }
 
     return (
         <main>
-            <h1>Japan Travel Planner</h1>
+            <header className="app-header">
+                <h1>Japan Travel Planner</h1>
 
-            {!loggedIn && (
-                <form onSubmit={handleLogin}>
-                    <h2>Login</h2>
+                {currentUser && (
+                    <div className="user-controls">
+            <span>
+              Signed in as {currentUser.username}
+            </span>
 
-                    <div>
-                        <label>
-                            Username
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={(event) =>
-                                    setUsername(event.target.value)
-                                }
-                            />
-                        </label>
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
                     </div>
+                )}
+            </header>
 
-                    <div>
-                        <label>
-                            Password
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(event) =>
-                                    setPassword(event.target.value)
-                                }
-                            />
-                        </label>
-                    </div>
-
-                    <button type="submit">Login</button>
-                </form>
+            {error && (
+                <p className="page-error">
+                    {error}
+                </p>
             )}
 
-            {error && <p className="page-error">{error}</p>}
+            {!currentUser && (
+                <>
+                    {authMode === "login" ? (
+                        <LoginForm
+                            onLogin={handleLogin}
+                            onShowRegister={() =>
+                                setAuthMode("register")
+                            }
+                        />
+                    ) : (
+                        <RegisterForm
+                            onRegister={handleRegister}
+                            onCancel={() =>
+                                setAuthMode("login")
+                            }
+                        />
+                    )}
+                </>
+            )}
 
-            {loggedIn && !selectedTrip && (
+            {currentUser && !selectedTrip && (
                 <>
                     <TripList
                         trips={trips}
-                        onSelectTrip={setSelectedTrip}
+                        onSelectTrip={handleSelectTrip}
                         onAddTrip={() => {
                             setEditingTrip(null);
                             setAddingTrip(true);
@@ -426,12 +598,17 @@ function App() {
                             setAddingTrip(false);
                             setEditingTrip(trip);
                         }}
+                        onDuplicateTrip={
+                            handleDuplicateTrip
+                        }
                         onDeleteTrip={handleDeleteTrip}
                     />
 
                     {addingTrip && (
                         <AddTripForm
-                            onCancel={() => setAddingTrip(false)}
+                            onCancel={() =>
+                                setAddingTrip(false)
+                            }
                             onSave={handleAddTrip}
                         />
                     )}
@@ -439,14 +616,16 @@ function App() {
                     {editingTrip && (
                         <EditTripForm
                             trip={editingTrip}
-                            onCancel={() => setEditingTrip(null)}
+                            onCancel={() =>
+                                setEditingTrip(null)
+                            }
                             onSave={handleSaveTrip}
                         />
                     )}
                 </>
             )}
 
-            {loggedIn && selectedTrip && (
+            {currentUser && selectedTrip && (
                 <>
                     <button
                         type="button"
@@ -455,21 +634,30 @@ function App() {
                         ← Back to My Trips
                     </button>
 
-                    <h2>{selectedTrip.name}</h2>
+                    <section className="trip-header">
+                        <h2>{selectedTrip.name}</h2>
 
-                    <p>
-                        {formatDateLabel(selectedTrip.startDate)} -{" "}
-                        {formatDateLabel(selectedTrip.endDate)}
-                    </p>
+                        <p>
+                            {formatDateLabel(
+                                selectedTrip.startDate
+                            )}{" "}
+                            -{" "}
+                            {formatDateLabel(
+                                selectedTrip.endDate
+                            )}
+                        </p>
 
-                    {selectedTrip.notes && (
-                        <p>{selectedTrip.notes}</p>
-                    )}
+                        {selectedTrip.notes && (
+                            <p>{selectedTrip.notes}</p>
+                        )}
+                    </section>
 
                     {outsideTripItemCount > 0 && (
                         <div className="trip-date-warning">
                             ⚠ {outsideTripItemCount} itinerary{" "}
-                            {outsideTripItemCount === 1 ? "item falls" : "items fall"}{" "}
+                            {outsideTripItemCount === 1
+                                ? "item falls"
+                                : "items fall"}{" "}
                             outside the current trip dates.
                         </div>
                     )}
@@ -483,7 +671,10 @@ function App() {
                         {!addingItem && !editingItem && (
                             <button
                                 type="button"
-                                onClick={() => setAddingItem(true)}
+                                onClick={() => {
+                                    setEditingItem(null);
+                                    setAddingItem(true);
+                                }}
                             >
                                 + Add Item
                             </button>
@@ -491,7 +682,9 @@ function App() {
 
                         <button
                             type="button"
-                            onClick={handleShowPrintableItinerary}
+                            onClick={() =>
+                                setShowPrintableItinerary(true)
+                            }
                         >
                             Generate Printable Itinerary
                         </button>
@@ -499,7 +692,9 @@ function App() {
 
                     {addingItem && (
                         <AddItemForm
-                            onCancel={() => setAddingItem(false)}
+                            onCancel={() =>
+                                setAddingItem(false)
+                            }
                             onSave={handleAddItem}
                         />
                     )}
@@ -507,19 +702,54 @@ function App() {
                     {editingItem && (
                         <EditItemForm
                             item={editingItem}
-                            onCancel={() => setEditingItem(null)}
+                            onCancel={() =>
+                                setEditingItem(null)
+                            }
                             onSave={handleSaveItem}
                         />
                     )}
 
-                    <form onSubmit={handleSearch} className="itinerary-search">
+                    {showPrintableItinerary && (
+                        <div className="print-preview">
+                            <div className="print-preview-actions">
+                                <button
+                                    type="button"
+                                    onClick={() => window.print()}
+                                >
+                                    Print / Save as PDF
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPrintableItinerary(false)
+                                    }
+                                >
+                                    Close Preview
+                                </button>
+                            </div>
+
+                            <PrintableItinerary
+                                trip={selectedTrip}
+                                groupedByDate={groupedByDate}
+                                items={displayItems}
+                            />
+                        </div>
+                    )}
+
+                    <form
+                        onSubmit={handleSearch}
+                        className="itinerary-search"
+                    >
                         <label>
                             Search Itinerary
                             <input
                                 type="search"
                                 value={searchQuery}
                                 onChange={(event) =>
-                                    setSearchQuery(event.target.value)
+                                    setSearchQuery(
+                                        event.target.value
+                                    )
                                 }
                                 placeholder="Search by name, notes, or location"
                             />
@@ -529,10 +759,12 @@ function App() {
                             type="submit"
                             disabled={searching}
                         >
-                            {searching ? "Searching..." : "Search"}
+                            {searching
+                                ? "Searching..."
+                                : "Search"}
                         </button>
 
-                        {searchQuery && (
+                        {activeSearchQuery && (
                             <button
                                 type="button"
                                 onClick={handleClearSearch}
@@ -550,78 +782,70 @@ function App() {
                     <QuickJumpNav
                         groupBy={groupBy}
                         groupedByDate={groupedByDate}
-                        groupedByLocation={groupedByLocation}
+                        groupedByLocation={
+                            groupedByLocation
+                        }
                         onJump={scrollToGroup}
                     />
 
-                    {showPrintableItinerary && (
-                        <div className="print-preview">
-                            <div className="print-preview-actions">
-                                <button
-                                    type="button"
-                                    onClick={handlePrintItinerary}
-                                >
-                                    Print / Save as PDF
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPrintableItinerary(false)}
-                                >
-                                    Close Preview
-                                </button>
-                            </div>
-
-                            <PrintableItinerary
-                                trip={selectedTrip}
-                                groupedByDate={groupedByDate}
-                                items={displayItems}
-                            />
-                        </div>
+                    {displayItems.length === 0 && (
+                        <p>
+                            {activeSearchQuery
+                                ? `No itinerary items matched "${activeSearchQuery}".`
+                                : "No itinerary items have been added yet."}
+                        </p>
                     )}
 
                     {groupBy === "date" &&
-                        Object.entries(groupedByDate).map(
-                            ([date, dateItems]) => {
-                                const outsideTripDates =
-                                    dateItems[0]?.outsideTripDates;
+                        Object.entries(
+                            groupedByDate
+                        ).map(([date, dateItems]) => {
+                            const outsideTripDates =
+                                dateItems[0]
+                                    ?.outsideTripDates;
 
-                                return (
-                                    <section
-                                        key={date}
-                                        id={`group-${date}`}
-                                        className={
-                                            outsideTripDates
-                                                ? "itinerary-group itinerary-group-warning"
-                                                : "itinerary-group"
-                                        }
-                                    >
-                                        <h3>
-                                            {date === "Unscheduled"
-                                                ? "Unscheduled"
-                                                : outsideTripDates
-                                                    ? `${formatDateLabel(date)} · Outside trip dates`
-                                                    : formatDateHeading(
-                                                        date,
-                                                        dateItems[0].dayNumber
-                                                    )}
-                                        </h3>
+                            return (
+                                <section
+                                    key={date}
+                                    id={`group-${date}`}
+                                    className={
+                                        outsideTripDates
+                                            ? "itinerary-group itinerary-group-warning"
+                                            : "itinerary-group"
+                                    }
+                                >
+                                    <h3>
+                                        {date === "Unscheduled"
+                                            ? "Unscheduled"
+                                            : outsideTripDates
+                                                ? `${formatDateLabel(date)} · Outside trip dates`
+                                                : formatDateHeading(
+                                                    date,
+                                                    dateItems[0]
+                                                        .dayNumber
+                                                )}
+                                    </h3>
 
-                                        {dateItems.map((item) => (
-                                            <ItineraryItem
-                                                key={item.id}
-                                                item={item}
-                                                onEdit={handleEditItem}
-                                                onDelete={handleDeleteItem}
-                                            />
-                                        ))}
-                                    </section>
-                                );
-                            }
-                        )}
+                                    {dateItems.map((item) => (
+                                        <ItineraryItem
+                                            key={item.id}
+                                            item={item}
+                                            onEdit={
+                                                handleEditItem
+                                            }
+                                            onDelete={
+                                                handleDeleteItem
+                                            }
+                                        />
+                                    ))}
+                                </section>
+                            );
+                        })}
 
                     {groupBy === "location" &&
-                        Object.entries(groupedByLocation).map(
+                        Object.entries(
+                            groupedByLocation
+                        ).map(
                             ([location, locationItems]) => (
                                 <section
                                     key={location}
@@ -630,14 +854,20 @@ function App() {
                                 >
                                     <h3>{location}</h3>
 
-                                    {locationItems.map((item) => (
-                                        <ItineraryItem
-                                            key={item.id}
-                                            item={item}
-                                            onEdit={handleEditItem}
-                                            onDelete={handleDeleteItem}
-                                        />
-                                    ))}
+                                    {locationItems.map(
+                                        (item) => (
+                                            <ItineraryItem
+                                                key={item.id}
+                                                item={item}
+                                                onEdit={
+                                                    handleEditItem
+                                                }
+                                                onDelete={
+                                                    handleDeleteItem
+                                                }
+                                            />
+                                        )
+                                    )}
                                 </section>
                             )
                         )}

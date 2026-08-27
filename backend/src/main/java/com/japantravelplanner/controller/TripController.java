@@ -103,4 +103,19 @@ public class TripController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{tripId}/duplicate")
+    public ResponseEntity<TripResponse> duplicateTrip(
+            @PathVariable Long tripId,
+            Authentication authentication) {
+
+        Trip duplicatedTrip = tripService.duplicateTrip(
+                tripId,
+                authentication.getName()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(toTripResponse(duplicatedTrip));
+    }
+
 }

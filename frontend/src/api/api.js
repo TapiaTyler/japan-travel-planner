@@ -1,5 +1,33 @@
 const API_BASE_URL = "http://localhost:8080";
 
+export async function register(username, password) {
+    const response = await fetch(
+        `${API_BASE_URL}/api/auth/register`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                username,
+                password,
+            }),
+        }
+    );
+
+    if (!response.ok) {
+        const message = await getErrorMessage(
+            response,
+            "Unable to create account."
+        );
+
+        throw new Error(message);
+    }
+
+    return response.json();
+}
+
 export async function login(username, password) {
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
@@ -15,6 +43,51 @@ export async function login(username, password) {
 
     if (!response.ok) {
         throw new Error("Login failed.");
+    }
+
+    return response.json();
+}
+
+export async function getCurrentUser() {
+    const response = await fetch(
+        `${API_BASE_URL}/api/auth/me`,
+        {
+            credentials: "include",
+        }
+    );
+
+    if (response.status === 401) {
+        return null;
+    }
+
+    if (!response.ok) {
+        const message = await getErrorMessage(
+            response,
+            "Unable to verify the current session."
+        );
+
+        throw new Error(message);
+    }
+
+    return response.json();
+}
+
+export async function logout() {
+    const response = await fetch(
+        `${API_BASE_URL}/api/auth/logout`,
+        {
+            method: "POST",
+            credentials: "include",
+        }
+    );
+
+    if (!response.ok) {
+        const message = await getErrorMessage(
+            response,
+            "Unable to log out."
+        );
+
+        throw new Error(message);
     }
 
     return response.json();
@@ -70,6 +143,27 @@ export async function updateTrip(tripId, trip) {
     return response.json();
 }
 
+export async function duplicateTrip(tripId) {
+    const response = await fetch(
+        `${API_BASE_URL}/api/trips/${tripId}/duplicate`,
+        {
+            method: "POST",
+            credentials: "include",
+        }
+    );
+
+    if (!response.ok) {
+        const message = await getErrorMessage(
+            response,
+            "Unable to duplicate trip."
+        );
+
+        throw new Error(message);
+    }
+
+    return response.json();
+}
+
 export async function deleteTrip(tripId) {
     const response = await fetch(
         `${API_BASE_URL}/api/trips/${tripId}`,
@@ -82,7 +176,7 @@ export async function deleteTrip(tripId) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to delete trip."
+            "The trip could not be deleted. Please try again."
         );
 
         throw new Error(message);
