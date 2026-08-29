@@ -284,6 +284,7 @@ function AddItemForm({ onCancel, onSave }) {
                         type="number"
                         name="cost"
                         min="0"
+                        defaultValue="0"
                         value={formData.cost}
                         onChange={handleChange}
                     />
@@ -321,7 +322,10 @@ function AddItemForm({ onCancel, onSave }) {
                 </label>
             </div>
 
-            <button type="submit">
+            <button
+                className="add-button"
+                type="submit"
+            >
                 Add Item
             </button>
 

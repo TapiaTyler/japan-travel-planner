@@ -3,6 +3,7 @@ function GroupToggle({ groupBy, onChange }) {
         <div className="group-toggle">
             <button
                 type="button"
+                className={groupBy === "date" ? "active-tab" : ""}
                 onClick={() => onChange("date")}
                 disabled={groupBy === "date"}
             >
@@ -11,6 +12,7 @@ function GroupToggle({ groupBy, onChange }) {
 
             <button
                 type="button"
+                className={groupBy === "location" ? "active-tab" : ""}
                 onClick={() => onChange("location")}
                 disabled={groupBy === "location"}
             >

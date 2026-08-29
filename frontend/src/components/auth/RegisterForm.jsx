@@ -33,7 +33,7 @@ function RegisterForm({ onRegister, onCancel }) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit}>
             <h2>Create Account</h2>
 
             {formError && (
@@ -68,7 +68,10 @@ function RegisterForm({ onRegister, onCancel }) {
                 </label>
             </div>
 
-            <button type="submit">
+            <button
+                type="submit"
+                className="add-button"
+            >
                 Create Account
             </button>
 

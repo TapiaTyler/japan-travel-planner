@@ -1,0 +1,102 @@
+button {
+    position: relative;
+    margin-right: 15px;
+    padding: 10px 15px;
+    align-content: center;
+    background-color: var(--secondary-color);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--tertiary-color);
+    color: var(--primary-color);
+    font-weight: bold;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease-in,
+        background-color 0.25s ease,
+        color 0.25s ease;
+}
+
+button:hover {
+    color: var(--link-color);
+    border-color: var(--primary-color);
+}
+
+button:active {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.app-header button {
+    background-color: inherit;
+    color: inherit;
+    border: none;
+}
+
+.app-header button:hover {
+    color: var(--link-color);
+}
+
+.app-header button:active {
+    color: var(--tertiary-color);
+}
+
+.button-icon {
+    font-size: 1.4rem;
+    font-weight: lighter;
+    vertical-align: middle;
+    line-height: 0;
+    left: 10px;
+    margin-right: 0.5rem;
+}
+
+.add-button {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.add-button:active {
+    color: var(--text-muted);
+}
+
+.back-to-trips {
+    background-color: inherit;
+    color: inherit;
+    border: none;
+}
+
+.back-to-trips:active {
+    background-color: inherit;
+    color: var(--text-main);
+}
+
+.danger-button {
+    background-color: var(--danger);
+    color: var(--text-light);
+}
+
+.danger-button:hover {
+    color: var(--tertiary-color);
+}
+
+.danger-button:active {
+    background-color: var(--danger-dark);
+}
+
+.group-toggle button {
+    background-color: inherit;
+    border: none;
+    color: var(--text-muted);
+    border-radius: 0;
+}
+
+.group-toggle button:hover {
+    color: var(--link-color);
+}
+
+.group-toggle button:active {
+    color: var(--text-main);
+}
+
+.group-toggle button.active-tab {
+    border-bottom: 1px solid var(--primary-color);
+    color: var(--primary-color);
+}

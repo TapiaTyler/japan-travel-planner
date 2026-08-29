@@ -125,7 +125,10 @@ function PrintableItineraryOptions({
                     Cancel
                 </button>
 
-                <button type="submit">
+                <button
+                    className="add-button"
+                    type="submit"
+                >
                     Generate Preview
                 </button>
             </div>

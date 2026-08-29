@@ -1,0 +1,199 @@
+.itinerary-main {
+    border: 1px solid var(--tertiary-color);
+    border-radius: var(--radius-md);
+}
+
+.itinerary-group {
+    scroll-margin-top: 100px;
+    border-radius: var(--radius-md);
+}
+
+.itinerary-group-selected {
+    animation: itinerary-group-highlight 1.2s ease-in-out;
+}
+
+@keyframes itinerary-group-highlight {
+    0% {
+        background-color: var(--background-color);
+    }
+
+    40% {
+        background-color: color-mix(
+                in srgb,
+                var(--primary-color) 25%,
+                var(--background-color)
+        );
+    }
+
+    100% {
+        background-color: var(--background-color);
+    }
+}
+
+.itinerary-group > h3 {
+    padding: 1em;
+}
+
+.itinerary-group-warning h3 {
+    font-weight: 700;
+}
+
+.item-date-warning {
+    font-weight: 600;
+}
+
+.itinerary-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: var(--secondary-color);
+}
+
+.itinerary-item-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-weight: bold;
+}
+
+.itinerary-item-content {
+    flex: 1;
+}
+
+.item-cost {
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.item-cost-amount {
+    font-weight: bolder;
+}
+
+.cost-status-confirmed {
+    color: darkgreen;
+    background-color: #dbffdb;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: bolder;
+    font-size: 0.8rem;
+    text-transform: lowercase;
+}
+
+.cost-status-confirmed::first-letter {
+    text-transform: uppercase;
+}
+
+.cost-status-estimated {
+    color: #d54303;
+    background-color: #ffebde;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: bolder;
+    font-size: 0.8rem;
+    text-transform: lowercase;
+}
+
+.cost-status-estimated::first-letter {
+    text-transform: uppercase;
+}
+
+.cost-status-unknown {
+    color: #404040;
+    background-color: #e6e6e6;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: bolder;
+    font-size: 0.8rem;
+    text-transform: lowercase;
+}
+
+.cost-status-unknown::first-letter {
+    text-transform: uppercase;
+}
+
+.item-notes {
+    color: var(--text-muted);
+}
+
+.itinerary-item-actions button {
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.itinerary-item-actions {
+    position: relative;
+}
+
+.item-menu {
+    position: absolute;
+    top: 2rem;
+    right: 0;
+
+    min-width: 120px;
+    padding: 0.25rem;
+
+    background: white;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    z-index: 10;
+}
+
+.item-menu button {
+    display: block;
+    width: 100%;
+
+    margin: 0;
+    padding: 0.5rem;
+
+    background: none;
+    border: none;
+    border-radius: 0;
+
+    color: var(--text-main);
+    text-align: left;
+    font-size: 1rem;
+}
+
+.item-menu button:hover {
+    background-color: var(--secondary-color);
+    border: none;
+}
+
+.item-menu button:active {
+    background-color: var(--secondary-color);
+    color: var(--text-main);
+}
+
+aside {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+}
+
+.cost-summary {
+    padding: 1rem;
+    border: 1px solid var(--tertiary-color);
+    border-radius: var(--radius-md);
+    background-color: #fff;
+}
+
+.cost-summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin: 0.5rem 0;
+}

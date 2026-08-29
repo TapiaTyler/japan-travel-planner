@@ -86,7 +86,10 @@ function EditTripForm({ trip, onCancel, onSave }) {
                 </label>
             </div>
 
-            <button type="submit">
+            <button
+                className="add-button"
+                type="submit"
+            >
                 Save
             </button>
 

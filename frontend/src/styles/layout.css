@@ -1,0 +1,110 @@
+/* Header */
+.app-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 1.5em 3em;
+    background-color: var(--primary-color);
+    font-family: "Noto Sans", sans-serif;
+    color: var(--text-light);
+}
+
+.user-controls {
+    position: absolute;
+    right: 1em;
+}
+
+.user-controls span {
+    margin-right: 15px;
+    font-weight: lighter;
+}
+
+.trip-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1em;
+}
+
+/* Trip Header */
+.trip-header {
+    margin-bottom: 2em;
+}
+
+.trip-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+@media (max-width: 600px) {
+    .trip-header-content {
+        flex-direction: column;
+    }
+}
+
+.trip-header-content h2 {
+    line-height: 2em;
+}
+
+.trip-header-content button {
+    align-self: center;
+}
+
+.trip-actions {
+    display: flex;
+    margin: 1rem 0;
+}
+
+.itinerary-search {
+    display: flex;
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.itinerary-search label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.itinerary-search input {
+    min-width: 240px;
+}
+
+.itinerary-search button {
+    margin: 0;
+}
+
+.trip-actions-buttons {
+    position: relative;
+    margin-left: auto;
+    align-content: flex-end;
+}
+
+.group-toggle-container {
+    position: sticky;
+    top: 0;
+    background-color: var(--background-color);
+}
+
+.group-toggle {
+    border-bottom: 1px solid var(--tertiary-color);
+    margin-bottom: 1em;
+}
+
+.quick-jump-nav {
+    margin-bottom: 1em;
+}
+
+.itinerary-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 2rem;
+    align-items: start;
+    margin-top: 2em;
+    line-height: 1.8 !important;
+}

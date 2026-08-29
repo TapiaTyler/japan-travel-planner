@@ -83,14 +83,15 @@ function ItineraryItem({ item, onEdit, onDelete }) {
 
                 {renderDetails()}
 
-                {item.cost !== null && (
-                    <p>
-                        ¥{item.cost.toLocaleString()} · {item.costStatus}
-                    </p>
-                )}
-
-                {item.notes && <p>{item.notes}</p>}
+                {item.notes && <p className="item-notes">{item.notes}</p>}
             </div>
+
+            {item.cost !== null && (
+                <div className="item-cost">
+                    <p className="item-cost-amount">¥{item.cost.toLocaleString()}</p>
+                    <p className={`cost-status-${item.costStatus.toLowerCase()}`}>{item.costStatus}</p>
+                </div>
+            )}
 
             <div className="itinerary-item-actions">
                 <button

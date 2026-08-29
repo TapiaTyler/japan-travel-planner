@@ -10,16 +10,42 @@ function TripList({
                   }) {
     const [openMenuId, setOpenMenuId] = useState(null);
 
+    function getTripLength(startDate, endDate) {
+        const start = new Date(`${startDate}T00:00:00Z`);
+        const end = new Date(`${endDate}T00:00:00Z`);
+
+        const millisecondsPerDay =
+            1000 * 60 * 60 * 24;
+
+        return (
+            Math.round(
+                (end - start) / millisecondsPerDay
+            ) + 1
+        );
+    }
+
+    function formatTripDate(date) {
+        return new Date(
+            `${date}T00:00:00Z`
+        ).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            timeZone: "UTC",
+        });
+    }
+
     return (
         <section>
             <div className="trip-list-header">
                 <h2>My Trips</h2>
 
                 <button
+                    className="add-button"
                     type="button"
                     onClick={onAddTrip}
                 >
-                    + New Trip
+                    <span className="button-icon">+</span> New Trip
                 </button>
             </div>
 
@@ -37,11 +63,40 @@ function TripList({
                                 className="trip-card-main"
                                 onClick={() => onSelectTrip(trip)}
                             >
-                                <strong>{trip.name}</strong>
+                                <div className="trip-card-content">
+                                    <h3 className="trip-card-name">
+                                        {trip.name}
+                                    </h3>
 
-                                <span>
-                  {trip.startDate} - {trip.endDate}
-                </span>
+                                    <div className="trip-card-summary">
+                                        <div className="trip-card-details">
+                                            <p className="trip-card-dates">
+                                                {formatTripDate(trip.startDate)}
+                                                {" – "}
+                                                {formatTripDate(trip.endDate)}
+                                                {" · "}
+                                                {getTripLength(
+                                                    trip.startDate,
+                                                    trip.endDate
+                                                )} days
+                                            </p>
+
+                                            <p className="trip-card-locations">
+                                                {trip.locations ?? "No locations added"}
+                                            </p>
+                                        </div>
+
+                                        <div className="trip-card-cost">
+                                            <span>Total (Est.)</span>
+
+                                            <strong>
+                                                {trip.estimatedTotalCost != null
+                                                    ? `¥${trip.estimatedTotalCost.toLocaleString()}`
+                                                    : "—"}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
                             </button>
 
                             <div className="trip-card-actions">
@@ -51,7 +106,9 @@ function TripList({
                                     title="Trip options"
                                     onClick={() =>
                                         setOpenMenuId((current) =>
-                                            current === trip.id ? null : trip.id
+                                            current === trip.id
+                                                ? null
+                                                : trip.id
                                         )
                                     }
                                 >

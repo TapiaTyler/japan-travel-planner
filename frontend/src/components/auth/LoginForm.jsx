@@ -33,7 +33,7 @@ function LoginForm({ onLogin, onShowRegister }) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit}>
             <h2>Login</h2>
 
             {formError && (
@@ -68,7 +68,10 @@ function LoginForm({ onLogin, onShowRegister }) {
                 </label>
             </div>
 
-            <button type="submit">
+            <button
+                type="submit"
+                className="add-button"
+            >
                 Login
             </button>
 

@@ -287,7 +287,12 @@ function EditItemForm({ item, onCancel, onSave }) {
                 </label>
             </div>
 
-            <button type="submit">Save</button>
+            <button
+                className="add-button"
+                type="submit"
+            >
+                Save
+            </button>
 
             <button
                 type="button"
