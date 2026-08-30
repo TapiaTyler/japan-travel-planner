@@ -232,7 +232,6 @@ public class TripItemService {
         activity.setEndTime(request.getEndTime());
 
         validateActivity(activity);
-        validateCost(activity);
 
         return tripItemRepository.save(activity);
     }
@@ -280,7 +279,6 @@ public class TripItemService {
         transportation.setArrivalTime(request.getArrivalTime());
 
         validateTransportation(transportation);
-        validateCost(transportation);
 
         return tripItemRepository.save(transportation);
     }
@@ -324,7 +322,6 @@ public class TripItemService {
         lodging.setCheckOutDate(request.getCheckOutDate());
 
         validateLodging(lodging);
-        validateCost(lodging);
 
         return tripItemRepository.save(lodging);
     }

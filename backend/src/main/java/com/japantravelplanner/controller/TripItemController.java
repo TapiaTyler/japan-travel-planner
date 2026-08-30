@@ -77,7 +77,12 @@ public class TripItemController {
             }
         }
 
-        if (tripItem.getDate() != null && trip.getStartDate() != null) {
+        if (tripItem.getDate() != null
+                && trip.getStartDate() != null
+                && trip.getEndDate() != null
+                && !tripItem.getDate().isBefore(trip.getStartDate())
+                && !tripItem.getDate().isAfter(trip.getEndDate())) {
+
             response.setDayNumber(
                     ChronoUnit.DAYS.between(
                             trip.getStartDate(),

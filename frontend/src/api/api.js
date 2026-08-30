@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ??
+    "http://localhost:8080";
 
 // Errors
 export class SessionExpiredError extends Error {
@@ -41,15 +43,44 @@ function checkForExpiredSession(response) {
     }
 }
 
-export async function register(username, password) {
+async function getCsrfToken() {
     const response = await fetch(
+        `${API_BASE_URL}/api/auth/csrf`,
+        {
+            credentials: "include",
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Unable to initialize security token."
+        );
+    }
+
+    return response.json();
+}
+
+async function csrfFetch(url, options = {}) {
+    const csrf = await getCsrfToken();
+
+    return fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            [csrf.headerName]: csrf.token,
+        },
+        credentials: "include",
+    });
+}
+
+export async function register(username, password) {
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/auth/register`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify({
                 username,
                 password,
@@ -70,12 +101,11 @@ export async function register(username, password) {
 }
 
 export async function login(username, password) {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    const response = await csrfFetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({
             username,
             password,
@@ -114,11 +144,10 @@ export async function getCurrentUser() {
 }
 
 export async function logout() {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/auth/logout`,
         {
             method: "POST",
-            credentials: "include",
         }
     );
 
@@ -135,14 +164,13 @@ export async function logout() {
 }
 
 export async function createTrip(trip) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(trip),
         }
     );
@@ -162,14 +190,13 @@ export async function createTrip(trip) {
 }
 
 export async function updateTrip(tripId, trip) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}`,
         {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(trip),
         }
     );
@@ -189,11 +216,10 @@ export async function updateTrip(tripId, trip) {
 }
 
 export async function duplicateTrip(tripId) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/duplicate`,
         {
             method: "POST",
-            credentials: "include",
         }
     );
 
@@ -212,11 +238,10 @@ export async function duplicateTrip(tripId) {
 }
 
 export async function deleteTrip(tripId) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}`,
         {
             method: "DELETE",
-            credentials: "include",
         }
     );
 
@@ -272,14 +297,13 @@ export async function getTripItems(tripId) {
 }
 
 export async function createActivity(tripId, activity) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/items/activities`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(activity),
         }
     );
@@ -299,14 +323,13 @@ export async function createActivity(tripId, activity) {
 }
 
 export async function createTransportation(tripId, transportation) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/items/transportation`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(transportation),
         }
     );
@@ -326,14 +349,13 @@ export async function createTransportation(tripId, transportation) {
 }
 
 export async function createLodging(tripId, lodging) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/items/lodging`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(lodging),
         }
     );
@@ -353,14 +375,13 @@ export async function createLodging(tripId, lodging) {
 }
 
 export async function updateActivity(tripId, itemId, activity) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/items/${itemId}/activities`,
         {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(activity),
         }
     );
@@ -384,14 +405,13 @@ export async function updateTransportation(
     itemId,
     transportation
 ) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/items/${itemId}/transportation`,
         {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(transportation),
         }
     );
@@ -411,14 +431,13 @@ export async function updateTransportation(
 }
 
 export async function updateLodging(tripId, itemId, lodging) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/items/${itemId}/lodging`,
         {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify(lodging),
         }
     );
@@ -438,11 +457,10 @@ export async function updateLodging(tripId, itemId, lodging) {
 }
 
 export async function deleteTripItem(tripId, itemId) {
-    const response = await fetch(
+    const response = await csrfFetch(
         `${API_BASE_URL}/api/trips/${tripId}/items/${itemId}`,
         {
             method: "DELETE",
-            credentials: "include",
         }
     );
 

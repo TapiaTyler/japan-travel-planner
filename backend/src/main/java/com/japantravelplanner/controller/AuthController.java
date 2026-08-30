@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -79,6 +80,18 @@ public class AuthController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/csrf")
+    public ResponseEntity<Map<String, String>> getCsrfToken(
+            CsrfToken csrfToken) {
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "token", csrfToken.getToken(),
+                        "headerName", csrfToken.getHeaderName()
+                )
+        );
     }
 
     @GetMapping("/me")
