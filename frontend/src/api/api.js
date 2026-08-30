@@ -1,5 +1,27 @@
 const API_BASE_URL = "http://localhost:8080";
 
+async function getErrorMessage(response, fallbackMessage) {
+    try {
+        const errorData = await response.json();
+
+        if (errorData.message) {
+            return errorData.message;
+        }
+
+        const validationMessages = Object.values(errorData).filter(
+            (value) => typeof value === "string"
+        );
+
+        if (validationMessages.length > 0) {
+            return validationMessages.join(" ");
+        }
+
+        return fallbackMessage;
+    } catch {
+        return fallbackMessage;
+    }
+}
+
 export async function register(username, password) {
     const response = await fetch(
         `${API_BASE_URL}/api/auth/register`,
@@ -19,7 +41,7 @@ export async function register(username, password) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to create account."
+            "Unable to create account. Please check the information provided."
         );
 
         throw new Error(message);
@@ -42,7 +64,7 @@ export async function login(username, password) {
     });
 
     if (!response.ok) {
-        throw new Error("Login failed.");
+        throw new Error("Unable to sign in. Please check your username and password.");
     }
 
     return response.json();
@@ -216,20 +238,6 @@ export async function getTripItems(tripId) {
     }
 
     return response.json();
-}
-
-async function getErrorMessage(response, fallbackMessage) {
-    try {
-        const errorData = await response.json();
-
-        if (errorData.message) {
-            return errorData.message;
-        }
-    } catch {
-        // Ignore JSON parsing errors and use the fallback message.
-    }
-
-    return fallbackMessage;
 }
 
 export async function createActivity(tripId, activity) {
