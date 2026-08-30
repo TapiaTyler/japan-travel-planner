@@ -82,7 +82,9 @@ function TripList({
                                             </p>
 
                                             <p className="trip-card-locations">
-                                                {trip.locations ?? "No locations added"}
+                                                {trip.destinations?.length > 0
+                                                    ? trip.destinations.join(", ")
+                                                    : "No destinations added"}
                                             </p>
                                         </div>
 
@@ -90,9 +92,9 @@ function TripList({
                                             <span>Total (Est.)</span>
 
                                             <strong>
-                                                {trip.estimatedTotalCost != null
-                                                    ? `¥${trip.estimatedTotalCost.toLocaleString()}`
-                                                    : "—"}
+                                                ¥{Number(
+                                                trip.totalCost ?? 0
+                                                ).toLocaleString()}
                                             </strong>
                                         </div>
                                     </div>

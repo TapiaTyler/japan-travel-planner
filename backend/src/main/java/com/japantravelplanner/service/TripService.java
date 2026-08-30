@@ -1,6 +1,7 @@
 package com.japantravelplanner.service;
 
 import com.japantravelplanner.dto.TripRequest;
+import com.japantravelplanner.dto.TripResponse;
 import com.japantravelplanner.exception.TripNotFoundException;
 import com.japantravelplanner.model.*;
 import com.japantravelplanner.repository.TripItemRepository;
@@ -9,7 +10,10 @@ import com.japantravelplanner.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TripService {
@@ -171,6 +175,73 @@ public class TripService {
 
         throw new IllegalArgumentException(
                 "Unsupported itinerary item type."
+        );
+    }
+
+    private List<String> getDestinations(List<TripItem> tripItems) {
+        Set<String> destinations = new LinkedHashSet<>();
+
+        for (TripItem item : tripItems) {
+            if (item instanceof Activity activity) {
+                addDestination(destinations, activity.getLocation());
+            }
+
+            if (item instanceof Lodging lodging) {
+                addDestination(destinations, lodging.getLocation());
+            }
+
+            if (item instanceof Transportation transportation) {
+                addDestination(
+                        destinations,
+                        transportation.getDepartureLocation()
+                );
+
+                addDestination(
+                        destinations,
+                        transportation.getArrivalLocation()
+                );
+            }
+        }
+
+        return new ArrayList<>(destinations);
+    }
+
+    private void addDestination(
+            Set<String> destinations,
+            String location
+    ) {
+        if (location != null && !location.isBlank()) {
+            destinations.add(location.trim());
+        }
+    }
+
+    private Long getTotalCost(List<TripItem> tripItems) {
+        return tripItems.stream()
+                .filter(item -> item.getCost() != null)
+                .mapToLong(TripItem::getCost)
+                .sum();
+    }
+
+    public TripResponse toTripResponse(Trip trip) {
+        List<TripItem> tripItems =
+                tripItemRepository.findByTrip_Id(trip.getId());
+
+        List<String> destinations =
+                getDestinations(tripItems);
+
+        Long totalCost =
+                getTotalCost(tripItems);
+
+        return new TripResponse(
+                trip.getId(),
+                trip.getName(),
+                trip.getStartDate(),
+                trip.getEndDate(),
+                trip.getNotes(),
+                destinations,
+                totalCost,
+                trip.getCreatedAt(),
+                trip.getUpdatedAt()
         );
     }
 

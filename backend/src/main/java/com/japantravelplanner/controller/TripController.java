@@ -23,15 +23,7 @@ public class TripController {
     }
 
     private TripResponse toTripResponse(Trip trip) {
-        return new TripResponse(
-                trip.getId(),
-                trip.getName(),
-                trip.getStartDate(),
-                trip.getEndDate(),
-                trip.getNotes(),
-                trip.getCreatedAt(),
-                trip.getUpdatedAt()
-        );
+        return tripService.toTripResponse(trip);
     }
 
     @GetMapping
