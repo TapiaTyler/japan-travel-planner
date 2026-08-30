@@ -3,6 +3,11 @@ import {
     formatDateHeading,
     formatDateLabel,
 } from "../utils/itineraryUtils.js";
+import {
+    FileText,
+    Pencil,
+    Printer,
+} from "lucide-react";
 
 import Modal from "../components/common/Modal.jsx";
 import ConfirmDialog from "../components/common/ConfirmDialog.jsx";
@@ -149,7 +154,11 @@ function TripDetailsPage({
                             )
                         }
                     >
-                        ✎ Edit Trip Details
+                        <Pencil
+                            className="button-lucide-icon"
+                            aria-hidden="true"
+                        />
+                        Edit Trip Details
                     </button>
                 </div>
             </section>
@@ -192,7 +201,11 @@ function TripDetailsPage({
                         setPrintModalOpen(false);
                         setPrintOptions(null);
                     }}
-                    className="print-modal"
+                    className={
+                        printOptions
+                            ? "print-modal"
+                            : "print-options-modal"
+                    }
                 >
                     {!printOptions ? (
                         <PrintableItineraryOptions
@@ -227,6 +240,10 @@ function TripDetailsPage({
                                         window.print()
                                     }
                                 >
+                                    <Printer
+                                        className="button-lucide-icon"
+                                        aria-hidden="true"
+                                    />
                                     Print / Save as PDF
                                 </button>
                             </div>
@@ -348,9 +365,10 @@ function TripDetailsPage({
                             setPrintModalOpen(true);
                         }}
                     >
-                        <span className="button-icon">
-                            🗐
-                        </span>{" "}
+                        <FileText
+                            className="button-lucide-icon"
+                            aria-hidden="true"
+                        />
                         Generate Printable Itinerary
                     </button>
 
@@ -398,11 +416,43 @@ function TripDetailsPage({
             <div className="itinerary-layout">
                 <div className="itinerary-main">
                     {displayItems.length === 0 && (
-                        <p>
-                            {activeSearchQuery
-                                ? `No itinerary items matched "${activeSearchQuery}".`
-                                : "No itinerary items have been added yet."}
-                        </p>
+                        <div className="itinerary-empty-state">
+                            {activeSearchQuery ? (
+                                <>
+                                    <h3>No matching itinerary items</h3>
+
+                                    <p>
+                                        No itinerary items matched
+                                        {" "}
+                                        <strong>
+                                            "{activeSearchQuery}"
+                                        </strong>.
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <h3>No itinerary items yet</h3>
+
+                                    <p>
+                                        Start building your trip by adding
+                                        your first itinerary item.
+                                    </p>
+
+                                    <button
+                                        type="button"
+                                        className="empty-state-add-button"
+                                        aria-label="Add itinerary item"
+                                        title="Add itinerary item"
+                                        onClick={() => {
+                                            setEditingItem(null);
+                                            setAddingItem(true);
+                                        }}
+                                    >
+                                        +
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     )}
 
                     {groupBy === "date" &&

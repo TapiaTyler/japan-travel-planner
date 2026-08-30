@@ -3,9 +3,61 @@
     border: 1px solid var(--warning-border) !important;
 }
 
+.button-lucide-icon {
+    width: 15px;
+    height: 15px;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
 .itinerary-main {
     border: 1px solid var(--tertiary-color);
     border-radius: var(--radius-md);
+}
+
+.itinerary-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 250px;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.itinerary-empty-state h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.itinerary-empty-state p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.empty-state-add-button {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.empty-state-add-button:hover {
+    background-color: var(--secondary-color);
 }
 
 .itinerary-group {
@@ -21,15 +73,9 @@
     0% {
         background-color: var(--background-color);
     }
-
     40% {
-        background-color: color-mix(
-                in srgb,
-                var(--primary-color) 25%,
-                var(--background-color)
-        );
+        background-color: color-mix(in srgb,var(--primary-color) 25%,var(--background-color));
     }
-
     100% {
         background-color: var(--background-color);
     }
@@ -64,14 +110,41 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ccc;
+    border: 1px solid currentColor;
     border-radius: 50%;
     flex-shrink: 0;
-    font-weight: bold;
+}
+
+.item-type-lodging {
+    color: #5b3a86;
+}
+
+.itinerary-item-icon.item-type-lodging {
+    background-color: #f1ebf8;
+}
+
+.item-type-transportation {
+    color: #245b91;
+}
+
+.itinerary-item-icon.item-type-transportation {
+    background-color: #e8f1fa;
+}
+
+.item-type-activity {
+    color: #9a3f4d;
+}
+
+.itinerary-item-icon.item-type-activity {
+    background-color: #faecee;
 }
 
 .itinerary-item-content {
     flex: 1;
+}
+
+.item-notes {
+    color: var(--text-muted);
 }
 
 .item-cost {
@@ -84,50 +157,35 @@
     font-weight: bolder;
 }
 
-.cost-status-confirmed {
+.item-cost .cost-status-confirmed {
     color: darkgreen;
     background-color: #dbffdb;
     padding: 5px 10px;
     border-radius: var(--radius-sm);
     font-weight: bolder;
     font-size: 0.8rem;
-    text-transform: lowercase;
 }
 
-.cost-status-confirmed::first-letter {
-    text-transform: uppercase;
-}
-
-.cost-status-estimated {
+.item-cost .cost-status-estimated {
     color: #d54303;
     background-color: #ffebde;
     padding: 5px 10px;
     border-radius: var(--radius-sm);
     font-weight: bolder;
     font-size: 0.8rem;
-    text-transform: lowercase;
 }
 
-.cost-status-estimated::first-letter {
-    text-transform: uppercase;
-}
-
-.cost-status-unknown {
+.item-cost .cost-status-unknown {
     color: #404040;
     background-color: #e6e6e6;
     padding: 5px 10px;
     border-radius: var(--radius-sm);
     font-weight: bolder;
     font-size: 0.8rem;
-    text-transform: lowercase;
 }
 
-.cost-status-unknown::first-letter {
-    text-transform: uppercase;
-}
-
-.item-notes {
-    color: var(--text-muted);
+.itinerary-item-actions {
+    position: relative;
 }
 
 .itinerary-item-actions button {
@@ -137,40 +195,39 @@
     cursor: pointer;
 }
 
-.itinerary-item-actions {
-    position: relative;
-}
-
 .item-menu {
     position: absolute;
     top: 2rem;
     right: 0;
-
     min-width: 120px;
     padding: 0.25rem;
-
     background: white;
-
     border: 1px solid #ddd;
     border-radius: 8px;
-
     z-index: 10;
 }
 
 .item-menu button {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     width: 100%;
-
     margin: 0;
     padding: 0.5rem;
-
     background: none;
     border: none;
     border-radius: 0;
-
     color: var(--text-main);
     text-align: left;
     font-size: 1rem;
+}
+
+.item-menu-delete {
+    color: #b42318 !important;
+}
+
+.item-menu-delete:hover {
+    color: #b42318 !important;
 }
 
 .item-menu button:hover {
@@ -199,6 +256,58 @@ aside {
 .cost-summary > div {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 2rem;
     margin: 0.5rem 0;
+}
+
+.cost-summary-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-main);
+}
+
+.cost-summary-label svg {
+    flex-shrink: 0;
+}
+
+.cost-summary-label.item-type-lodging svg {
+    color: #5b3a86;
+}
+
+.cost-summary-label.item-type-transportation svg {
+    color: #245b91;
+}
+
+.cost-summary-label.item-type-activity svg {
+    color: #9a3f4d;
+}
+
+.cost-summary-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.cost-status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    display: inline-block;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.cost-summary-status.cost-status-confirmed .cost-status-dot {
+    background-color: darkgreen;
+}
+
+.cost-summary-status.cost-status-estimated .cost-status-dot {
+    background-color: #d54303;
+}
+
+.cost-summary-status.cost-status-unknown .cost-status-dot {
+    background-color: #404040;
 }

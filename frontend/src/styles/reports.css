@@ -1,0 +1,92 @@
+.print-options-modal {
+    width: min(700px,100%);
+}
+
+.print-modal {
+    width: min(1000px,100%);
+}
+
+.print-options {
+    gap: 1.25rem;
+}
+
+.print-options-section {
+    display: grid;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.print-options-section:last-of-type {
+    border-bottom: none;
+}
+
+.print-options-section h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.print-options-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 0.75rem;
+}
+
+.print-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    background-color: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.print-option:hover {
+    border-color: var(--border-strong);
+    background-color: var(--secondary-color);
+}
+
+.print-option input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.print-preview-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.printable-itinerary {
+    background-color: #fff;
+}
+
+@media (max-width: 700px) {
+    .print-options-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.print-report-header h1 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
+.print-report-trip-details {
+    margin-bottom: 1.5rem;
+}
+
+.print-report-trip-details h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.print-report-trip-details p {
+    margin: 0.35rem 0;
+}

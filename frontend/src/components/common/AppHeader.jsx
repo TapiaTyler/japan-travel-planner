@@ -1,3 +1,5 @@
+import logo from "../../assets/jtp-logo1.png";
+
 function AppHeader({
                        currentUser,
                        handleLogout,
@@ -5,7 +7,10 @@ function AppHeader({
     // Render
     return (
         <header className="app-header">
-            <h1>Japan Travel Planner</h1>
+            <div className="app-brand">
+                <img src={logo} alt="" className="app-logo" />
+                <h1>Japan Travel Planner</h1>
+            </div>
 
             {currentUser && (
                 <div className="user-controls">

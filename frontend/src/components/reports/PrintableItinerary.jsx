@@ -54,23 +54,24 @@ function PrintableItinerary({ trip, items, options }) {
 
     return (
         <section className="printable-itinerary">
-            <header>
+            <header className="print-report-header">
                 <h1>Japan Travel Planner</h1>
-                <h2>{trip.name}</h2>
 
-                <p>
-                    {formatDateLabel(trip.startDate)} -{" "}
-                    {formatDateLabel(trip.endDate)}
-                </p>
+                <div className="print-report-trip-details">
+                    <h2>{trip.name}</h2>
 
-                <p>Generated: {generatedAt}</p>
+                    <p>
+                        {formatDateLabel(trip.startDate)} -{" "}
+                        {formatDateLabel(trip.endDate)}
+                    </p>
 
-                {options.includeNotes && trip.notes && (
-                    <p>{trip.notes}</p>
-                )}
+                    <p>Generated: {generatedAt}</p>
+
+                    {options.includeNotes && trip.notes && (
+                        <p>{trip.notes}</p>
+                    )}
+                </div>
             </header>
-
-            <hr />
 
             {Object.entries(groupedByDate).map(
                 ([date, dateItems]) => (

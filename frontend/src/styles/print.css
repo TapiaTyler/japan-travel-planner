@@ -42,6 +42,7 @@
 
 @media print {
     @page {
+        size: letter portrait;
         margin: 0.5in;
     }
 
@@ -60,6 +61,7 @@
     .group-toggle-container,
     .group-toggle,
     .quick-jump-nav,
+    .itinerary-layout,
     .itinerary-group,
     .print-preview-actions,
     .modal-header,
@@ -104,6 +106,7 @@
         width: 100%;
         margin: 0;
         padding: 0;
+        border: none !important;
     }
 
     .printable-itinerary table {
@@ -117,7 +120,17 @@
     }
 
     .print-cost-summary {
-        break-inside: avoid;
-        page-break-inside: avoid;
+        margin-top: 2rem;
+        border: none !important;
+        border-bottom: none !important;
+    }
+
+    .print-cost-summary::before,
+    .print-cost-summary::after,
+    .printable-itinerary::before,
+    .printable-itinerary::after {
+        display: none !important;
+        content: none !important;
+        border: none !important;
     }
 }

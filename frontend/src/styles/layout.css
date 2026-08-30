@@ -10,6 +10,18 @@
     color: var(--text-light);
 }
 
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.app-logo {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
 .user-controls {
     position: absolute;
     right: 1em;

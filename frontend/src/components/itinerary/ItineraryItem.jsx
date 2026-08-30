@@ -1,7 +1,63 @@
 import { useState } from "react";
+// Icons from Lucide
+import {
+    BedDouble,
+    BusFront,
+    CarTaxiFront,
+    MapPin,
+    Pencil,
+    Plane,
+    Route,
+    Ship,
+    TrainFront,
+    TramFront,
+    Trash2,
+} from "lucide-react";
+
+// Functions
+function getItemIcon(item) {
+    if (item.itemType === "Activity") {
+        return MapPin;
+    }
+
+    if (item.itemType === "Lodging") {
+        return BedDouble;
+    }
+
+    if (item.itemType === "Transportation") {
+        switch (item.transportationType) {
+            case "FLIGHT":
+                return Plane;
+
+            case "TRAIN":
+                return TrainFront;
+
+            case "SUBWAY":
+                return TramFront;
+
+            case "BUS":
+                return BusFront;
+
+            case "TAXI":
+                return CarTaxiFront;
+
+            case "FERRY":
+                return Ship;
+
+            default:
+                return Route;
+        }
+    }
+
+    return Route;
+}
 
 function ItineraryItem({ item, onEdit, onDelete }) {
+    // States
     const [menuOpen, setMenuOpen] = useState(false);
+
+    // Icons
+    const ItemIcon = getItemIcon(item);
 
     function renderDetails() {
         if (item.itemType === "Activity") {
@@ -21,7 +77,6 @@ function ItineraryItem({ item, onEdit, onDelete }) {
         if (item.itemType === "Transportation") {
             return (
                 <>
-                    {item.transportationType && <p>{item.transportationType}</p>}
 
                     {(item.departureLocation || item.arrivalLocation) && (
                         <p>
@@ -65,15 +120,17 @@ function ItineraryItem({ item, onEdit, onDelete }) {
 
     return (
         <div className="itinerary-item">
-            <div className="itinerary-item-icon">
-                {item.itemType === "Activity" && "A"}
-                {item.itemType === "Transportation" && "T"}
-                {item.itemType === "Lodging" && "L"}
+            <div
+                className={`itinerary-item-icon item-type-${item.itemType.toLowerCase()}`}
+            >
+                <ItemIcon
+                    size={24}
+                    aria-hidden="true"
+                />
             </div>
 
             <div className="itinerary-item-content">
                 <strong>{item.name}</strong>
-                <p>{item.itemType}</p>
 
                 {item.outsideTripDates && (
                     <p className="item-date-warning">
@@ -89,7 +146,9 @@ function ItineraryItem({ item, onEdit, onDelete }) {
             {item.cost !== null && (
                 <div className="item-cost">
                     <p className="item-cost-amount">¥{item.cost.toLocaleString()}</p>
-                    <p className={`cost-status-${item.costStatus.toLowerCase()}`}>{item.costStatus}</p>
+                    <p className={`cost-status-${item.costStatus.toLowerCase()}`}>
+                        {item.costStatus.charAt(0) + item.costStatus.slice(1).toLowerCase()}
+                    </p>
                 </div>
             )}
 
@@ -112,16 +171,25 @@ function ItineraryItem({ item, onEdit, onDelete }) {
                                 onEdit(item);
                             }}
                         >
+                            <Pencil
+                                size={16}
+                                aria-hidden="true"
+                            />
                             Edit
                         </button>
 
                         <button
                             type="button"
+                            className="item-menu-delete"
                             onClick={() => {
                                 setMenuOpen(false);
                                 onDelete(item);
                             }}
                         >
+                            <Trash2
+                                size={16}
+                                aria-hidden="true"
+                            />
                             Delete
                         </button>
                     </div>

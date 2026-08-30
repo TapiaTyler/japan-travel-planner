@@ -1,4 +1,9 @@
 import { useState } from "react";
+import {
+    Copy,
+    Pencil,
+    Trash2,
+} from "lucide-react";
 
 function TripList({
                       trips,
@@ -50,7 +55,23 @@ function TripList({
             </div>
 
             {trips.length === 0 ? (
-                <p>No trips yet.</p>
+                <div className="trip-empty-state">
+                    <h3>No trips yet</h3>
+
+                    <p>
+                        Start planning by creating your first trip.
+                    </p>
+
+                    <button
+                        type="button"
+                        className="empty-state-add-button"
+                        aria-label="Create new trip"
+                        title="Create new trip"
+                        onClick={onAddTrip}
+                    >
+                        +
+                    </button>
+                </div>
             ) : (
                 <div className="trip-list">
                     {trips.map((trip) => (
@@ -126,6 +147,10 @@ function TripList({
                                                 onEditTrip(trip);
                                             }}
                                         >
+                                            <Pencil
+                                                size={16}
+                                                aria-hidden="true"
+                                            />
                                             Edit
                                         </button>
 
@@ -136,16 +161,25 @@ function TripList({
                                                 onDuplicateTrip(trip);
                                             }}
                                         >
+                                            <Copy
+                                                size={16}
+                                                aria-hidden="true"
+                                            />
                                             Duplicate
                                         </button>
 
                                         <button
                                             type="button"
+                                            className="item-menu-delete"
                                             onClick={() => {
                                                 setOpenMenuId(null);
                                                 onDeleteTrip(trip);
                                             }}
                                         >
+                                            <Trash2
+                                                size={16}
+                                                aria-hidden="true"
+                                            />
                                             Delete
                                         </button>
                                     </div>

@@ -30,92 +30,107 @@ function PrintableItineraryOptions({
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h3>Itinerary Items</h3>
+        <form
+            className="print-options"
+            onSubmit={handleSubmit}
+        >
+            <div className="print-options-section">
+                <h3>Itinerary Items</h3>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="activities"
-                    checked={options.activities}
-                    onChange={handleCheckboxChange}
-                />
-                Activities
-            </label>
+                <div className="print-options-grid">
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="activities"
+                            checked={options.activities}
+                            onChange={handleCheckboxChange}
+                        />
+                        Activities
+                    </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="transportation"
-                    checked={options.transportation}
-                    onChange={handleCheckboxChange}
-                />
-                Transportation
-            </label>
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="transportation"
+                            checked={options.transportation}
+                            onChange={handleCheckboxChange}
+                        />
+                        Transportation
+                    </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="lodging"
-                    checked={options.lodging}
-                    onChange={handleCheckboxChange}
-                />
-                Lodging
-            </label>
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="lodging"
+                            checked={options.lodging}
+                            onChange={handleCheckboxChange}
+                        />
+                        Lodging
+                    </label>
+                </div>
+            </div>
 
-            <h3>Cost Status</h3>
+            <div className="print-options-section">
+                <h3>Cost Status</h3>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="confirmed"
-                    checked={options.confirmed}
-                    onChange={handleCheckboxChange}
-                />
-                Confirmed
-            </label>
+                <div className="print-options-grid">
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="confirmed"
+                            checked={options.confirmed}
+                            onChange={handleCheckboxChange}
+                        />
+                        Confirmed
+                    </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="estimated"
-                    checked={options.estimated}
-                    onChange={handleCheckboxChange}
-                />
-                Estimated
-            </label>
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="estimated"
+                            checked={options.estimated}
+                            onChange={handleCheckboxChange}
+                        />
+                        Estimated
+                    </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="unknown"
-                    checked={options.unknown}
-                    onChange={handleCheckboxChange}
-                />
-                Unknown
-            </label>
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="unknown"
+                            checked={options.unknown}
+                            onChange={handleCheckboxChange}
+                        />
+                        Unknown
+                    </label>
+                </div>
+            </div>
 
-            <h3>Additional Information</h3>
+            <div className="print-options-section">
+                <h3>Additional Information</h3>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="includeNotes"
-                    checked={options.includeNotes}
-                    onChange={handleCheckboxChange}
-                />
-                Include notes
-            </label>
+                <div className="print-options-grid">
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="includeNotes"
+                            checked={options.includeNotes}
+                            onChange={handleCheckboxChange}
+                        />
+                        Include notes
+                    </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="includeCostSummary"
-                    checked={options.includeCostSummary}
-                    onChange={handleCheckboxChange}
-                />
-                Include cost summary
-            </label>
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="includeCostSummary"
+                            checked={options.includeCostSummary}
+                            onChange={handleCheckboxChange}
+                        />
+                        Include cost summary
+                    </label>
+                </div>
+            </div>
 
             <div className="modal-actions">
                 <button

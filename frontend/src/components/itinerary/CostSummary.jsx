@@ -1,3 +1,9 @@
+import {
+    BedDouble,
+    MapPin,
+    Route,
+} from "lucide-react";
+
 function CostSummary({ items, searchQuery }) {
     const summary = items.reduce(
         (result, item) => {
@@ -54,18 +60,45 @@ function CostSummary({ items, searchQuery }) {
             </h3>
 
             <div>
-                <span>Lodging</span>
-                <strong>{formatYen(summary.lodging)}</strong>
+                <span className="cost-summary-label item-type-lodging">
+                    <BedDouble
+                        size={18}
+                        aria-hidden="true"
+                    />
+                    Lodging
+                </span>
+
+                <strong>
+                    {formatYen(summary.lodging)}
+                </strong>
             </div>
 
             <div>
-                <span>Transportation</span>
-                <strong>{formatYen(summary.transportation)}</strong>
+                <span className="cost-summary-label item-type-transportation">
+                    <Route
+                        size={18}
+                        aria-hidden="true"
+                    />
+                    Transportation
+                </span>
+
+                <strong>
+                    {formatYen(summary.transportation)}
+                </strong>
             </div>
 
             <div>
-                <span>Activities</span>
-                <strong>{formatYen(summary.activities)}</strong>
+                <span className="cost-summary-label item-type-activity">
+                    <MapPin
+                        size={18}
+                        aria-hidden="true"
+                    />
+                    Activities
+                </span>
+
+                <strong>
+                    {formatYen(summary.activities)}
+                </strong>
             </div>
 
             <hr />
@@ -78,7 +111,14 @@ function CostSummary({ items, searchQuery }) {
             <h4>Cost Status</h4>
 
             <div>
-                <span>Confirmed</span>
+                <span className="cost-summary-status cost-status-confirmed">
+                    <span
+                        className="cost-status-dot"
+                        aria-hidden="true"
+                    />
+                    Confirmed
+                </span>
+
                 <strong>
                     {summary.confirmed}{" "}
                     {summary.confirmed === 1 ? "item" : "items"}
@@ -86,7 +126,13 @@ function CostSummary({ items, searchQuery }) {
             </div>
 
             <div>
-                <span>Estimated</span>
+                <span className="cost-summary-status cost-status-estimated">
+                    <span
+                        className="cost-status-dot"
+                        aria-hidden="true"
+                    />
+                    Estimated
+                </span>
                 <strong>
                     {summary.estimated}{" "}
                     {summary.estimated === 1 ? "item" : "items"}
@@ -94,7 +140,13 @@ function CostSummary({ items, searchQuery }) {
             </div>
 
             <div>
-                <span>Unknown</span>
+                <span className="cost-summary-status cost-status-unknown">
+                    <span
+                        className="cost-status-dot"
+                        aria-hidden="true"
+                    />
+                    Unknown
+                </span>
                 <strong>
                     {summary.unknown}{" "}
                     {summary.unknown === 1 ? "item" : "items"}
