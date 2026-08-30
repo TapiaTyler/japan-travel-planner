@@ -94,3 +94,9 @@
 
     font-weight: 600;
 }
+
+.session-expired-message {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}

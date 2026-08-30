@@ -1,5 +1,13 @@
 const API_BASE_URL = "http://localhost:8080";
 
+// Errors
+export class SessionExpiredError extends Error {
+    constructor() {
+        super("Your session has expired.");
+        this.name = "SessionExpiredError";
+    }
+}
+
 async function getErrorMessage(response, fallbackMessage) {
     try {
         const errorData = await response.json();
@@ -19,6 +27,17 @@ async function getErrorMessage(response, fallbackMessage) {
         return fallbackMessage;
     } catch {
         return fallbackMessage;
+    }
+}
+
+// Functions
+function checkForExpiredSession(response) {
+    if (response.status === 401) {
+        window.dispatchEvent(
+            new Event("session-expired")
+        );
+
+        throw new SessionExpiredError();
     }
 }
 
@@ -128,6 +147,8 @@ export async function createTrip(trip) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
@@ -153,6 +174,8 @@ export async function updateTrip(tripId, trip) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
@@ -173,6 +196,8 @@ export async function duplicateTrip(tripId) {
             credentials: "include",
         }
     );
+
+    checkForExpiredSession(response);
 
     if (!response.ok) {
         const message = await getErrorMessage(
@@ -195,6 +220,8 @@ export async function deleteTrip(tripId) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
@@ -212,6 +239,8 @@ export async function getTrips() {
             credentials: "include",
         }
     );
+
+    checkForExpiredSession(response);
 
     if (!response.ok) {
         const message = await getErrorMessage(
@@ -233,6 +262,8 @@ export async function getTripItems(tripId) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         throw new Error("Unable to load itinerary items.");
     }
@@ -252,6 +283,8 @@ export async function createActivity(tripId, activity) {
             body: JSON.stringify(activity),
         }
     );
+
+    checkForExpiredSession(response);
 
     if (!response.ok) {
         const message = await getErrorMessage(
@@ -278,6 +311,8 @@ export async function createTransportation(tripId, transportation) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
@@ -303,6 +338,8 @@ export async function createLodging(tripId, lodging) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
@@ -327,6 +364,8 @@ export async function updateActivity(tripId, itemId, activity) {
             body: JSON.stringify(activity),
         }
     );
+
+    checkForExpiredSession(response);
 
     if (!response.ok) {
         const message = await getErrorMessage(
@@ -357,6 +396,8 @@ export async function updateTransportation(
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
@@ -382,6 +423,8 @@ export async function updateLodging(tripId, itemId, lodging) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
@@ -403,6 +446,8 @@ export async function deleteTripItem(tripId, itemId) {
         }
     );
 
+    checkForExpiredSession(response);
+
     if (!response.ok) {
         throw new Error("Unable to delete itinerary item.");
     }
@@ -415,6 +460,8 @@ export async function searchTripItems(tripId, query) {
             credentials: "include",
         }
     );
+
+    checkForExpiredSession(response);
 
     if (!response.ok) {
         const message = await getErrorMessage(

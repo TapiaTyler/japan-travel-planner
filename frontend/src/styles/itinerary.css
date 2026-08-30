@@ -1,3 +1,8 @@
+.trip-date-warning {
+    background-color: var(--warning-bg);
+    border: 1px solid var(--warning-border) !important;
+}
+
 .itinerary-main {
     border: 1px solid var(--tertiary-color);
     border-radius: var(--radius-md);
