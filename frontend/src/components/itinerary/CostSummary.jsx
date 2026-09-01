@@ -104,9 +104,11 @@ function CostSummary({ items, searchQuery }) {
             <hr />
 
             <div>
-                <span>Total</span>
+                <strong>Total</strong>
                 <strong>{formatYen(summary.total)}</strong>
             </div>
+
+            <hr />
 
             <h4>Cost Status</h4>
 
@@ -119,10 +121,10 @@ function CostSummary({ items, searchQuery }) {
                     Confirmed
                 </span>
 
-                <strong>
+                <span>
                     {summary.confirmed}{" "}
                     {summary.confirmed === 1 ? "item" : "items"}
-                </strong>
+                </span>
             </div>
 
             <div>
@@ -133,10 +135,10 @@ function CostSummary({ items, searchQuery }) {
                     />
                     Estimated
                 </span>
-                <strong>
+                <span>
                     {summary.estimated}{" "}
                     {summary.estimated === 1 ? "item" : "items"}
-                </strong>
+                </span>
             </div>
 
             <div>
@@ -147,10 +149,10 @@ function CostSummary({ items, searchQuery }) {
                     />
                     Unknown
                 </span>
-                <strong>
+                <span>
                     {summary.unknown}{" "}
                     {summary.unknown === 1 ? "item" : "items"}
-                </strong>
+                </span>
             </div>
         </aside>
     );

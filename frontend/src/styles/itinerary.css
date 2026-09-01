@@ -289,7 +289,6 @@ aside {
     align-items: center;
     gap: 0.4rem;
     color: var(--text-main);
-    font-weight: 600;
 }
 
 .cost-status-dot {

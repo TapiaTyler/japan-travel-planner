@@ -1,4 +1,4 @@
-import logo from "../../assets/jtp-logo1.png";
+import logo from "../../assets/jtp-logo.png";
 
 function AppHeader({
                        currentUser,
