@@ -28,15 +28,13 @@ public class SecurityConfig {
     private String frontendUrl;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CookieCsrfTokenRepository csrfTokenRepository)
             throws Exception {
 
         http
                 .cors(cors -> {})
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(
-                                CookieCsrfTokenRepository.withHttpOnlyFalse()
-                        )
+                        .csrfTokenRepository(csrfTokenRepository)
                         .csrfTokenRequestHandler(
                                 new CsrfTokenRequestAttributeHandler()
                         )
@@ -118,5 +116,18 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public CookieCsrfTokenRepository csrfTokenRepository() {
+        CookieCsrfTokenRepository repository =
+                CookieCsrfTokenRepository.withHttpOnlyFalse();
+
+        repository.setCookieCustomizer(cookie -> cookie
+                .sameSite("None")
+                .secure(true)
+        );
+
+        return repository;
     }
 }
