@@ -198,39 +198,35 @@ function useItinerary(selectedTrip) {
                     : Number(formData.cost),
         };
 
-        try {
-            if (itemType === "Activity") {
-                await createActivity(
-                    selectedTrip.id,
-                    normalizedItem
-                );
-            } else if (
-                itemType === "Transportation"
-            ) {
-                await createTransportation(
-                    selectedTrip.id,
-                    normalizedItem
-                );
-            } else if (
-                itemType === "Lodging"
-            ) {
-                await createLodging(
-                    selectedTrip.id,
-                    normalizedItem
-                );
-            } else {
-                throw new Error(
-                    "Unsupported itinerary item type."
-                );
-            }
-
-            setAddingItem(false);
-            setItineraryError("");
-
-            await refreshCurrentItems();
-        } catch (error) {
-            throw error;
+        if (itemType === "Activity") {
+            await createActivity(
+                selectedTrip.id,
+                normalizedItem
+            );
+        } else if (
+            itemType === "Transportation"
+        ) {
+            await createTransportation(
+                selectedTrip.id,
+                normalizedItem
+            );
+        } else if (
+            itemType === "Lodging"
+        ) {
+            await createLodging(
+                selectedTrip.id,
+                normalizedItem
+            );
+        } else {
+            throw new Error(
+                "Unsupported itinerary item type."
+            );
         }
+
+        setAddingItem(false);
+        setItineraryError("");
+
+        await refreshCurrentItems();
     }
 
     function handleEditItem(item) {
@@ -250,54 +246,50 @@ function useItinerary(selectedTrip) {
                     : Number(updatedItem.cost),
         };
 
-        try {
-            let savedItem;
+        let savedItem;
 
-            if (
-                updatedItem.itemType ===
-                "Activity"
-            ) {
-                savedItem =
-                    await updateActivity(
-                        selectedTrip.id,
-                        updatedItem.id,
-                        normalizedItem
-                    );
-            } else if (
-                updatedItem.itemType ===
-                "Transportation"
-            ) {
-                savedItem =
-                    await updateTransportation(
-                        selectedTrip.id,
-                        updatedItem.id,
-                        normalizedItem
-                    );
-            } else if (
-                updatedItem.itemType ===
-                "Lodging"
-            ) {
-                savedItem =
-                    await updateLodging(
-                        selectedTrip.id,
-                        updatedItem.id,
-                        normalizedItem
-                    );
-            } else {
-                throw new Error(
-                    "Unsupported itinerary item type."
+        if (
+            updatedItem.itemType ===
+            "Activity"
+        ) {
+            savedItem =
+                await updateActivity(
+                    selectedTrip.id,
+                    updatedItem.id,
+                    normalizedItem
                 );
-            }
-
-            setEditingItem(null);
-            setItineraryError("");
-
-            await refreshCurrentItems();
-
-            return savedItem;
-        } catch (error) {
-            throw error;
+        } else if (
+            updatedItem.itemType ===
+            "Transportation"
+        ) {
+            savedItem =
+                await updateTransportation(
+                    selectedTrip.id,
+                    updatedItem.id,
+                    normalizedItem
+                );
+        } else if (
+            updatedItem.itemType ===
+            "Lodging"
+        ) {
+            savedItem =
+                await updateLodging(
+                    selectedTrip.id,
+                    updatedItem.id,
+                    normalizedItem
+                );
+        } else {
+            throw new Error(
+                "Unsupported itinerary item type."
+            );
         }
+
+        setEditingItem(null);
+        setItineraryError("");
+
+        await refreshCurrentItems();
+
+        return savedItem;
     }
 
     async function handleConfirmDeleteItem() {
@@ -380,6 +372,7 @@ function useItinerary(selectedTrip) {
 
     // Effects
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         resetItineraryState();
 
         if (selectedTrip) {

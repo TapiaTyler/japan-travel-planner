@@ -14,50 +14,52 @@ import {
     Trash2,
 } from "lucide-react";
 
-// Functions
-function getItemIcon(item) {
+// Components
+function ItemIcon({ item }) {
+    const iconProps = {
+        size: 24,
+        "aria-hidden": "true",
+    };
+
     if (item.itemType === "Activity") {
-        return MapPin;
+        return <MapPin {...iconProps} />;
     }
 
     if (item.itemType === "Lodging") {
-        return BedDouble;
+        return <BedDouble {...iconProps} />;
     }
 
     if (item.itemType === "Transportation") {
         switch (item.transportationType) {
             case "FLIGHT":
-                return Plane;
+                return <Plane {...iconProps} />;
 
             case "TRAIN":
-                return TrainFront;
+                return <TrainFront {...iconProps} />;
 
             case "SUBWAY":
-                return TramFront;
+                return <TramFront {...iconProps} />;
 
             case "BUS":
-                return BusFront;
+                return <BusFront {...iconProps} />;
 
             case "TAXI":
-                return CarTaxiFront;
+                return <CarTaxiFront {...iconProps} />;
 
             case "FERRY":
-                return Ship;
+                return <Ship {...iconProps} />;
 
             default:
-                return Route;
+                return <Route {...iconProps} />;
         }
     }
 
-    return Route;
+    return <Route {...iconProps} />;
 }
 
 function ItineraryItem({ item, onEdit, onDelete }) {
     // States
     const [menuOpen, setMenuOpen] = useState(false);
-
-    // Icons
-    const ItemIcon = getItemIcon(item);
 
     function renderDetails() {
         if (item.itemType === "Activity") {
@@ -123,10 +125,7 @@ function ItineraryItem({ item, onEdit, onDelete }) {
             <div
                 className={`itinerary-item-icon item-type-${item.itemType.toLowerCase()}`}
             >
-                <ItemIcon
-                    size={24}
-                    aria-hidden="true"
-                />
+                <ItemIcon item={item} />
             </div>
 
             <div className="itinerary-item-content">

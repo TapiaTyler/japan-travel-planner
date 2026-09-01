@@ -85,13 +85,10 @@
 
 .confirm-warning {
     padding: 0.85rem 1rem;
-
     color: var(--danger-dark);
     background: var(--danger-soft);
-
     border-left: 4px solid var(--danger);
     border-radius: var(--radius-sm);
-
     font-weight: 600;
 }
 

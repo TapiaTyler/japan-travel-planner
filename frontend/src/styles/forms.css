@@ -55,5 +55,10 @@ textarea:hover {
 }
 
 .form-error {
-    font-weight: bold;
+    padding: 0.85rem 1rem;
+    color: var(--warning-text);
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning-border);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
 }

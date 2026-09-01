@@ -44,44 +44,36 @@ function useTrips(currentUser) {
     }
 
     async function handleAddTrip(formData) {
-        try {
-            await createTrip(formData);
+        await createTrip(formData);
 
-            setAddingTrip(false);
-            setTripError("");
+        setAddingTrip(false);
+        setTripError("");
 
-            await loadTrips();
-        } catch (error) {
-            throw error;
-        }
+        await loadTrips();
     }
 
     async function handleSaveTrip(formData) {
-        try {
-            const updatedTrip = await updateTrip(
-                editingTrip.id,
-                formData
-            );
+        const updatedTrip = await updateTrip(
+            editingTrip.id,
+            formData
+        );
 
-            setTrips((currentTrips) =>
-                currentTrips.map((trip) =>
-                    trip.id === updatedTrip.id
-                        ? updatedTrip
-                        : trip
-                )
-            );
+        setTrips((currentTrips) =>
+            currentTrips.map((trip) =>
+                trip.id === updatedTrip.id
+                    ? updatedTrip
+                    : trip
+            )
+        );
 
-            if (selectedTrip?.id === updatedTrip.id) {
-                setSelectedTrip(updatedTrip);
-            }
-
-            setEditingTrip(null);
-            setTripError("");
-
-            return updatedTrip;
-        } catch (error) {
-            throw error;
+        if (selectedTrip?.id === updatedTrip.id) {
+            setSelectedTrip(updatedTrip);
         }
+
+        setEditingTrip(null);
+        setTripError("");
+
+        return updatedTrip;
     }
 
     async function handleDuplicateTrip(trip) {
@@ -123,6 +115,7 @@ function useTrips(currentUser) {
     // Effects
     useEffect(() => {
         if (currentUser) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             loadTrips();
         } else {
             setTrips([]);
