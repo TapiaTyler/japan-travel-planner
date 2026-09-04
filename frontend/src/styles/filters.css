@@ -4,7 +4,7 @@
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
     background-color: var(--secondary-color);
-    box-shadow: 0 4px 16px rgba(0, 23, 59, 0.06);
+    box-shadow: var(--shadow-soft);
 }
 
 .filter-grid {

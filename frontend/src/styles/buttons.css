@@ -21,8 +21,8 @@ button:hover {
 }
 
 button:active {
-    background-color: var(--primary-color);
-    color: var(--text-light);
+    background-color: var(--active-control-bg);
+    color: var(--active-control-text);
 }
 
 .app-header button {
@@ -49,8 +49,19 @@ button:active {
 }
 
 .add-button {
-    background-color: var(--primary-color);
+    background-color: var(--brand-color);
     color: var(--text-light);
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin-right: 0.25rem;
+    padding: 0;
+    border-radius: 50%;
 }
 
 .add-button:active {
@@ -101,7 +112,7 @@ button:active {
 }
 
 .group-toggle button.active-tab {
-    color: var(--text-light);
+    color: var(--active-control-text);
 }
 
 .group-toggle button:disabled {

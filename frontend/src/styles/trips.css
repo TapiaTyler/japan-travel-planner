@@ -27,7 +27,7 @@
     gap: 0.75rem;
     min-height: 250px;
     padding: 2rem;
-    background-color: #fff;
+    background-color: var(--surface-color);
     border: 1px solid var(--tertiary-color);
     border-radius: var(--radius-md);
     text-align: center;
@@ -124,6 +124,8 @@
 
 .trip-card-actions {
     position: relative;
+    display: flex;
+    align-items: center;
     padding: 0.75rem;
 }
 

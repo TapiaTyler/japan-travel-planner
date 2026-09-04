@@ -102,6 +102,16 @@ describe("filterItineraryItems", () => {
 
         expect(result.map((item) => item.id)).toEqual([1, 2]);
     });
+
+    it("does not apply cost status filters to items without a cost", () => {
+        const result = filterItineraryItems(
+            items,
+            "",
+            filters({ costStatuses: ["CONFIRMED"] })
+        );
+
+        expect(result.map((item) => item.id)).toEqual([1, 3]);
+    });
 });
 
 describe("filter metadata", () => {

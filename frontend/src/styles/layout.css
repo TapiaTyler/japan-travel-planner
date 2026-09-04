@@ -1,7 +1,7 @@
 /* Header */
 .app-header {
     padding: 1rem 2rem;
-    background-color: var(--primary-color);
+    background-color: var(--brand-color);
     color: var(--text-light);
     font-family: "Noto Sans", sans-serif;
 }
@@ -9,7 +9,7 @@
 .app-header-inner { display: flex; align-items: center; gap: 1rem; width: min(100%, 1480px); margin: 0 auto; }
 .app-brand { display: flex; align-items: center; gap: 0.75rem; }
 .app-logo { width: 42px; height: 42px; object-fit: contain; }
-.user-controls { margin-left: auto; }
+.user-controls { display: inline-flex; align-items: center; gap: 0.25rem; margin-left: auto; }
 .user-controls span { margin-right: 15px; font-weight: lighter; }
 
 .route-status { display: grid; justify-items: start; gap: 0.75rem; max-width: 720px; margin: 4rem auto; padding: 2rem; }
@@ -31,7 +31,7 @@
     background-color: var(--secondary-color);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 16px rgba(0, 23, 59, 0.06);
+    box-shadow: var(--shadow-soft);
 }
 
 .itinerary-search { display: flex; align-items: end; flex: 1 1 520px; flex-wrap: wrap; gap: 0.75rem; }
@@ -63,12 +63,12 @@
     background: var(--secondary-color);
 }
 
-.group-toggle::after { position: absolute; inset: 0 auto 0 0; width: 50%; background-color: var(--primary-color); content: ""; transform: translateX(0); transition: transform 220ms ease; }
+.group-toggle::after { position: absolute; inset: 0 auto 0 0; width: 50%; background-color: var(--active-control-bg); content: ""; transform: translateX(0); transition: transform 220ms ease; }
 .group-toggle-location::after { transform: translateX(100%); }
 
 .quick-jump-nav { display: flex; gap: 0.5rem; min-width: 0; overflow-x: auto; padding: 0.15rem 0; scrollbar-width: thin; }
 .quick-jump-nav button { flex: 0 0 auto; margin: 0; padding: 0.65rem 1rem; background: var(--secondary-color); }
-.quick-jump-nav .quick-jump-active { background: var(--primary-color); border-color: var(--primary-color); color: var(--text-light); }
+.quick-jump-nav .quick-jump-active { background: var(--active-control-bg); border-color: var(--active-control-bg); color: var(--active-control-text); }
 
 .itinerary-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 1.5rem; align-items: start; margin-top: 1rem; line-height: 1.8 !important; }
 
@@ -93,7 +93,7 @@
     .itinerary-search button { flex: 1; }
     .trip-actions-buttons { width: 100%; margin: 0; }
     .trip-actions-buttons button { flex: 1; }
-    .group-toggle-container { display: block; margin: 0 -1rem; padding: 0.75rem 1rem; box-shadow: 0 4px 10px rgba(0, 23, 59, 0.06); }
+    .group-toggle-container { display: block; margin: 0 -1rem; padding: 0.75rem 1rem; box-shadow: var(--shadow-soft); }
     .group-toggle { width: 100%; margin-bottom: 0.75rem; }
 }
 

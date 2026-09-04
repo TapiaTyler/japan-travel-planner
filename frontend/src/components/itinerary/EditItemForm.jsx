@@ -259,6 +259,9 @@ function EditItemForm({ item, onCancel, onSave }) {
                         value={formData.cost ?? ""}
                         onChange={handleChange}
                     />
+                    <span className="form-helper">
+                        Leave blank if this item has no tracked cost.
+                    </span>
                 </label>
             </div>
 
@@ -269,6 +272,7 @@ function EditItemForm({ item, onCancel, onSave }) {
                         name="costStatus"
                         value={formData.costStatus ?? "UNKNOWN"}
                         onChange={handleChange}
+                        disabled={formData.cost === "" || formData.cost === null}
                     >
                         {COST_STATUS_OPTIONS.map((option) => (
                             <option

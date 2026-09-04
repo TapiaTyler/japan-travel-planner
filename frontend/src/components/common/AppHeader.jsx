@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { Moon, Sun } from "lucide-react";
 import logo from "../../assets/jtp-logo.png";
 
 function AppHeader({
                        currentUser,
                        handleLogout,
+                       theme,
+                       onToggleTheme,
                    }) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -28,8 +31,23 @@ function AppHeader({
                     <h1>Japan Travel Planner</h1>
                 </div>
 
-                {currentUser && (
-                    <div className="user-controls">
+                <div className="user-controls">
+                    <button
+                        type="button"
+                        className="theme-toggle"
+                        onClick={onToggleTheme}
+                        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                        title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                    >
+                        {theme === "dark" ? (
+                            <Sun size={19} aria-hidden="true" />
+                        ) : (
+                            <Moon size={19} aria-hidden="true" />
+                        )}
+                    </button>
+
+                    {currentUser && (
+                        <>
                         <span>
                             Signed in as {currentUser.username}
                         </span>
@@ -41,8 +59,9 @@ function AppHeader({
                         >
                             {isLoggingOut ? "Logging Out..." : "Logout"}
                         </button>
-                    </div>
-                )}
+                        </>
+                    )}
+                </div>
             </div>
         </header>
     );

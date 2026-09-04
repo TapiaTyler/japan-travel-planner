@@ -37,7 +37,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.65rem 0.75rem;
-    background-color: #fff;
+    background-color: var(--surface-color);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-weight: 500;
@@ -64,7 +64,8 @@
 }
 
 .printable-itinerary {
-    background-color: #fff;
+    background-color: var(--print-surface);
+    color: var(--print-text);
 }
 
 @media (max-width: 700px) {
@@ -94,6 +95,6 @@
 .print-source-summary {
     padding: 0.75rem;
     border-radius: var(--radius-sm);
-    background-color: var(--background-color);
-    color: var(--text-muted);
+    background-color: var(--print-muted);
+    color: var(--print-text);
 }

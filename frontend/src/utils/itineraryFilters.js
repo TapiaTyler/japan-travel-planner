@@ -107,6 +107,7 @@ export function filterItineraryItems(items, query, filters) {
 
         if (
             filters.costStatuses.length > 0 &&
+            item.cost !== null &&
             !filters.costStatuses.includes(costStatus)
         ) {
             return false;

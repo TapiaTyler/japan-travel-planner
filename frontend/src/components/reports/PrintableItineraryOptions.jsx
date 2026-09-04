@@ -12,6 +12,7 @@ function PrintableItineraryOptions({
         confirmed: true,
         estimated: true,
         unknown: true,
+        includeItemsWithoutCost: true,
         includeNotes: true,
         includeCostSummary: true,
     });
@@ -116,6 +117,16 @@ function PrintableItineraryOptions({
                 <h3>Additional Information</h3>
 
                 <div className="print-options-grid">
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="includeItemsWithoutCost"
+                            checked={options.includeItemsWithoutCost}
+                            onChange={handleCheckboxChange}
+                        />
+                        Include items without costs
+                    </label>
+
                     <label className="print-option">
                         <input
                             type="checkbox"

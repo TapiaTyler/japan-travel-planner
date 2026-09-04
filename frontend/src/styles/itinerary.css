@@ -25,7 +25,7 @@
     gap: 0.75rem;
     min-height: 250px;
     padding: 2rem;
-    background-color: #fff;
+    background-color: var(--surface-color);
     border-radius: var(--radius-md);
     text-align: center;
 }
@@ -104,7 +104,7 @@
     gap: 1rem;
     padding: 1rem;
     margin-bottom: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 12px;
     background-color: var(--secondary-color);
 }
@@ -121,27 +121,27 @@
 }
 
 .item-type-lodging {
-    color: #5b3a86;
+    color: var(--lodging-color);
 }
 
 .itinerary-item-icon.item-type-lodging {
-    background-color: #f1ebf8;
+    background-color: var(--lodging-soft);
 }
 
 .item-type-transportation {
-    color: #245b91;
+    color: var(--transportation-color);
 }
 
 .itinerary-item-icon.item-type-transportation {
-    background-color: #e8f1fa;
+    background-color: var(--transportation-soft);
 }
 
 .item-type-activity {
-    color: #9a3f4d;
+    color: var(--activity-color);
 }
 
 .itinerary-item-icon.item-type-activity {
-    background-color: #faecee;
+    background-color: var(--activity-soft);
 }
 
 .itinerary-item-content {
@@ -163,8 +163,8 @@
 }
 
 .item-cost .cost-status-confirmed {
-    color: darkgreen;
-    background-color: #dbffdb;
+    color: var(--confirmed-color);
+    background-color: var(--confirmed-soft);
     padding: 5px 10px;
     border-radius: var(--radius-sm);
     font-weight: bolder;
@@ -172,8 +172,8 @@
 }
 
 .item-cost .cost-status-estimated {
-    color: #d54303;
-    background-color: #ffebde;
+    color: var(--estimated-color);
+    background-color: var(--estimated-soft);
     padding: 5px 10px;
     border-radius: var(--radius-sm);
     font-weight: bolder;
@@ -181,8 +181,8 @@
 }
 
 .item-cost .cost-status-unknown {
-    color: #404040;
-    background-color: #e6e6e6;
+    color: var(--unknown-color);
+    background-color: var(--unknown-soft);
     padding: 5px 10px;
     border-radius: var(--radius-sm);
     font-weight: bolder;
@@ -191,6 +191,7 @@
 
 .itinerary-item-actions {
     position: relative;
+    align-self: center;
 }
 
 .itinerary-item-actions button {
@@ -206,8 +207,8 @@
     right: 0;
     min-width: 120px;
     padding: 0.25rem;
-    background: white;
-    border: 1px solid #ddd;
+    background: var(--surface-color);
+    border: 1px solid var(--border);
     border-radius: 8px;
     z-index: 10;
 }
@@ -228,11 +229,11 @@
 }
 
 .item-menu-delete {
-    color: #b42318 !important;
+    color: var(--danger-text) !important;
 }
 
 .item-menu-delete:hover {
-    color: #b42318 !important;
+    color: var(--danger-text) !important;
 }
 
 .item-menu button:hover {
@@ -255,7 +256,7 @@ aside {
     padding: 1rem;
     border: 1px solid var(--tertiary-color);
     border-radius: var(--radius-md);
-    background-color: #fff;
+    background-color: var(--surface-color);
 }
 
 .cost-summary > div {
@@ -278,15 +279,15 @@ aside {
 }
 
 .cost-summary-label.item-type-lodging svg {
-    color: #5b3a86;
+    color: var(--lodging-color);
 }
 
 .cost-summary-label.item-type-transportation svg {
-    color: #245b91;
+    color: var(--transportation-color);
 }
 
 .cost-summary-label.item-type-activity svg {
-    color: #9a3f4d;
+    color: var(--activity-color);
 }
 
 .cost-summary-status {
@@ -305,15 +306,15 @@ aside {
 }
 
 .cost-summary-status.cost-status-confirmed .cost-status-dot {
-    background-color: darkgreen;
+    background-color: var(--confirmed-color);
 }
 
 .cost-summary-status.cost-status-estimated .cost-status-dot {
-    background-color: #d54303;
+    background-color: var(--estimated-color);
 }
 
 .cost-summary-status.cost-status-unknown .cost-status-dot {
-    background-color: #404040;
+    background-color: var(--unknown-color);
 }
 
 .cost-summary-context {
@@ -341,7 +342,7 @@ aside {
     padding: 1.15rem;
     margin-bottom: 0.75rem;
     border-color: var(--border);
-    box-shadow: 0 3px 12px rgba(0, 23, 59, 0.05);
+    box-shadow: var(--shadow-card);
 }
 
 .itinerary-item-content {
@@ -355,7 +356,7 @@ aside {
 }
 
 .item-cost {
-    align-self: flex-start;
+    align-self: center;
     line-height: 1.2;
 }
 
@@ -368,7 +369,7 @@ aside {
     padding: 1.25rem;
     border-color: var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 16px rgba(0, 23, 59, 0.06);
+    box-shadow: var(--shadow-soft);
 }
 
 .cost-summary h3 {

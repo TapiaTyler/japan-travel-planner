@@ -16,6 +16,7 @@ const options = {
     confirmed: true,
     estimated: false,
     unknown: true,
+    includeItemsWithoutCost: true,
     includeNotes: false,
     includeCostSummary: true,
 };
@@ -57,5 +58,34 @@ describe("PrintableItinerary", () => {
         expect(screen.queryByText("Hidden Full-Itinerary Item"))
             .not.toBeInTheDocument();
         expect(screen.getAllByText("¥3,000")).toHaveLength(2);
+    });
+
+    it("includes cost-free items independently from unknown cost status", () => {
+        const items = [
+            {
+                id: 3,
+                itemType: "Transportation",
+                name: "Walk to the station",
+                date: "2027-04-02",
+                dayNumber: 2,
+                cost: null,
+                costStatus: "UNKNOWN",
+            },
+        ];
+
+        render(
+            <PrintableItinerary
+                trip={trip}
+                items={items}
+                options={{
+                    ...options,
+                    unknown: false,
+                    includeItemsWithoutCost: true,
+                }}
+            />
+        );
+
+        expect(screen.getByText("Walk to the station")).toBeInTheDocument();
+        expect(screen.queryByText("UNKNOWN")).not.toBeInTheDocument();
     });
 });

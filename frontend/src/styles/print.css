@@ -14,8 +14,9 @@
 
 .printable-itinerary {
     padding: 1.5rem;
-    border: 1px solid #ddd;
-    background: white;
+    border: 1px solid var(--print-border);
+    background: var(--print-surface);
+    color: var(--print-text);
 }
 
 .printable-itinerary table {
@@ -34,7 +35,7 @@
 .printable-itinerary th,
 .printable-itinerary td {
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--print-border);
     text-align: left;
     vertical-align: top;
     overflow-wrap: anywhere;

@@ -19,12 +19,14 @@ import TripDetailsPage from "./pages/TripDetailsPage.jsx";
 import useAuth from "./hooks/useAuth.js";
 import useTrips from "./hooks/useTrips.js";
 import useItinerary from "./hooks/useItinerary.js";
+import useTheme from "./hooks/useTheme.js";
 import { getTripPath, getTripSlug } from "./utils/routingUtils.js";
 
 function App() {
     const navigate = useNavigate();
     const tripRoute = useMatch("/trips/:tripId/:slug?");
     const auth = useAuth();
+    const { theme, toggleTheme } = useTheme();
 
     const tripState = useTrips(
         auth.currentUser,
@@ -157,6 +159,8 @@ function App() {
             <AppHeader
                 currentUser={auth.currentUser}
                 handleLogout={handleLogout}
+                theme={theme}
+                onToggleTheme={toggleTheme}
             />
 
             {auth.sessionExpired && (

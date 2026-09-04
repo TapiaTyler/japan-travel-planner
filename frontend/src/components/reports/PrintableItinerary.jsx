@@ -17,6 +17,10 @@ function PrintableItinerary({ trip, items, options }) {
             return false;
         }
 
+        if (item.cost === null) {
+            return options.includeItemsWithoutCost !== false;
+        }
+
         const statusIncluded =
             (item.costStatus === "CONFIRMED" &&
                 options.confirmed) ||
@@ -122,7 +126,11 @@ function PrintableItinerary({ trip, items, options }) {
                                             : "—"}
                                     </td>
 
-                                    <td>{item.costStatus}</td>
+                                    <td>
+                                        {item.cost !== null
+                                            ? item.costStatus
+                                            : "—"}
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>

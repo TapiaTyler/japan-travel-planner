@@ -11,11 +11,11 @@ function CostSummary({ items, searchQuery, hasActiveFilters }) {
                 else if (item.itemType === "Lodging") result.lodging += cost;
 
                 result.total += cost;
-            }
 
-            if (item.costStatus === "CONFIRMED") result.confirmed += 1;
-            else if (item.costStatus === "ESTIMATED") result.estimated += 1;
-            else result.unknown += 1;
+                if (item.costStatus === "CONFIRMED") result.confirmed += 1;
+                else if (item.costStatus === "ESTIMATED") result.estimated += 1;
+                else result.unknown += 1;
+            }
 
             return result;
         },

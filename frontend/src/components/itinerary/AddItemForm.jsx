@@ -290,10 +290,12 @@ function AddItemForm({ onCancel, onSave }) {
                         type="number"
                         name="cost"
                         min="0"
-                        defaultValue="0"
                         value={formData.cost}
                         onChange={handleChange}
                     />
+                    <span className="form-helper">
+                        Leave blank if this item has no tracked cost.
+                    </span>
                 </label>
             </div>
 
@@ -304,6 +306,7 @@ function AddItemForm({ onCancel, onSave }) {
                         name="costStatus"
                         value={formData.costStatus}
                         onChange={handleChange}
+                        disabled={formData.cost === "" || formData.cost === null}
                     >
                         {COST_STATUS_OPTIONS.map((option) => (
                             <option
