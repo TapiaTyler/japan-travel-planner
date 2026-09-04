@@ -10,5 +10,6 @@ public interface TripRepository extends JpaRepository<Trip,Long> {
 
     List<Trip> findByUser_Username(String username);
     Optional<Trip> findByIdAndUser_Username(Long tripId, String username);
+    void deleteByUser_Username(String username);
 
 }

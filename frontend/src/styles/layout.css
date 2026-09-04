@@ -10,7 +10,21 @@
 .app-brand { display: flex; align-items: center; gap: 0.75rem; }
 .app-logo { width: 42px; height: 42px; object-fit: contain; }
 .user-controls { display: inline-flex; align-items: center; gap: 0.25rem; margin-left: auto; }
-.user-controls span { margin-right: 15px; font-weight: lighter; }
+.user-menu { position: relative; }
+.user-menu-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 20;
+    width: 230px;
+    padding: 0.4rem;
+    background: var(--secondary-color);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    color: var(--text-main);
+}
+.user-menu-divider { height: 1px; margin: 0.35rem 0; background: var(--border); }
 
 .route-status { display: grid; justify-items: start; gap: 0.75rem; max-width: 720px; margin: 4rem auto; padding: 2rem; }
 .trip-list-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
@@ -83,7 +97,6 @@
     .app-header { padding: 0.75rem 1rem; }
     .app-brand h1 { font-size: 1.2rem; }
     .app-logo { width: 36px; height: 36px; }
-    .user-controls span { display: none; }
     .user-controls button { margin: 0; padding: 0.5rem; }
     .trip-header-content { flex-direction: column; }
     .trip-header-content button { align-self: flex-start; margin: 0.5rem 0 0; }
@@ -103,6 +116,7 @@
     .app-brand h1 { font-size: 1rem; }
     .app-logo { width: 32px; height: 32px; }
     .user-controls button { font-size: 0.8rem; }
+    .user-menu-username { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {

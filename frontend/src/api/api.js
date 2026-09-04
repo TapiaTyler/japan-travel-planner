@@ -113,6 +113,13 @@ export async function login(username, password) {
     });
 
     if (!response.ok) {
+        if (response.status === 429) {
+            throw new Error(await getErrorMessage(
+                response,
+                "Too many login attempts. Please try again later."
+            ));
+        }
+
         throw new Error("Unable to sign in. Please check your username and password.");
     }
 
@@ -488,6 +495,40 @@ export async function searchTripItems(tripId, query) {
         );
 
         throw new Error(message);
+    }
+
+    return response.json();
+}
+
+export async function changePassword(currentPassword, newPassword) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/account/password`,
+        {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ currentPassword, newPassword }),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "Unable to update password."));
+    }
+
+    return response.json();
+}
+
+export async function deleteAccount(currentPassword) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/account`,
+        {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ currentPassword }),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "Unable to delete account."));
     }
 
     return response.json();

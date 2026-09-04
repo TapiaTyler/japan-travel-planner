@@ -47,8 +47,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 "/api/auth/logout",
-                                "/api/auth/me"
+                        "/api/auth/me"
                         ).authenticated()
+                        .requestMatchers("/api/account/**").authenticated()
                         .requestMatchers("/api/trips/**").authenticated()
                         .anyRequest().permitAll()
                 )

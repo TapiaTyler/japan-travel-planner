@@ -16,6 +16,7 @@ import LoadingState from "./components/common/LoadingState.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import TripsPage from "./pages/TripsPage.jsx";
 import TripDetailsPage from "./pages/TripDetailsPage.jsx";
+import AccountSettingsPage from "./pages/AccountSettingsPage.jsx";
 import useAuth from "./hooks/useAuth.js";
 import useTrips from "./hooks/useTrips.js";
 import useItinerary from "./hooks/useItinerary.js";
@@ -79,6 +80,11 @@ function App() {
     function handleBackToTrips() {
         tripState.handleBackToTrips();
         navigate("/trips");
+    }
+
+    function handleAccountDeleted() {
+        auth.handleAccountDeleted();
+        navigate("/login", { replace: true });
     }
 
     const routedTripState = {
@@ -218,6 +224,20 @@ function App() {
                         element={
                             auth.currentUser ? (
                                 tripDetailsPage
+                            ) : (
+                                <Navigate to="/login" replace />
+                            )
+                        }
+                    />
+
+                    <Route
+                        path="/account"
+                        element={
+                            auth.currentUser ? (
+                                <AccountSettingsPage
+                                    currentUser={auth.currentUser}
+                                    onAccountDeleted={handleAccountDeleted}
+                                />
                             ) : (
                                 <Navigate to="/login" replace />
                             )

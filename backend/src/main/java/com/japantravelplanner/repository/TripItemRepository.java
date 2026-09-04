@@ -11,5 +11,6 @@ public interface TripItemRepository extends JpaRepository<TripItem,Long> {
     List<TripItem> findByTrip_IdOrderByDateAsc(Long tripId);
 
     void deleteByTrip_Id(Long tripId);
+    void deleteByTrip_User_Username(String username);
 
 }

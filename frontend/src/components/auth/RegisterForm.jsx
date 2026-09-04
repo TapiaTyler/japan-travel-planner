@@ -4,6 +4,7 @@ function RegisterForm({ onRegister, onCancel }) {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
+        confirmPassword: "",
     });
 
     const [formError, setFormError] = useState("");
@@ -24,6 +25,12 @@ function RegisterForm({ onRegister, onCancel }) {
         if (isSubmitting) return;
 
         setFormError("");
+
+        if (formData.password !== formData.confirmPassword) {
+            setFormError("Passwords do not match.");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -68,6 +75,19 @@ function RegisterForm({ onRegister, onCancel }) {
                         type="password"
                         name="password"
                         value={formData.password}
+                        onChange={handleChange}
+                        autoComplete="new-password"
+                    />
+                </label>
+            </div>
+
+            <div>
+                <label>
+                    Confirm Password
+                    <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
                         onChange={handleChange}
                         autoComplete="new-password"
                     />

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router";
 
 import LoginForm from "../auth/LoginForm.jsx";
 import TripList from "../trips/TripList.jsx";
@@ -109,19 +110,24 @@ describe("mutation loading states", () => {
         const handleLogout = vi.fn(() => pendingLogout.promise);
 
         render(
-            <AppHeader
-                currentUser={{ username: "traveler" }}
-                handleLogout={handleLogout}
-            />
+            <MemoryRouter>
+                <AppHeader
+                    currentUser={{ username: "traveler" }}
+                    handleLogout={handleLogout}
+                    theme="light"
+                    onToggleTheme={vi.fn()}
+                />
+            </MemoryRouter>
         );
 
-        await user.click(screen.getByRole("button", { name: "Logout" }));
+        await user.click(screen.getByRole("button", { name: "traveler" }));
+        await user.click(screen.getByRole("menuitem", { name: "Logout" }));
 
-        expect(screen.getByRole("button", { name: "Logging Out..." })).toBeDisabled();
+        expect(screen.getByRole("menuitem", { name: "Logging Out..." })).toBeDisabled();
         expect(handleLogout).toHaveBeenCalledTimes(1);
 
         pendingLogout.resolve();
 
-        expect(await screen.findByRole("button", { name: "Logout" })).toBeEnabled();
+        expect(await screen.findByRole("button", { name: "traveler" })).toBeEnabled();
     });
 });

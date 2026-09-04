@@ -2,6 +2,7 @@ package com.japantravelplanner.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +13,16 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(LoginRateLimitException.class)
+    public ResponseEntity<Map<String, String>> handleLoginRateLimitException(
+            LoginRateLimitException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(Map.of("message", exception.getMessage()));
+    }
 
     @ExceptionHandler(TripNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleTripNotFoundException(TripNotFoundException exception) {
