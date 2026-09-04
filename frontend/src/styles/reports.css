@@ -90,3 +90,10 @@
 .print-report-trip-details p {
     margin: 0.35rem 0;
 }
+
+.print-source-summary {
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--background-color);
+    color: var(--text-muted);
+}

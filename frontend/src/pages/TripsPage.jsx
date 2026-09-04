@@ -4,9 +4,13 @@ import Modal from "../components/common/Modal.jsx";
 import AddTripForm from "../components/trips/AddTripForm.jsx";
 import EditTripForm from "../components/trips/EditTripForm.jsx";
 import ConfirmDialog from "../components/common/ConfirmDialog.jsx";
+import LoadingState from "../components/common/LoadingState.jsx";
 
 function TripsPage({
                        trips,
+                       loadingTrips,
+                       hasLoadedTrips,
+                       tripError,
                        addingTrip,
                        editingTrip,
                        tripToDelete,
@@ -21,23 +25,46 @@ function TripsPage({
                        handleDuplicateTrip,
                        handleConfirmDeleteTrip,
                    }) {
+    if (!hasLoadedTrips) {
+        return (
+            <LoadingState
+                title="Loading Trips"
+                message="Retrieving your saved trips..."
+            />
+        );
+    }
+
     // Render
     return (
         <>
-            <TripList
-                trips={trips}
-                onSelectTrip={handleSelectTrip}
-                onAddTrip={() => {
-                    setEditingTrip(null);
-                    setAddingTrip(true);
-                }}
-                onEditTrip={(trip) => {
-                    setAddingTrip(false);
-                    setEditingTrip(trip);
-                }}
-                onDuplicateTrip={handleDuplicateTrip}
-                onDeleteTrip={setTripToDelete}
-            />
+            {loadingTrips && (
+                <p className="refresh-status" role="status">
+                    Refreshing trips...
+                </p>
+            )}
+
+            {tripError && (
+                <p className="page-error" role="alert">
+                    {tripError}
+                </p>
+            )}
+
+            {(!tripError || trips.length > 0) && (
+                <TripList
+                    trips={trips}
+                    onSelectTrip={handleSelectTrip}
+                    onAddTrip={() => {
+                        setEditingTrip(null);
+                        setAddingTrip(true);
+                    }}
+                    onEditTrip={(trip) => {
+                        setAddingTrip(false);
+                        setEditingTrip(trip);
+                    }}
+                    onDuplicateTrip={handleDuplicateTrip}
+                    onDeleteTrip={setTripToDelete}
+                />
+            )}
 
             {addingTrip && (
                 <Modal

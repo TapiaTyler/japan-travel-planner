@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 function PrintableItineraryOptions({
+                                       baseItemCount,
                                        onCancel,
                                        onGenerate,
                                    }) {
@@ -34,6 +35,11 @@ function PrintableItineraryOptions({
             className="print-options"
             onSubmit={handleSubmit}
         >
+            <p className="print-source-summary">
+                Generating from {baseItemCount} currently visible itinerary{" "}
+                {baseItemCount === 1 ? "item" : "items"}.
+            </p>
+
             <div className="print-options-section">
                 <h3>Itinerary Items</h3>
 

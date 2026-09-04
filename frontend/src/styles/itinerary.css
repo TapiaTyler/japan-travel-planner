@@ -311,3 +311,9 @@ aside {
 .cost-summary-status.cost-status-unknown .cost-status-dot {
     background-color: #404040;
 }
+
+.cost-summary-context {
+    margin-top: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}

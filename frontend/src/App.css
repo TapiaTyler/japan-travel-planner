@@ -1,8 +1,10 @@
 @import "./styles/base.css";
 @import "./styles/buttons.css";
 @import "./styles/forms.css";
+@import "./styles/filters.css";
 @import "./styles/itinerary.css";
 @import "./styles/layout.css";
+@import "./styles/loading.css";
 @import "./styles/modals.css";
 @import "./styles/print.css";
 @import "./styles/reports.css";

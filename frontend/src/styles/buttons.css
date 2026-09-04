@@ -82,6 +82,9 @@ button:active {
 }
 
 .group-toggle button {
+    z-index: 1;
+    flex: 1;
+    margin: 0;
     background-color: inherit;
     border: none;
     color: var(--text-muted);
@@ -97,6 +100,5 @@ button:active {
 }
 
 .group-toggle button.active-tab {
-    border-bottom: 1px solid var(--primary-color);
     color: var(--primary-color);
 }

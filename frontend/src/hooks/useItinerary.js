@@ -1,5 +1,6 @@
 // Imports
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 
 import {
     createActivity,
@@ -7,7 +8,6 @@ import {
     createTransportation,
     deleteTripItem,
     getTripItems,
-    searchTripItems,
     updateActivity,
     updateLodging,
     updateTransportation,
@@ -16,19 +16,39 @@ import {
 import {
     getItemLocation,
 } from "../utils/itineraryUtils.js";
+import {
+    countActiveFilters,
+    EMPTY_ITINERARY_FILTERS,
+    FILTER_QUERY_KEYS,
+    filterItineraryItems,
+    getAvailableLocations,
+} from "../utils/itineraryFilters.js";
 
 function useItinerary(selectedTrip) {
+    const [searchParams, setSearchParams] = useSearchParams();
+
     // States
     const [items, setItems] = useState([]);
+    const [loadingItems, setLoadingItems] = useState(false);
+    const [hasLoadedItems, setHasLoadedItems] = useState(false);
+    const [loadedTripId, setLoadedTripId] = useState(null);
     const [addingItem, setAddingItem] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [itemToDelete, setItemToDelete] = useState(null);
 
     const [groupBy, setGroupBy] = useState("date");
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [activeSearchQuery, setActiveSearchQuery] = useState("");
-    const [searching, setSearching] = useState(false);
+    const activeSearchQuery = searchParams.get("q") ?? "";
+    const filters = {
+        dateFrom: searchParams.get("from") ?? "",
+        dateTo: searchParams.get("to") ?? "",
+        locations: searchParams.getAll("location"),
+        itemTypes: searchParams.getAll("type"),
+        costStatuses: searchParams.getAll("status"),
+        minCost: searchParams.get("minCost") ?? "",
+        maxCost: searchParams.get("maxCost") ?? "",
+        transportationTypes: searchParams.getAll("transportation"),
+    };
 
     const [printModalOpen, setPrintModalOpen] = useState(false);
     const [printOptions, setPrintOptions] = useState(null);
@@ -49,6 +69,8 @@ function useItinerary(selectedTrip) {
     }
 
     async function loadItems(tripId) {
+        setLoadingItems(true);
+
         try {
             const data = await getTripItems(tripId);
 
@@ -59,6 +81,10 @@ function useItinerary(selectedTrip) {
         } catch (error) {
             setItineraryError(error.message);
             throw error;
+        } finally {
+            setLoadingItems(false);
+            setHasLoadedItems(true);
+            setLoadedTripId(tripId);
         }
     }
 
@@ -68,16 +94,7 @@ function useItinerary(selectedTrip) {
         }
 
         try {
-            if (activeSearchQuery) {
-                const data = await searchTripItems(
-                    selectedTrip.id,
-                    activeSearchQuery
-                );
-
-                setItems(data);
-            } else {
-                await loadItems(selectedTrip.id);
-            }
+            await loadItems(selectedTrip.id);
 
             setItineraryError("");
         } catch (error) {
@@ -88,16 +105,15 @@ function useItinerary(selectedTrip) {
 
     function resetItineraryState() {
         setItems([]);
+        setLoadingItems(false);
+        setHasLoadedItems(false);
+        setLoadedTripId(null);
 
         setAddingItem(false);
         setEditingItem(null);
         setItemToDelete(null);
 
         setGroupBy("date");
-
-        setSearchQuery("");
-        setActiveSearchQuery("");
-        setSearching(false);
 
         setPrintModalOpen(false);
         setPrintOptions(null);
@@ -106,7 +122,7 @@ function useItinerary(selectedTrip) {
     }
 
     // Data Logic
-    const displayItems = items.map((item) => {
+    const enrichedItems = items.map((item) => {
         if (
             !selectedTrip ||
             !item.date ||
@@ -146,6 +162,15 @@ function useItinerary(selectedTrip) {
             dayNumber,
         };
     });
+
+    const displayItems = filterItineraryItems(
+        enrichedItems,
+        activeSearchQuery,
+        filters
+    );
+
+    const availableLocations = getAvailableLocations(enrichedItems);
+    const activeFilterCount = countActiveFilters(filters);
 
     const groupedByDate = displayItems.reduce(
         (groups, item) => {
@@ -322,52 +347,51 @@ function useItinerary(selectedTrip) {
     }
 
     // Search Handlers
-    async function handleSearch(event) {
+    function handleSearch(event) {
         event.preventDefault();
+        const query = new FormData(event.currentTarget)
+            .get("query")
+            ?.toString()
+            .trim() ?? "";
+        const nextParams = new URLSearchParams(searchParams);
 
-        if (!selectedTrip) {
-            return;
+        if (query) {
+            nextParams.set("q", query);
+        } else {
+            nextParams.delete("q");
         }
 
-        const trimmedQuery =
-            searchQuery.trim();
-
-        if (!trimmedQuery) {
-            await handleClearSearch();
-            return;
-        }
-
-        try {
-            setSearching(true);
-
-            const data =
-                await searchTripItems(
-                    selectedTrip.id,
-                    trimmedQuery
-                );
-
-            setItems(data);
-            setActiveSearchQuery(
-                trimmedQuery
-            );
-
-            setItineraryError("");
-        } catch (error) {
-            setItineraryError(error.message);
-        } finally {
-            setSearching(false);
-        }
+        setSearchParams(nextParams, { replace: true });
     }
 
-    async function handleClearSearch() {
-        setSearchQuery("");
-        setActiveSearchQuery("");
+    function handleClearSearch() {
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete("q");
+        setSearchParams(nextParams, { replace: true });
+    }
 
-        if (selectedTrip) {
-            await loadItems(
-                selectedTrip.id
-            );
-        }
+    function handleFiltersChange(nextFilters) {
+        const nextParams = new URLSearchParams(searchParams);
+
+        FILTER_QUERY_KEYS.forEach((key) => nextParams.delete(key));
+
+        if (nextFilters.dateFrom) nextParams.set("from", nextFilters.dateFrom);
+        if (nextFilters.dateTo) nextParams.set("to", nextFilters.dateTo);
+        if (nextFilters.minCost !== "") nextParams.set("minCost", nextFilters.minCost);
+        if (nextFilters.maxCost !== "") nextParams.set("maxCost", nextFilters.maxCost);
+
+        nextFilters.locations.forEach((value) => nextParams.append("location", value));
+        nextFilters.itemTypes.forEach((value) => nextParams.append("type", value));
+        nextFilters.costStatuses.forEach((value) => nextParams.append("status", value));
+        nextFilters.transportationTypes.forEach(
+            (value) => nextParams.append("transportation", value)
+        );
+
+        setSearchParams(nextParams, { replace: true });
+    }
+
+    function handleResetFilters() {
+        handleFiltersChange(EMPTY_ITINERARY_FILTERS);
     }
 
     // Effects
@@ -376,7 +400,7 @@ function useItinerary(selectedTrip) {
         resetItineraryState();
 
         if (selectedTrip) {
-            loadItems(selectedTrip.id);
+            loadItems(selectedTrip.id).catch(() => {});
         }
     }, [selectedTrip]);
 
@@ -384,6 +408,9 @@ function useItinerary(selectedTrip) {
     return {
         items,
         displayItems,
+        loadingItems,
+        hasLoadedItems:
+            hasLoadedItems && loadedTripId === selectedTrip?.id,
         groupedByDate,
         groupedByLocation,
         outsideTripItemCount,
@@ -394,9 +421,10 @@ function useItinerary(selectedTrip) {
 
         groupBy,
 
-        searchQuery,
         activeSearchQuery,
-        searching,
+        filters,
+        availableLocations,
+        activeFilterCount,
 
         printModalOpen,
         printOptions,
@@ -409,8 +437,6 @@ function useItinerary(selectedTrip) {
 
         setGroupBy,
 
-        setSearchQuery,
-
         setPrintModalOpen,
         setPrintOptions,
 
@@ -421,6 +447,8 @@ function useItinerary(selectedTrip) {
 
         handleSearch,
         handleClearSearch,
+        handleFiltersChange,
+        handleResetFilters,
 
         resetItineraryState,
     };

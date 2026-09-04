@@ -77,10 +77,14 @@
 
 .trip-actions {
     display: flex;
+    gap: 1rem;
+    align-items: end;
+    flex-wrap: wrap;
     margin: 1rem 0;
 }
 
 .itinerary-search {
+    flex-wrap: wrap;
     display: flex;
     gap: 0.75rem;
     align-items: end;
@@ -114,8 +118,28 @@
 }
 
 .group-toggle {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: fit-content;
     border-bottom: 1px solid var(--tertiary-color);
     margin-bottom: 1em;
+}
+
+.group-toggle::after {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50%;
+    height: 2px;
+    background-color: var(--primary-color);
+    content: "";
+    transform: translateX(0);
+    transition: transform 220ms ease;
+}
+
+.group-toggle-location::after {
+    transform: translateX(100%);
 }
 
 .quick-jump-nav {
@@ -129,4 +153,10 @@
     align-items: start;
     margin-top: 2em;
     line-height: 1.8 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .group-toggle::after {
+        transition: none;
+    }
 }

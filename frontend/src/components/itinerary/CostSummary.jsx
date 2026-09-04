@@ -4,7 +4,7 @@ import {
     Route,
 } from "lucide-react";
 
-function CostSummary({ items, searchQuery }) {
+function CostSummary({ items, searchQuery, hasActiveFilters }) {
     const summary = items.reduce(
         (result, item) => {
             if (item.cost !== null) {
@@ -59,17 +59,23 @@ function CostSummary({ items, searchQuery }) {
                 )}
             </h3>
 
+            {hasActiveFilters && (
+                <p className="cost-summary-context">
+                    Totals reflect the current filters.
+                </p>
+            )}
+
             <div>
-                <span className="cost-summary-label item-type-lodging">
-                    <BedDouble
+                <span className="cost-summary-label item-type-activity">
+                    <MapPin
                         size={18}
                         aria-hidden="true"
                     />
-                    Lodging
+                    Activities
                 </span>
 
                 <strong>
-                    {formatYen(summary.lodging)}
+                    {formatYen(summary.activities)}
                 </strong>
             </div>
 
@@ -88,16 +94,16 @@ function CostSummary({ items, searchQuery }) {
             </div>
 
             <div>
-                <span className="cost-summary-label item-type-activity">
-                    <MapPin
+                <span className="cost-summary-label item-type-lodging">
+                    <BedDouble
                         size={18}
                         aria-hidden="true"
                     />
-                    Activities
+                    Lodging
                 </span>
 
                 <strong>
-                    {formatYen(summary.activities)}
+                    {formatYen(summary.lodging)}
                 </strong>
             </div>
 

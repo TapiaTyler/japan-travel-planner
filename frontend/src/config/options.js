@@ -1,7 +1,7 @@
 export const COST_STATUS_OPTIONS = [
-    { value: "UNKNOWN", label: "Unknown" },
-    { value: "ESTIMATED", label: "Estimated" },
     { value: "CONFIRMED", label: "Confirmed" },
+    { value: "ESTIMATED", label: "Estimated" },
+    { value: "UNKNOWN", label: "Unknown" },
 ];
 
 export const TRANSPORTATION_TYPE_OPTIONS = [
@@ -12,4 +12,10 @@ export const TRANSPORTATION_TYPE_OPTIONS = [
     { value: "TAXI", label: "Taxi" },
     { value: "FERRY", label: "Ferry" },
     { value: "OTHER", label: "Other" },
+];
+
+export const ITEM_TYPE_OPTIONS = [
+    { value: "Activity", label: "Activities" },
+    { value: "Transportation", label: "Transportation" },
+    { value: "Lodging", label: "Lodging" },
 ];

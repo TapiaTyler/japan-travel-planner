@@ -1,16 +1,20 @@
 // Imports
+import { useState } from "react";
 import {
     formatDateHeading,
     formatDateLabel,
 } from "../utils/itineraryUtils.js";
 import {
+    ChevronDown,
     FileText,
     Pencil,
     Printer,
+    SlidersHorizontal,
 } from "lucide-react";
 
 import Modal from "../components/common/Modal.jsx";
 import ConfirmDialog from "../components/common/ConfirmDialog.jsx";
+import LoadingState from "../components/common/LoadingState.jsx";
 
 import EditTripForm from "../components/trips/EditTripForm.jsx";
 
@@ -20,6 +24,7 @@ import GroupToggle from "../components/itinerary/GroupToggle.jsx";
 import QuickJumpNav from "../components/itinerary/QuickJumpNav.jsx";
 import ItineraryItem from "../components/itinerary/ItineraryItem.jsx";
 import CostSummary from "../components/itinerary/CostSummary.jsx";
+import ItineraryFilters from "../components/itinerary/ItineraryFilters.jsx";
 
 import PrintableItinerary from "../components/reports/PrintableItinerary.jsx";
 import PrintableItineraryOptions
@@ -29,6 +34,8 @@ function TripDetailsPage({
                              tripState,
                              itinerary,
                          }) {
+    const [filtersOpen, setFiltersOpen] = useState(false);
+
     // Trip State
     const {
         selectedTrip,
@@ -43,6 +50,8 @@ function TripDetailsPage({
     // Itinerary State
     const {
         displayItems,
+        loadingItems,
+        hasLoadedItems,
         groupedByDate,
         groupedByLocation,
         outsideTripItemCount,
@@ -53,9 +62,11 @@ function TripDetailsPage({
 
         groupBy,
 
-        searchQuery,
         activeSearchQuery,
-        searching,
+        filters,
+        availableLocations,
+        activeFilterCount,
+        itineraryError,
 
         printModalOpen,
         printOptions,
@@ -65,8 +76,6 @@ function TripDetailsPage({
         setItemToDelete,
 
         setGroupBy,
-        setSearchQuery,
-
         setPrintModalOpen,
         setPrintOptions,
 
@@ -77,7 +86,18 @@ function TripDetailsPage({
 
         handleSearch,
         handleClearSearch,
+        handleFiltersChange,
+        handleResetFilters,
     } = itinerary;
+
+    if (!hasLoadedItems) {
+        return (
+            <LoadingState
+                title="Loading Itinerary"
+                message="Retrieving your itinerary items..."
+            />
+        );
+    }
 
     // Functions
     function scrollToGroup(groupKey) {
@@ -114,6 +134,18 @@ function TripDetailsPage({
     // Render
     return (
         <>
+            {loadingItems && (
+                <p className="refresh-status" role="status">
+                    Refreshing itinerary...
+                </p>
+            )}
+
+            {itineraryError && (
+                <p className="page-error" role="alert">
+                    {itineraryError}
+                </p>
+            )}
+
             <button
                 className="back-to-trips"
                 type="button"
@@ -209,6 +241,7 @@ function TripDetailsPage({
                 >
                     {!printOptions ? (
                         <PrintableItineraryOptions
+                            baseItemCount={displayItems.length}
                             onCancel={() => {
                                 setPrintModalOpen(false);
                                 setPrintOptions(null);
@@ -326,23 +359,41 @@ function TripDetailsPage({
 
                         <input
                             type="search"
-                            value={searchQuery}
-                            onChange={(event) =>
-                                setSearchQuery(
-                                    event.target.value
-                                )
-                            }
+                            name="query"
+                            key={activeSearchQuery}
+                            defaultValue={activeSearchQuery}
                             placeholder="Search by name, notes, or location"
                         />
                     </label>
 
                     <button
                         type="submit"
-                        disabled={searching}
                     >
-                        {searching
-                            ? "Searching..."
-                            : "Search"}
+                        Search
+                    </button>
+
+                    <button
+                        type="button"
+                        aria-expanded={filtersOpen}
+                        aria-controls="itinerary-filters"
+                        onClick={() => setFiltersOpen((open) => !open)}
+                    >
+                        <SlidersHorizontal
+                            className="filter-toggle-icon"
+                            size={16}
+                            aria-hidden="true"
+                        />
+                        Filters
+                        {activeFilterCount > 0 && ` (${activeFilterCount})`}
+                        <ChevronDown
+                            className={
+                                filtersOpen
+                                    ? "filter-chevron filter-chevron-open"
+                                    : "filter-chevron"
+                            }
+                            size={16}
+                            aria-hidden="true"
+                        />
                     </button>
 
                     {activeSearchQuery && (
@@ -395,6 +446,15 @@ function TripDetailsPage({
                 </div>
             </div>
 
+            {filtersOpen && (
+                <ItineraryFilters
+                    filters={filters}
+                    locations={availableLocations}
+                    onChange={handleFiltersChange}
+                    onReset={handleResetFilters}
+                />
+            )}
+
             <div className="group-toggle-container">
                 <GroupToggle
                     groupBy={groupBy}
@@ -415,18 +475,15 @@ function TripDetailsPage({
 
             <div className="itinerary-layout">
                 <div className="itinerary-main">
-                    {displayItems.length === 0 && (
+                    {displayItems.length === 0 && !itineraryError && (
                         <div className="itinerary-empty-state">
-                            {activeSearchQuery ? (
+                            {activeSearchQuery || activeFilterCount > 0 ? (
                                 <>
                                     <h3>No matching itinerary items</h3>
 
                                     <p>
-                                        No itinerary items matched
-                                        {" "}
-                                        <strong>
-                                            "{activeSearchQuery}"
-                                        </strong>.
+                                        No itinerary items matched the current
+                                        search and filters.
                                     </p>
                                 </>
                             ) : (
@@ -558,6 +615,7 @@ function TripDetailsPage({
                     searchQuery={
                         activeSearchQuery
                     }
+                    hasActiveFilters={activeFilterCount > 0}
                 />
             </div>
         </>

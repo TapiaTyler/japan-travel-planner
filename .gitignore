@@ -1,0 +1,5 @@
+# Local IntelliJ project configuration
+.idea/misc.xml
+
+# Local agent instructions
+AGENTS.md

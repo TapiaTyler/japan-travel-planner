@@ -1,6 +1,9 @@
 function GroupToggle({ groupBy, onChange }) {
     return (
-        <div className="group-toggle">
+        <div
+            className={`group-toggle group-toggle-${groupBy}`}
+            aria-label="Group itinerary by"
+        >
             <button
                 type="button"
                 className={groupBy === "date" ? "active-tab" : ""}

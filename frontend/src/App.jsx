@@ -12,6 +12,7 @@ import "@fontsource/noto-sans";
 
 import AppHeader from "./components/common/AppHeader.jsx";
 import Modal from "./components/common/Modal.jsx";
+import LoadingState from "./components/common/LoadingState.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import TripsPage from "./pages/TripsPage.jsx";
 import TripDetailsPage from "./pages/TripDetailsPage.jsx";
@@ -85,9 +86,13 @@ function App() {
 
     if (auth.checkingSession) {
         return (
-            <main className="route-status" aria-busy="true">
-                <h1>Japan Travel Planner</h1>
-                <p>Restoring your session...</p>
+            <main>
+                <LoadingState
+                    title="Japan Travel Planner"
+                    message="Restoring your session..."
+                    fullPage
+                    showBrand
+                />
             </main>
         );
     }
@@ -95,6 +100,9 @@ function App() {
     const tripsPage = (
         <TripsPage
             trips={tripState.trips}
+            loadingTrips={tripState.loadingTrips}
+            hasLoadedTrips={tripState.hasLoadedTrips}
+            tripError={tripState.tripError}
             addingTrip={tripState.addingTrip}
             editingTrip={tripState.editingTrip}
             tripToDelete={tripState.tripToDelete}
@@ -118,10 +126,10 @@ function App() {
         !tripState.hasLoadedTrips
     ) {
         tripDetailsPage = (
-            <section className="route-status" aria-busy="true">
-                <h2>Loading trip...</h2>
-                <p>Retrieving your itinerary.</p>
-            </section>
+            <LoadingState
+                title="Loading Trip"
+                message="Retrieving your trip details..."
+            />
         );
     } else if (tripState.selectedTrip) {
         tripDetailsPage = (
