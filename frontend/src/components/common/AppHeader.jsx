@@ -22,26 +22,28 @@ function AppHeader({
     // Render
     return (
         <header className="app-header">
-            <div className="app-brand">
-                <img src={logo} alt="" className="app-logo" />
-                <h1>Japan Travel Planner</h1>
-            </div>
-
-            {currentUser && (
-                <div className="user-controls">
-                    <span>
-                        Signed in as {currentUser.username}
-                    </span>
-
-                    <button
-                        type="button"
-                        onClick={onLogout}
-                        disabled={isLoggingOut}
-                    >
-                        {isLoggingOut ? "Logging Out..." : "Logout"}
-                    </button>
+            <div className="app-header-inner">
+                <div className="app-brand">
+                    <img src={logo} alt="" className="app-logo" />
+                    <h1>Japan Travel Planner</h1>
                 </div>
-            )}
+
+                {currentUser && (
+                    <div className="user-controls">
+                        <span>
+                            Signed in as {currentUser.username}
+                        </span>
+
+                        <button
+                            type="button"
+                            onClick={onLogout}
+                            disabled={isLoggingOut}
+                        >
+                            {isLoggingOut ? "Logging Out..." : "Logout"}
+                        </button>
+                    </div>
+                )}
+            </div>
         </header>
     );
 }

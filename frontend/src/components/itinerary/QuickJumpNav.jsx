@@ -2,6 +2,7 @@ function QuickJumpNav({
                           groupBy,
                           groupedByDate,
                           groupedByLocation,
+                          activeGroup,
                           onJump,
                       }) {
     return (
@@ -11,6 +12,8 @@ function QuickJumpNav({
                     <button
                         key={date}
                         type="button"
+                        className={activeGroup === date ? "quick-jump-active" : ""}
+                        aria-current={activeGroup === date ? "location" : undefined}
                         onClick={() => onJump(date)}
                     >
                         {date === "Unscheduled"
@@ -27,6 +30,8 @@ function QuickJumpNav({
                     <button
                         key={location}
                         type="button"
+                        className={activeGroup === location ? "quick-jump-active" : ""}
+                        aria-current={activeGroup === location ? "location" : undefined}
                         onClick={() => onJump(location)}
                     >
                         {location}

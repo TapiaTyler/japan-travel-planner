@@ -1,8 +1,4 @@
-import {
-    BedDouble,
-    MapPin,
-    Route,
-} from "lucide-react";
+import { BedDouble, MapPin, Route } from "lucide-react";
 
 function CostSummary({ items, searchQuery, hasActiveFilters }) {
     const summary = items.reduce(
@@ -10,24 +6,16 @@ function CostSummary({ items, searchQuery, hasActiveFilters }) {
             if (item.cost !== null) {
                 const cost = Number(item.cost);
 
-                if (item.itemType === "Activity") {
-                    result.activities += cost;
-                } else if (item.itemType === "Transportation") {
-                    result.transportation += cost;
-                } else if (item.itemType === "Lodging") {
-                    result.lodging += cost;
-                }
+                if (item.itemType === "Activity") result.activities += cost;
+                else if (item.itemType === "Transportation") result.transportation += cost;
+                else if (item.itemType === "Lodging") result.lodging += cost;
 
                 result.total += cost;
             }
 
-            if (item.costStatus === "CONFIRMED") {
-                result.confirmed += 1;
-            } else if (item.costStatus === "ESTIMATED") {
-                result.estimated += 1;
-            } else {
-                result.unknown += 1;
-            }
+            if (item.costStatus === "CONFIRMED") result.confirmed += 1;
+            else if (item.costStatus === "ESTIMATED") result.estimated += 1;
+            else result.unknown += 1;
 
             return result;
         },
@@ -46,17 +34,15 @@ function CostSummary({ items, searchQuery, hasActiveFilters }) {
         return `¥${amount.toLocaleString()}`;
     }
 
+    function formatItemCount(count) {
+        return `${count} ${count === 1 ? "item" : "items"}`;
+    }
+
     return (
         <aside className="cost-summary">
             <h3>
                 Cost Summary
-                {searchQuery.trim() && (
-                    <>
-                        {" ("}
-                        <em>{searchQuery.trim()}</em>
-                        {")"}
-                    </>
-                )}
+                {searchQuery.trim() && <> ({<em>{searchQuery.trim()}</em>})</>}
             </h3>
 
             {hasActiveFilters && (
@@ -65,100 +51,57 @@ function CostSummary({ items, searchQuery, hasActiveFilters }) {
                 </p>
             )}
 
-            <div>
+            <div className="cost-summary-row">
                 <span className="cost-summary-label item-type-activity">
-                    <MapPin
-                        size={18}
-                        aria-hidden="true"
-                    />
-                    Activities
+                    <MapPin size={18} aria-hidden="true" /> Activities
                 </span>
-
-                <strong>
-                    {formatYen(summary.activities)}
-                </strong>
+                <strong>{formatYen(summary.activities)}</strong>
             </div>
 
-            <div>
+            <div className="cost-summary-row">
                 <span className="cost-summary-label item-type-transportation">
-                    <Route
-                        size={18}
-                        aria-hidden="true"
-                    />
-                    Transportation
+                    <Route size={18} aria-hidden="true" /> Transportation
                 </span>
-
-                <strong>
-                    {formatYen(summary.transportation)}
-                </strong>
+                <strong>{formatYen(summary.transportation)}</strong>
             </div>
 
-            <div>
+            <div className="cost-summary-row">
                 <span className="cost-summary-label item-type-lodging">
-                    <BedDouble
-                        size={18}
-                        aria-hidden="true"
-                    />
-                    Lodging
+                    <BedDouble size={18} aria-hidden="true" /> Lodging
                 </span>
-
-                <strong>
-                    {formatYen(summary.lodging)}
-                </strong>
+                <strong>{formatYen(summary.lodging)}</strong>
             </div>
 
             <hr />
 
-            <div>
+            <div className="cost-summary-total">
                 <strong>Total</strong>
                 <strong>{formatYen(summary.total)}</strong>
             </div>
 
             <hr />
 
-            <h4>Cost Status</h4>
+            <h4 className="cost-summary-status-heading">Cost Status</h4>
 
-            <div>
+            <div className="cost-summary-row">
                 <span className="cost-summary-status cost-status-confirmed">
-                    <span
-                        className="cost-status-dot"
-                        aria-hidden="true"
-                    />
-                    Confirmed
+                    <span className="cost-status-dot" aria-hidden="true" /> Confirmed
                 </span>
-
-                <span>
-                    {summary.confirmed}{" "}
-                    {summary.confirmed === 1 ? "item" : "items"}
-                </span>
+                <span>{formatItemCount(summary.confirmed)}</span>
             </div>
 
-            <div>
+            <div className="cost-summary-row">
                 <span className="cost-summary-status cost-status-estimated">
-                    <span
-                        className="cost-status-dot"
-                        aria-hidden="true"
-                    />
-                    Estimated
+                    <span className="cost-status-dot" aria-hidden="true" /> Estimated
                 </span>
-                <span>
-                    {summary.estimated}{" "}
-                    {summary.estimated === 1 ? "item" : "items"}
-                </span>
+                <span>{formatItemCount(summary.estimated)}</span>
             </div>
 
-            <div>
+            <div className="cost-summary-row">
                 <span className="cost-summary-status cost-status-unknown">
-                    <span
-                        className="cost-status-dot"
-                        aria-hidden="true"
-                    />
-                    Unknown
+                    <span className="cost-status-dot" aria-hidden="true" /> Unknown
                 </span>
-                <span>
-                    {summary.unknown}{" "}
-                    {summary.unknown === 1 ? "item" : "items"}
-                </span>
+                <span>{formatItemCount(summary.unknown)}</span>
             </div>
         </aside>
     );

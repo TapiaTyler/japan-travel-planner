@@ -129,7 +129,7 @@ function ItineraryItem({ item, onEdit, onDelete }) {
             </div>
 
             <div className="itinerary-item-content">
-                <strong>{item.name}</strong>
+                <strong className="itinerary-item-name">{item.name}</strong>
 
                 {item.outsideTripDates && (
                     <p className="item-date-warning">

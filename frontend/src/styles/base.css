@@ -48,7 +48,9 @@ body {
 }
 
 .main-wrapper {
-    padding: 1em 2em;
+    width: min(100%, 1480px);
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
 }
 
 h1,
@@ -72,4 +74,10 @@ p {
 
 a {
     color: inherit;
+}
+
+@media (max-width: 640px) {
+    .main-wrapper {
+        padding: 1rem 1rem 3rem;
+    }
 }

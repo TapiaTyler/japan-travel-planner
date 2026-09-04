@@ -85,9 +85,10 @@ button:active {
     z-index: 1;
     flex: 1;
     margin: 0;
-    background-color: inherit;
+    background-color: transparent;
     border: none;
     color: var(--text-muted);
+    padding: 0.75rem 1rem;
     border-radius: 0;
 }
 
@@ -100,7 +101,11 @@ button:active {
 }
 
 .group-toggle button.active-tab {
-    color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.group-toggle button:disabled {
+    opacity: 1;
 }
 
 button:disabled {

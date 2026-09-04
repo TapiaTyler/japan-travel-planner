@@ -1,5 +1,5 @@
 // Imports
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     formatDateHeading,
     formatDateLabel,
@@ -35,6 +35,7 @@ function TripDetailsPage({
                              itinerary,
                          }) {
     const [filtersOpen, setFiltersOpen] = useState(false);
+    const [activeGroup, setActiveGroup] = useState(null);
 
     // Trip State
     const {
@@ -89,6 +90,38 @@ function TripDetailsPage({
         handleFiltersChange,
         handleResetFilters,
     } = itinerary;
+
+    useEffect(() => {
+        function updateActiveGroup() {
+            const groups = [...document.querySelectorAll(".itinerary-group")];
+
+            if (groups.length === 0) {
+                setActiveGroup(null);
+                return;
+            }
+
+            const stickyNav = document.querySelector(".group-toggle-container");
+            const activationLine = (stickyNav?.offsetHeight ?? 0) + 16;
+            let currentGroup = groups[0];
+
+            groups.forEach((group) => {
+                if (group.getBoundingClientRect().top <= activationLine) {
+                    currentGroup = group;
+                }
+            });
+
+            setActiveGroup(currentGroup.id.replace("group-", ""));
+        }
+
+        updateActiveGroup();
+        window.addEventListener("scroll", updateActiveGroup, { passive: true });
+        window.addEventListener("resize", updateActiveGroup);
+
+        return () => {
+            window.removeEventListener("scroll", updateActiveGroup);
+            window.removeEventListener("resize", updateActiveGroup);
+        };
+    }, [displayItems, groupBy]);
 
     if (!hasLoadedItems) {
         return (
@@ -463,6 +496,7 @@ function TripDetailsPage({
 
                 <QuickJumpNav
                     groupBy={groupBy}
+                    activeGroup={activeGroup}
                     groupedByDate={
                         groupedByDate
                     }
