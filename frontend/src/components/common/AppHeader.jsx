@@ -1,9 +1,24 @@
+import { useState } from "react";
 import logo from "../../assets/jtp-logo.png";
 
 function AppHeader({
                        currentUser,
                        handleLogout,
                    }) {
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    async function onLogout() {
+        if (isLoggingOut) return;
+
+        setIsLoggingOut(true);
+
+        try {
+            await handleLogout();
+        } finally {
+            setIsLoggingOut(false);
+        }
+    }
+
     // Render
     return (
         <header className="app-header">
@@ -20,9 +35,10 @@ function AppHeader({
 
                     <button
                         type="button"
-                        onClick={handleLogout}
+                        onClick={onLogout}
+                        disabled={isLoggingOut}
                     >
-                        Logout
+                        {isLoggingOut ? "Logging Out..." : "Logout"}
                     </button>
                 </div>
             )}

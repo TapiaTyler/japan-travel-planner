@@ -14,6 +14,20 @@ function TripList({
                       onDeleteTrip,
                   }) {
     const [openMenuId, setOpenMenuId] = useState(null);
+    const [duplicatingTripId, setDuplicatingTripId] = useState(null);
+
+    async function handleDuplicate(trip) {
+        if (duplicatingTripId !== null) return;
+
+        setDuplicatingTripId(trip.id);
+
+        try {
+            await onDuplicateTrip(trip);
+        } finally {
+            setDuplicatingTripId(null);
+            setOpenMenuId(null);
+        }
+    }
 
     function getTripLength(startDate, endDate) {
         const start = new Date(`${startDate}T00:00:00Z`);
@@ -142,6 +156,7 @@ function TripList({
                                     <div className="item-menu">
                                         <button
                                             type="button"
+                                            disabled={duplicatingTripId !== null}
                                             onClick={() => {
                                                 setOpenMenuId(null);
                                                 onEditTrip(trip);
@@ -156,21 +171,22 @@ function TripList({
 
                                         <button
                                             type="button"
-                                            onClick={() => {
-                                                setOpenMenuId(null);
-                                                onDuplicateTrip(trip);
-                                            }}
+                                            disabled={duplicatingTripId !== null}
+                                            onClick={() => handleDuplicate(trip)}
                                         >
                                             <Copy
                                                 size={16}
                                                 aria-hidden="true"
                                             />
-                                            Duplicate
+                                            {duplicatingTripId === trip.id
+                                                ? "Duplicating..."
+                                                : "Duplicate"}
                                         </button>
 
                                         <button
                                             type="button"
                                             className="item-menu-delete"
+                                            disabled={duplicatingTripId !== null}
                                             onClick={() => {
                                                 setOpenMenuId(null);
                                                 onDeleteTrip(trip);

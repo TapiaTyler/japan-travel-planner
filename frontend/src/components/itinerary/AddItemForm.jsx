@@ -7,6 +7,7 @@ import {
 function AddItemForm({ onCancel, onSave }) {
     const [itemType, setItemType] = useState("Activity");
     const [formError, setFormError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -43,20 +44,25 @@ function AddItemForm({ onCancel, onSave }) {
     async function handleSubmit(event) {
         event.preventDefault();
 
+        if (isSubmitting) return;
+
         setFormError("");
+        setIsSubmitting(true);
 
         try {
             await onSave(itemType, formData);
         } catch (error) {
             setFormError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} aria-busy={isSubmitting}>
 
             {formError && (
-                <p className="form-error">
+                <p className="form-error" role="alert">
                     {formError}
                 </p>
             )}
@@ -325,13 +331,15 @@ function AddItemForm({ onCancel, onSave }) {
             <button
                 className="add-button"
                 type="submit"
+                disabled={isSubmitting}
             >
-                Add Item
+                {isSubmitting ? "Adding Item..." : "Add Item"}
             </button>
 
             <button
                 type="button"
                 onClick={onCancel}
+                disabled={isSubmitting}
             >
                 Cancel
             </button>

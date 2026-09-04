@@ -7,6 +7,7 @@ function RegisterForm({ onRegister, onCancel }) {
     });
 
     const [formError, setFormError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -20,7 +21,10 @@ function RegisterForm({ onRegister, onCancel }) {
     async function handleSubmit(event) {
         event.preventDefault();
 
+        if (isSubmitting) return;
+
         setFormError("");
+        setIsSubmitting(true);
 
         try {
             await onRegister(
@@ -29,15 +33,17 @@ function RegisterForm({ onRegister, onCancel }) {
             );
         } catch (error) {
             setFormError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
     return (
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
             <h2>Create Account</h2>
 
             {formError && (
-                <p className="form-error">
+                <p className="form-error" role="alert">
                     {formError}
                 </p>
             )}
@@ -71,13 +77,15 @@ function RegisterForm({ onRegister, onCancel }) {
             <button
                 type="submit"
                 className="add-button"
+                disabled={isSubmitting}
             >
-                Create Account
+                {isSubmitting ? "Creating Account..." : "Create Account"}
             </button>
 
             <button
                 type="button"
                 onClick={onCancel}
+                disabled={isSubmitting}
             >
                 Back to Login
             </button>

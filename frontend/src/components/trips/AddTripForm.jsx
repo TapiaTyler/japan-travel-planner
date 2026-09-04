@@ -9,6 +9,7 @@ function AddTripForm({ onCancel, onSave }) {
     });
 
     const [formError, setFormError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -22,20 +23,25 @@ function AddTripForm({ onCancel, onSave }) {
     async function handleSubmit(event) {
         event.preventDefault();
 
+        if (isSubmitting) return;
+
         setFormError("");
+        setIsSubmitting(true);
 
         try {
             await onSave(formData);
         } catch (error) {
             setFormError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} aria-busy={isSubmitting}>
 
             {formError && (
-                <p className="form-error">
+                <p className="form-error" role="alert">
                     {formError}
                 </p>
             )}
@@ -90,13 +96,15 @@ function AddTripForm({ onCancel, onSave }) {
             <button
                 className="add-button"
                 type="submit"
+                disabled={isSubmitting}
             >
-                Create Trip
+                {isSubmitting ? "Creating Trip..." : "Create Trip"}
             </button>
 
             <button
                 type="button"
                 onClick={onCancel}
+                disabled={isSubmitting}
             >
                 Cancel
             </button>

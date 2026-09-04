@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 function ConfirmDialog({
                            message,
                            warning,
@@ -6,8 +8,22 @@ function ConfirmDialog({
                            onConfirm,
                            onCancel,
                        }) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    async function handleConfirm() {
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
+
+        try {
+            await onConfirm();
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
+
     return (
-        <div className="confirm-dialog">
+        <div className="confirm-dialog" aria-busy={isSubmitting}>
             <p>{message}</p>
 
             {warning && (
@@ -20,6 +36,7 @@ function ConfirmDialog({
                 <button
                     type="button"
                     onClick={onCancel}
+                    disabled={isSubmitting}
                 >
                     {cancelLabel}
                 </button>
@@ -27,9 +44,10 @@ function ConfirmDialog({
                 <button
                     type="button"
                     className="danger-button"
-                    onClick={onConfirm}
+                    onClick={handleConfirm}
+                    disabled={isSubmitting}
                 >
-                    {confirmLabel}
+                    {isSubmitting ? "Deleting..." : confirmLabel}
                 </button>
             </div>
         </div>
