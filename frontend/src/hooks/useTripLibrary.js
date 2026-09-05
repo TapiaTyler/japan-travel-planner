@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
     addSavedItemToTrip,
     deleteSavedItineraryItem,
@@ -10,6 +11,8 @@ import {
 } from "../api/api.js";
 
 function useTripLibrary(currentUser) {
+    const { i18n } = useTranslation();
+    const language = i18n.resolvedLanguage;
     const [publicTemplates, setPublicTemplates] = useState([]);
     const [myTemplates, setMyTemplates] = useState([]);
     const [savedItems, setSavedItems] = useState([]);
@@ -21,7 +24,7 @@ function useTripLibrary(currentUser) {
 
         try {
             const [featured, personal, reusableItems] = await Promise.all([
-                getPublicTemplates(),
+                getPublicTemplates(language),
                 currentUser ? getMyTemplates() : Promise.resolve([]),
                 currentUser ? getSavedItineraryItems() : Promise.resolve([]),
             ]);
@@ -34,7 +37,7 @@ function useTripLibrary(currentUser) {
         } finally {
             setLoading(false);
         }
-    }, [currentUser]);
+    }, [currentUser, language]);
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -42,7 +45,7 @@ function useTripLibrary(currentUser) {
     }, [loadTemplates]);
 
     async function createTripFromTemplate(templateId, trip) {
-        return instantiateTemplate(templateId, trip);
+        return instantiateTemplate(templateId, trip, language);
     }
 
     async function removeTemplate(templateId) {

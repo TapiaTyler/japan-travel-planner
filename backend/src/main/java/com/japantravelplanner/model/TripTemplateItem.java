@@ -22,6 +22,9 @@ public class TripTemplateItem {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(length = 150)
+    private String localizationKey;
+
     private Integer dateOffset;
     private Long cost;
 
@@ -62,6 +65,8 @@ public class TripTemplateItem {
     public void setItemType(String itemType) { this.itemType = itemType; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getLocalizationKey() { return localizationKey; }
+    public void setLocalizationKey(String localizationKey) { this.localizationKey = localizationKey; }
     public Integer getDateOffset() { return dateOffset; }
     public void setDateOffset(Integer dateOffset) { this.dateOffset = dateOffset; }
     public Long getCost() { return cost; }

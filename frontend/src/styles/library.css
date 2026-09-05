@@ -3,7 +3,7 @@
 .library-hero {
     display: grid;
     gap: 0.65rem;
-    max-width: 760px;
+    max-width: 790px;
     padding: 2.5rem 0 0.5rem;
 }
 

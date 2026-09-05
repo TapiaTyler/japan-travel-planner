@@ -538,9 +538,12 @@ export async function changePassword(currentPassword, newPassword) {
     return response.json();
 }
 
-export async function getPublicTemplates() {
+export async function getPublicTemplates(language = i18n.resolvedLanguage ?? "en") {
     const response = await fetch(`${API_BASE_URL}/api/templates/public`, {
         credentials: "include",
+        headers: {
+            "Accept-Language": language,
+        },
     });
 
     if (!response.ok) {
@@ -583,12 +586,19 @@ export async function createTemplateFromTrip(tripId, template) {
     return response.json();
 }
 
-export async function instantiateTemplate(templateId, trip) {
+export async function instantiateTemplate(
+    templateId,
+    trip,
+    language = i18n.resolvedLanguage ?? "en"
+) {
     const response = await csrfFetch(
         `${API_BASE_URL}/api/templates/${templateId}/instantiate`,
         {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Accept-Language": language,
+            },
             body: JSON.stringify(trip),
         }
     );

@@ -42,6 +42,6 @@ The root `Dockerfile` builds React first, copies its output into Spring Boot sta
 ## Deliberate Constraints
 
 - Costs are stored and totaled only in JPY; exchange-rate ambiguity is intentionally avoided.
-- User-entered names, notes, and locations remain in their original language.
+- User-entered names, notes, and locations remain in their original language. Curated public templates use stable localization keys so previews and instantiated trips follow the requesting UI language.
 - Map links use encoded queries and external map URLs, so no paid maps API or location tracking is required.
 - Image uploads are deferred to keep storage, moderation, lifecycle, and cost concerns outside the current portfolio scope.
