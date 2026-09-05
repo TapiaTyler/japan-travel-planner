@@ -24,6 +24,15 @@ function renderHeader(overrides = {}) {
 }
 
 describe("AppHeader user menu", () => {
+    it("links the brand and primary navigation to the public landing page", () => {
+        renderHeader();
+
+        expect(screen.getByRole("link", { name: "Japan Travel Planner" }))
+            .toHaveAttribute("href", "/");
+        expect(screen.getByRole("link", { name: "Home" }))
+            .toHaveAttribute("href", "/");
+    });
+
     it("groups account, appearance, and logout controls under the username", async () => {
         const user = userEvent.setup();
         const { onToggleTheme } = renderHeader();

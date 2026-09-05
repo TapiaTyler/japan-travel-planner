@@ -18,6 +18,7 @@ import TripsPage from "./pages/TripsPage.jsx";
 import TripDetailsPage from "./pages/TripDetailsPage.jsx";
 import AccountSettingsPage from "./pages/AccountSettingsPage.jsx";
 import TripLibraryPage from "./pages/TripLibraryPage.jsx";
+import LandingPage from "./pages/LandingPage.jsx";
 import useAuth from "./hooks/useAuth.js";
 import useTrips from "./hooks/useTrips.js";
 import useItinerary from "./hooks/useItinerary.js";
@@ -104,8 +105,8 @@ function App() {
         navigate("/login", { replace: true });
     }
 
-    function openAuthModal() {
-        setModalAuthMode("login");
+    function openAuthModal(mode = "login") {
+        setModalAuthMode(mode);
         setAuthModalOpen(true);
     }
 
@@ -204,7 +205,7 @@ function App() {
                 handleLogout={handleLogout}
                 theme={theme}
                 onToggleTheme={toggleTheme}
-                onLogin={openAuthModal}
+                onLogin={() => openAuthModal("login")}
             />
 
             {auth.sessionExpired && (
@@ -229,7 +230,9 @@ function App() {
 
             {authModalOpen && !auth.currentUser && (
                 <Modal
-                    title={t("library.signInRequired")}
+                    title={modalAuthMode === "register"
+                        ? t("auth.createAccount")
+                        : t("auth.login")}
                     onClose={() => setAuthModalOpen(false)}
                     className="auth-modal"
                 >
@@ -244,6 +247,16 @@ function App() {
 
             <div className="main-wrapper">
                 <Routes>
+                    <Route
+                        path="/"
+                        element={
+                            <LandingPage
+                                currentUser={auth.currentUser}
+                                onStart={() => openAuthModal("register")}
+                            />
+                        }
+                    />
+
                     <Route
                         path="/login"
                         element={
@@ -266,7 +279,7 @@ function App() {
                             <TripLibraryPage
                                 currentUser={auth.currentUser}
                                 trips={tripState.trips}
-                                onRequireAuth={openAuthModal}
+                                onRequireAuth={() => openAuthModal("login")}
                                 onTripCreated={handleTripCreatedFromTemplate}
                                 onItemAdded={handleSavedItemAdded}
                             />
@@ -316,7 +329,7 @@ function App() {
                                 to={
                                     auth.currentUser
                                         ? "/trips"
-                                        : "/library"
+                                        : "/"
                                 }
                                 replace
                             />

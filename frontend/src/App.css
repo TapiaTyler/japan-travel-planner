@@ -5,22 +5,13 @@
 @import "./styles/itinerary.css";
 @import "./styles/layout.css";
 @import "./styles/loading.css";
+@import "./styles/landing.css";
 @import "./styles/library.css";
 @import "./styles/modals.css";
 @import "./styles/print.css";
 @import "./styles/reports.css";
 @import "./styles/trips.css";
 @import url('https://googleapis.com');
-
-
-.trip-card {
-  position: relative;
-}
-
-.trip-card-actions {
-  position: relative;
-}
-
 .trip-date-warning {
   padding: 0.75rem 1rem;
   margin: 1rem 0;

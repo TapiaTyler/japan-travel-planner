@@ -47,6 +47,10 @@ vi.mock("./pages/TripLibraryPage.jsx", () => ({
     default: () => <section>Public Trip Library</section>,
 }));
 
+vi.mock("./pages/LandingPage.jsx", () => ({
+    default: () => <section>Public landing page</section>,
+}));
+
 function LocationProbe() {
     const location = useLocation();
     return <output aria-label="Current path">{location.pathname}</output>;
@@ -161,6 +165,25 @@ describe("application routing", () => {
 
         expect(screen.getByText("Public Trip Library")).toBeInTheDocument();
         expect(screen.getByLabelText("Current path")).toHaveTextContent("/library");
+    });
+
+    it("uses the landing page as the public entry point", () => {
+        useAuth.mockReturnValue({
+            currentUser: null,
+            checkingSession: false,
+            sessionExpired: false,
+            authMode: "login",
+            setAuthMode: vi.fn(),
+            handleLogin: vi.fn(),
+            handleRegister: vi.fn(),
+            handleLogout: vi.fn(),
+            handleSessionExpired: vi.fn(),
+        });
+
+        renderAt("/");
+
+        expect(screen.getByText("Public landing page")).toBeInTheDocument();
+        expect(screen.getByLabelText("Current path")).toHaveTextContent("/");
     });
 
     it("restores an itinerary directly from its URL", () => {

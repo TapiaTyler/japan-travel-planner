@@ -65,12 +65,13 @@ function AppHeader({
     return (
         <header className="app-header">
             <div className="app-header-inner">
-                <Link className="app-brand" to={currentUser ? "/trips" : "/library"}>
+                <Link className="app-brand" to="/">
                     <img src={logo} alt="" className="app-logo" />
                     <h1>{t("app.name")}</h1>
                 </Link>
 
                 <nav className="app-navigation" aria-label={t("navigation.primary")}>
+                    <NavLink to="/" end>{t("navigation.home")}</NavLink>
                     <NavLink to="/library">{t("navigation.library")}</NavLink>
                     {currentUser && <NavLink to="/trips">{t("navigation.trips")}</NavLink>}
                 </nav>
