@@ -1,8 +1,14 @@
 # Japan Travel Planner
 
+[![CI](https://github.com/TapiaTyler/japan-travel-planner/actions/workflows/ci.yml/badge.svg)](https://github.com/TapiaTyler/japan-travel-planner/actions/workflows/ci.yml)
+
+**[View the live application](https://japan-travel-planner-production.up.railway.app/)**
+
 A full-stack itinerary planner designed for travel within Japan. Users can organize trips, filter scheduled items, track costs in Japanese yen, reuse templates, open destinations in their preferred map application, and generate printable itineraries. The interface is responsive, supports English and Japanese, and includes light and dark themes.
 
 This project began as a WGU software engineering capstone and is being developed into a production-style portfolio application.
+
+![Japan Travel Planner landing page](docs/images/landing-desktop.png)
 
 ## Highlights
 
@@ -13,6 +19,28 @@ This project began as a WGU software engineering capstone and is being developed
 - Filter-aware printable itinerary generation
 - English/Japanese localization, responsive layouts, and theme preferences
 - PostgreSQL schema management through versioned Flyway migrations
+
+## Screenshots
+
+### Itinerary Workspace
+
+The itinerary view combines search, advanced filters, date and location grouping, map shortcuts, and a live cost summary.
+
+![Desktop itinerary workspace](docs/images/itinerary-desktop.png)
+
+### Responsive Dark Mode
+
+The complete planning workflow adapts to narrow screens while retaining the same navigation, filtering, and cost information.
+
+<p align="center">
+  <img src="docs/images/itinerary-mobile-dark.png" alt="Mobile itinerary workspace in dark mode" width="340">
+</p>
+
+### Japanese Trip Library
+
+The interface and curated public templates are available in Japanese; personal and user-entered content remains in its original language.
+
+![Japanese-localized Trip Library](docs/images/trip-library-japanese.png)
 
 ## Technology
 
