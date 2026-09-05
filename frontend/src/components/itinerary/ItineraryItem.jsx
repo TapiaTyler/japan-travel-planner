@@ -6,6 +6,7 @@ import {
     CarTaxiFront,
     MapPinned,
     MapPin,
+    LibraryBig,
     Pencil,
     Plane,
     Route,
@@ -61,11 +62,24 @@ function ItemIcon({ item }) {
     return <Route {...iconProps} />;
 }
 
-function ItineraryItem({ item, onEdit, onDelete }) {
+function ItineraryItem({ item, onEdit, onDelete, onSaveToLibrary }) {
     // States
     const [menuOpen, setMenuOpen] = useState(false);
+    const [isSavingToLibrary, setIsSavingToLibrary] = useState(false);
     const { t, i18n } = useTranslation();
     const mapsUrl = buildGoogleMapsSearchUrl(item.mapSearchQuery);
+
+    async function handleSaveToLibrary() {
+        if (isSavingToLibrary) return;
+        setIsSavingToLibrary(true);
+
+        try {
+            const savedItem = await onSaveToLibrary(item);
+            if (savedItem) setMenuOpen(false);
+        } finally {
+            setIsSavingToLibrary(false);
+        }
+    }
 
     function renderDetails() {
         if (item.itemType === "Activity") {
@@ -194,6 +208,17 @@ function ItineraryItem({ item, onEdit, onDelete }) {
                                     aria-hidden="true"
                                 />
                                 {t("common.edit")}
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={isSavingToLibrary}
+                                onClick={handleSaveToLibrary}
+                            >
+                                <LibraryBig size={16} aria-hidden="true" />
+                                {isSavingToLibrary
+                                    ? t("libraryItems.saving")
+                                    : t("libraryItems.save")}
                             </button>
 
                             <button

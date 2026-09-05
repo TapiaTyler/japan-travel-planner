@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import ItineraryItem from "./ItineraryItem.jsx";
@@ -48,5 +49,25 @@ describe("ItineraryItem map link", () => {
         expect(
             screen.queryByRole("link", { name: "Open in Maps" })
         ).not.toBeInTheDocument();
+    });
+});
+
+describe("ItineraryItem library action", () => {
+    it("saves an item from its action menu", async () => {
+        const user = userEvent.setup();
+        const onSaveToLibrary = vi.fn().mockResolvedValue({ name: activity.name });
+        render(
+            <ItineraryItem
+                item={activity}
+                onEdit={vi.fn()}
+                onDelete={vi.fn()}
+                onSaveToLibrary={onSaveToLibrary}
+            />
+        );
+
+        await user.click(screen.getByRole("button", { name: "Options for Fushimi Inari Taisha" }));
+        await user.click(screen.getByRole("button", { name: "Save to Library" }));
+
+        expect(onSaveToLibrary).toHaveBeenCalledWith(activity);
     });
 });

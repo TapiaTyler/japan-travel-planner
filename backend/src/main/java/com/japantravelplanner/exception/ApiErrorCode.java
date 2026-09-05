@@ -8,6 +8,7 @@ public enum ApiErrorCode {
     TRIP_NOT_FOUND("The requested trip could not be found."),
     TRIP_DATES_INVALID("Start date cannot be after end date."),
     TEMPLATE_NOT_FOUND("The requested trip template could not be found."),
+    LIBRARY_ITEM_NOT_FOUND("The requested saved itinerary item could not be found."),
     ITEM_NOT_FOUND("The requested itinerary item could not be found."),
     ITEM_TYPE_UNSUPPORTED("Unsupported itinerary item type."),
     ITEM_NOT_ACTIVITY("The requested itinerary item is not an activity."),

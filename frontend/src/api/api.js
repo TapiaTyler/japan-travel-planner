@@ -614,6 +614,64 @@ export async function deleteTemplate(templateId) {
     }
 }
 
+export async function getSavedItineraryItems() {
+    const response = await fetch(`${API_BASE_URL}/api/library-items`, {
+        credentials: "include",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEMS_LOAD"));
+    }
+
+    return response.json();
+}
+
+export async function saveItineraryItemToLibrary(tripId, itemId) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/library-items/from-trip/${tripId}/items/${itemId}`,
+        { method: "POST" }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEM_SAVE"));
+    }
+
+    return response.json();
+}
+
+export async function addSavedItemToTrip(savedItemId, tripId, date) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/library-items/${savedItemId}/add-to-trip/${tripId}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date }),
+        }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEM_ADD"));
+    }
+}
+
+export async function deleteSavedItineraryItem(savedItemId) {
+    const response = await csrfFetch(`${API_BASE_URL}/api/library-items/${savedItemId}`, {
+        method: "DELETE",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEM_DELETE"));
+    }
+}
+
 export async function deleteAccount(currentPassword) {
     const response = await csrfFetch(
         `${API_BASE_URL}/api/account`,

@@ -62,6 +62,7 @@ function TripDetailsPage({
         addingItem,
         editingItem,
         itemToDelete,
+        savedLibraryItemName,
 
         groupBy,
 
@@ -77,6 +78,7 @@ function TripDetailsPage({
         setAddingItem,
         setEditingItem,
         setItemToDelete,
+        setSavedLibraryItemName,
 
         setGroupBy,
         setPrintModalOpen,
@@ -86,6 +88,7 @@ function TripDetailsPage({
         handleEditItem,
         handleSaveItem,
         handleConfirmDeleteItem,
+        handleSaveItemToLibrary,
 
         handleSearch,
         handleClearSearch,
@@ -179,6 +182,20 @@ function TripDetailsPage({
                 <p className="page-error" role="alert">
                     {itineraryError}
                 </p>
+            )}
+
+            {savedLibraryItemName && (
+                <div className="page-success" role="status">
+                    <span>{t("libraryItems.saved", { name: savedLibraryItemName })}</span>
+                    <button
+                        type="button"
+                        className="notice-dismiss"
+                        aria-label={t("common.close")}
+                        onClick={() => setSavedLibraryItemName("")}
+                    >
+                        ×
+                    </button>
+                </div>
             )}
 
             <button
@@ -592,6 +609,7 @@ function TripDetailsPage({
                                                     onDelete={
                                                         setItemToDelete
                                                     }
+                                                    onSaveToLibrary={handleSaveItemToLibrary}
                                                 />
                                             )
                                         )}
@@ -634,6 +652,7 @@ function TripDetailsPage({
                                                 onDelete={
                                                     setItemToDelete
                                                 }
+                                                onSaveToLibrary={handleSaveItemToLibrary}
                                             />
                                         )
                                     )}

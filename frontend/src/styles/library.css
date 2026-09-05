@@ -100,6 +100,37 @@
 .page-success .notice-dismiss { margin: 0; padding: 0.15rem 0.5rem; background: transparent; border: none; color: inherit; font-size: 1.2rem; }
 .auth-modal .login-form h2 { font-size: 1.15rem; }
 
+.saved-items-grid { display: grid; gap: 0.75rem; }
+.saved-item-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+.saved-item-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+}
+.saved-item-activity .saved-item-icon { background: var(--activity-soft); color: var(--activity-color); }
+.saved-item-transportation .saved-item-icon { background: var(--transportation-soft); color: var(--transportation-color); }
+.saved-item-lodging .saved-item-icon { background: var(--lodging-soft); color: var(--lodging-color); }
+.saved-item-content { display: grid; gap: 0.25rem; min-width: 0; }
+.saved-item-content > p:not(.template-eyebrow) { overflow-wrap: anywhere; color: var(--text-muted); }
+.saved-item-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; margin-top: 0.2rem; color: var(--text-muted); font-size: 0.85rem; }
+.saved-item-meta span { display: inline-flex; align-items: center; gap: 0.3rem; }
+.saved-item-actions { display: flex; align-items: center; gap: 0.4rem; }
+.saved-item-actions button { display: inline-flex; align-items: center; gap: 0.4rem; margin: 0; }
+.saved-item-actions .saved-item-delete { padding-inline: 0.65rem; color: var(--danger-dark); }
+
 @media (max-width: 640px) {
     .library-page { gap: 2rem; }
     .library-hero { padding-top: 1.25rem; }
@@ -108,6 +139,9 @@
     .template-actions { align-items: stretch; flex-direction: column; }
     .template-actions button { width: 100%; }
     .template-preview li { grid-template-columns: 72px minmax(0, 1fr); }
+    .saved-item-card { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+    .saved-item-actions { grid-column: 1 / -1; }
+    .saved-item-actions .add-button { flex: 1; justify-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {

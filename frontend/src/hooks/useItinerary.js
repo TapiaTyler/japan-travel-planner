@@ -8,6 +8,7 @@ import {
     createTransportation,
     deleteTripItem,
     getTripItems,
+    saveItineraryItemToLibrary,
     updateActivity,
     updateLodging,
     updateTransportation,
@@ -35,6 +36,7 @@ function useItinerary(selectedTrip) {
     const [addingItem, setAddingItem] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [itemToDelete, setItemToDelete] = useState(null);
+    const [savedLibraryItemName, setSavedLibraryItemName] = useState("");
 
     const [groupBy, setGroupBy] = useState("date");
 
@@ -112,6 +114,7 @@ function useItinerary(selectedTrip) {
         setAddingItem(false);
         setEditingItem(null);
         setItemToDelete(null);
+        setSavedLibraryItemName("");
 
         setGroupBy("date");
 
@@ -364,6 +367,18 @@ function useItinerary(selectedTrip) {
         setSearchParams(nextParams, { replace: true });
     }
 
+    async function handleSaveItemToLibrary(item) {
+        try {
+            const savedItem = await saveItineraryItemToLibrary(selectedTrip.id, item.id);
+            setSavedLibraryItemName(savedItem.name);
+            setItineraryError("");
+            return savedItem;
+        } catch (error) {
+            setItineraryError(error.message);
+            return null;
+        }
+    }
+
     function handleClearSearch() {
         const nextParams = new URLSearchParams(searchParams);
         nextParams.delete("q");
@@ -418,6 +433,7 @@ function useItinerary(selectedTrip) {
         addingItem,
         editingItem,
         itemToDelete,
+        savedLibraryItemName,
 
         groupBy,
 
@@ -434,6 +450,7 @@ function useItinerary(selectedTrip) {
         setAddingItem,
         setEditingItem,
         setItemToDelete,
+        setSavedLibraryItemName,
 
         setGroupBy,
 
@@ -444,6 +461,7 @@ function useItinerary(selectedTrip) {
         handleEditItem,
         handleSaveItem,
         handleConfirmDeleteItem,
+        handleSaveItemToLibrary,
 
         handleSearch,
         handleClearSearch,

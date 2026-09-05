@@ -114,6 +114,11 @@ function App() {
         navigate(getTripPath(trip));
     }
 
+    async function handleSavedItemAdded(trip) {
+        await tripState.loadTrips();
+        navigate(getTripPath(trip));
+    }
+
     const routedTripState = {
         ...tripState,
         handleBackToTrips,
@@ -260,8 +265,10 @@ function App() {
                         element={
                             <TripLibraryPage
                                 currentUser={auth.currentUser}
+                                trips={tripState.trips}
                                 onRequireAuth={openAuthModal}
                                 onTripCreated={handleTripCreatedFromTemplate}
+                                onItemAdded={handleSavedItemAdded}
                             />
                         }
                     />

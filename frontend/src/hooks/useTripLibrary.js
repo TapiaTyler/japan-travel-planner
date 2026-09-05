@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+    addSavedItemToTrip,
+    deleteSavedItineraryItem,
     deleteTemplate,
+    getSavedItineraryItems,
     getMyTemplates,
     getPublicTemplates,
     instantiateTemplate,
@@ -9,6 +12,7 @@ import {
 function useTripLibrary(currentUser) {
     const [publicTemplates, setPublicTemplates] = useState([]);
     const [myTemplates, setMyTemplates] = useState([]);
+    const [savedItems, setSavedItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -16,12 +20,14 @@ function useTripLibrary(currentUser) {
         setLoading(true);
 
         try {
-            const [featured, personal] = await Promise.all([
+            const [featured, personal, reusableItems] = await Promise.all([
                 getPublicTemplates(),
                 currentUser ? getMyTemplates() : Promise.resolve([]),
+                currentUser ? getSavedItineraryItems() : Promise.resolve([]),
             ]);
             setPublicTemplates(featured);
             setMyTemplates(personal);
+            setSavedItems(reusableItems);
             setError("");
         } catch (requestError) {
             setError(requestError.message);
@@ -46,13 +52,25 @@ function useTripLibrary(currentUser) {
         );
     }
 
+    async function addSavedItem(savedItemId, tripId, date) {
+        await addSavedItemToTrip(savedItemId, tripId, date);
+    }
+
+    async function removeSavedItem(savedItemId) {
+        await deleteSavedItineraryItem(savedItemId);
+        setSavedItems((items) => items.filter((item) => item.id !== savedItemId));
+    }
+
     return {
         publicTemplates,
         myTemplates,
+        savedItems,
         loading,
         error,
         createTripFromTemplate,
         removeTemplate,
+        addSavedItem,
+        removeSavedItem,
     };
 }
 

@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/account/**").authenticated()
                         .requestMatchers("/api/trips/**").authenticated()
                         .requestMatchers("/api/templates/**").authenticated()
+                        .requestMatchers("/api/library-items/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(exception -> exception

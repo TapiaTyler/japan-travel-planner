@@ -5,6 +5,8 @@ import LoadingState from "../components/common/LoadingState.jsx";
 import Modal from "../components/common/Modal.jsx";
 import TripTemplateCard from "../components/library/TripTemplateCard.jsx";
 import UseTemplateForm from "../components/library/UseTemplateForm.jsx";
+import AddSavedItemToTripForm from "../components/library/AddSavedItemToTripForm.jsx";
+import SavedItineraryItemCard from "../components/library/SavedItineraryItemCard.jsx";
 import useTripLibrary from "../hooks/useTripLibrary.js";
 
 function TemplateGrid({ templates, owned, onUse, onDelete }) {
@@ -23,12 +25,14 @@ function TemplateGrid({ templates, owned, onUse, onDelete }) {
     );
 }
 
-function TripLibraryPage({ currentUser, onRequireAuth, onTripCreated }) {
+function TripLibraryPage({ currentUser, trips = [], onRequireAuth, onTripCreated, onItemAdded }) {
     const { t } = useTranslation();
     const library = useTripLibrary(currentUser);
     const [templateToUse, setTemplateToUse] = useState(null);
     const [pendingTemplate, setPendingTemplate] = useState(null);
     const [templateToDelete, setTemplateToDelete] = useState(null);
+    const [savedItemToAdd, setSavedItemToAdd] = useState(null);
+    const [savedItemToDelete, setSavedItemToDelete] = useState(null);
 
     const activeTemplate = templateToUse ?? (currentUser ? pendingTemplate : null);
 
@@ -52,6 +56,18 @@ function TripLibraryPage({ currentUser, onRequireAuth, onTripCreated }) {
     async function handleDelete() {
         await library.removeTemplate(templateToDelete.id);
         setTemplateToDelete(null);
+    }
+
+    async function handleAddSavedItem({ tripId, date }) {
+        await library.addSavedItem(savedItemToAdd.id, tripId, date);
+        const destinationTrip = trips.find((trip) => trip.id === tripId);
+        setSavedItemToAdd(null);
+        await onItemAdded(destinationTrip);
+    }
+
+    async function handleDeleteSavedItem() {
+        await library.removeSavedItem(savedItemToDelete.id);
+        setSavedItemToDelete(null);
     }
 
     return (
@@ -79,6 +95,7 @@ function TripLibraryPage({ currentUser, onRequireAuth, onTripCreated }) {
                     </section>
 
                     {currentUser && (
+                        <>
                         <section className="library-section" aria-labelledby="my-templates-heading">
                             <div className="library-section-heading">
                                 <div>
@@ -100,6 +117,34 @@ function TripLibraryPage({ currentUser, onRequireAuth, onTripCreated }) {
                                 </div>
                             )}
                         </section>
+
+                        <section className="library-section" aria-labelledby="saved-items-heading">
+                            <div className="library-section-heading">
+                                <div>
+                                    <h3 id="saved-items-heading">{t("libraryItems.title")}</h3>
+                                    <p>{t("libraryItems.hint")}</p>
+                                </div>
+                            </div>
+                            {library.savedItems.length > 0 ? (
+                                <div className="saved-items-grid">
+                                    {library.savedItems.map((item) => (
+                                        <SavedItineraryItemCard
+                                            key={item.id}
+                                            item={item}
+                                            canAdd={trips.length > 0}
+                                            onAdd={setSavedItemToAdd}
+                                            onDelete={setSavedItemToDelete}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="library-empty-state">
+                                    <h4>{t("libraryItems.empty")}</h4>
+                                    <p>{t("libraryItems.emptyHint")}</p>
+                                </div>
+                            )}
+                        </section>
+                        </>
                     )}
                 </>
             )}
@@ -131,6 +176,35 @@ function TripLibraryPage({ currentUser, onRequireAuth, onTripCreated }) {
                         confirmLabel={t("common.delete")}
                         onCancel={() => setTemplateToDelete(null)}
                         onConfirm={handleDelete}
+                    />
+                </Modal>
+            )}
+
+            {savedItemToAdd && (
+                <Modal
+                    title={t("libraryItems.addNamed", { name: savedItemToAdd.name })}
+                    onClose={() => setSavedItemToAdd(null)}
+                >
+                    <AddSavedItemToTripForm
+                        item={savedItemToAdd}
+                        trips={trips}
+                        onCancel={() => setSavedItemToAdd(null)}
+                        onSave={handleAddSavedItem}
+                    />
+                </Modal>
+            )}
+
+            {savedItemToDelete && (
+                <Modal
+                    title={t("libraryItems.delete")}
+                    onClose={() => setSavedItemToDelete(null)}
+                >
+                    <ConfirmDialog
+                        message={t("libraryItems.deleteConfirmation", { name: savedItemToDelete.name })}
+                        warning={t("libraryItems.deleteWarning")}
+                        confirmLabel={t("common.delete")}
+                        onCancel={() => setSavedItemToDelete(null)}
+                        onConfirm={handleDeleteSavedItem}
                     />
                 </Modal>
             )}

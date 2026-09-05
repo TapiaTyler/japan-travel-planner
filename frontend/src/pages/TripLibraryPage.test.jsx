@@ -22,10 +22,13 @@ function libraryState() {
     return {
         publicTemplates: [featuredTemplate],
         myTemplates: [],
+        savedItems: [],
         loading: false,
         error: "",
         createTripFromTemplate: vi.fn(),
         removeTemplate: vi.fn(),
+        addSavedItem: vi.fn(),
+        removeSavedItem: vi.fn(),
     };
 }
 
@@ -88,5 +91,41 @@ describe("TripLibraryPage", () => {
 
         expect(screen.getByRole("dialog")).toHaveTextContent("Use Tokyo Highlights");
         expect(screen.getByLabelText("Trip Name")).toHaveValue("Tokyo Highlights");
+    });
+
+    it("opens saved-item setup with dates constrained to the destination trip", async () => {
+        const user = userEvent.setup();
+        useTripLibrary.mockReturnValue({
+            ...libraryState(),
+            savedItems: [{
+                id: 20,
+                itemType: "Lodging",
+                name: "Kyoto Hotel",
+                location: "Kyoto",
+                cost: null,
+                endDateOffset: 2,
+            }],
+        });
+
+        render(
+            <TripLibraryPage
+                currentUser={{ username: "traveler" }}
+                trips={[{
+                    id: 4,
+                    name: "Spring Japan",
+                    startDate: "2027-04-01",
+                    endDate: "2027-04-10",
+                }]}
+                onRequireAuth={vi.fn()}
+                onTripCreated={vi.fn()}
+                onItemAdded={vi.fn()}
+            />
+        );
+
+        await user.click(screen.getByRole("button", { name: "Add to Trip" }));
+
+        expect(screen.getByLabelText("Destination Trip")).toHaveValue("4");
+        expect(screen.getByLabelText("Lodging Date")).toHaveAttribute("min", "2027-04-01");
+        expect(screen.getByLabelText("Lodging Date")).toHaveAttribute("max", "2027-04-08");
     });
 });
