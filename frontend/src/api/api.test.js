@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import i18n from "../i18n/index.js";
 import { getPublicTemplates, instantiateTemplate, login, register } from "./api.js";
@@ -60,6 +60,10 @@ describe("localized API errors", () => {
 });
 
 describe("Trip Library API", () => {
+    beforeEach(async () => {
+        await i18n.changeLanguage("ja");
+    });
+
     it("loads public templates without requesting a CSRF token", async () => {
         const templates = [{ id: 1, name: "Tokyo Highlights" }];
         const fetchMock = vi.fn().mockResolvedValue(response({
@@ -72,6 +76,9 @@ describe("Trip Library API", () => {
         await expect(getPublicTemplates()).resolves.toEqual(templates);
         expect(fetchMock).toHaveBeenCalledOnce();
         expect(fetchMock.mock.calls[0][0]).toContain("/api/templates/public");
+        expect(fetchMock.mock.calls[0][1]).toMatchObject({
+            headers: { "Accept-Language": "ja" },
+        });
     });
 
     it("uses CSRF protection when creating a trip from a template", async () => {
@@ -95,6 +102,7 @@ describe("Trip Library API", () => {
             method: "POST",
             credentials: "include",
             headers: {
+                "Accept-Language": "ja",
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": "token",
             },

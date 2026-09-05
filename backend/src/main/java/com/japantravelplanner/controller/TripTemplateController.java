@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/templates")
@@ -25,13 +26,14 @@ public class TripTemplateController {
     }
 
     @GetMapping("/public")
-    public ResponseEntity<List<TripTemplateResponse>> getPublicTemplates() {
-        return ResponseEntity.ok(templateService.getPublicTemplates());
+    public ResponseEntity<List<TripTemplateResponse>> getPublicTemplates(Locale locale) {
+        return ResponseEntity.ok(templateService.getPublicTemplates(locale));
     }
 
     @GetMapping("/public/{templateId}")
-    public ResponseEntity<TripTemplateResponse> getPublicTemplate(@PathVariable Long templateId) {
-        return ResponseEntity.ok(templateService.getPublicTemplate(templateId));
+    public ResponseEntity<TripTemplateResponse> getPublicTemplate(
+            @PathVariable Long templateId, Locale locale) {
+        return ResponseEntity.ok(templateService.getPublicTemplate(templateId, locale));
     }
 
     @GetMapping("/mine")
@@ -53,8 +55,10 @@ public class TripTemplateController {
     public ResponseEntity<TripResponse> instantiate(
             @PathVariable Long templateId,
             @Valid @RequestBody InstantiateTripTemplateRequest request,
-            Authentication authentication) {
-        Trip trip = templateService.instantiate(templateId, authentication.getName(), request);
+            Authentication authentication,
+            Locale locale) {
+        Trip trip = templateService.instantiate(
+                templateId, authentication.getName(), request, locale);
         return ResponseEntity.status(HttpStatus.CREATED).body(tripService.toTripResponse(trip));
     }
 

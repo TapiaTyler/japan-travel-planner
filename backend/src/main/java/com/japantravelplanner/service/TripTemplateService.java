@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -23,35 +24,38 @@ public class TripTemplateService {
     private final TripRepository tripRepository;
     private final TripItemRepository tripItemRepository;
     private final UserRepository userRepository;
+    private final TripTemplateContentLocalizer contentLocalizer;
 
     public TripTemplateService(
             TripTemplateRepository templateRepository,
             TripTemplateItemRepository templateItemRepository,
             TripRepository tripRepository,
             TripItemRepository tripItemRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            TripTemplateContentLocalizer contentLocalizer) {
         this.templateRepository = templateRepository;
         this.templateItemRepository = templateItemRepository;
         this.tripRepository = tripRepository;
         this.tripItemRepository = tripItemRepository;
         this.userRepository = userRepository;
+        this.contentLocalizer = contentLocalizer;
     }
 
-    public List<TripTemplateResponse> getPublicTemplates() {
+    public List<TripTemplateResponse> getPublicTemplates(Locale locale) {
         return templateRepository.findByPublicTemplateTrueOrderByNameAsc()
-                .stream().map(this::toResponse).toList();
+                .stream().map(template -> toResponse(template, locale)).toList();
     }
 
-    public TripTemplateResponse getPublicTemplate(Long templateId) {
+    public TripTemplateResponse getPublicTemplate(Long templateId, Locale locale) {
         TripTemplate template = templateRepository.findById(templateId)
                 .filter(TripTemplate::isPublicTemplate)
                 .orElseThrow(() -> new ApiException(ApiErrorCode.TEMPLATE_NOT_FOUND));
-        return toResponse(template);
+        return toResponse(template, locale);
     }
 
     public List<TripTemplateResponse> getOwnedTemplates(String username) {
         return templateRepository.findByOwner_UsernameOrderByCreatedAtDesc(username)
-                .stream().map(this::toResponse).toList();
+                .stream().map(template -> toResponse(template, Locale.ENGLISH)).toList();
     }
 
     @Transactional
@@ -75,26 +79,28 @@ public class TripTemplateService {
                 .toList();
         templateItemRepository.saveAll(snapshots);
 
-        return toResponse(template);
+        return toResponse(template, Locale.ENGLISH);
     }
 
     @Transactional
     public Trip instantiate(
             Long templateId,
             String username,
-            InstantiateTripTemplateRequest request) {
+            InstantiateTripTemplateRequest request,
+            Locale locale) {
         TripTemplate template = getAccessibleTemplate(templateId, username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User account could not be found."));
 
         LocalDate endDate = request.getStartDate().plusDays(template.getDurationDays() - 1L);
         Trip trip = tripRepository.save(new Trip(
-                user, request.getName().trim(), request.getStartDate(), endDate, template.getNotes()
+                user, request.getName().trim(), request.getStartDate(), endDate,
+                localizeTemplate(template, "notes", template.getNotes(), locale)
         ));
 
         templateItemRepository.findByTemplate_IdOrderByIdAsc(templateId)
                 .stream()
-                .map(item -> toTripItem(item, trip, request.getStartDate()))
+                .map(item -> toTripItem(item, trip, request.getStartDate(), locale))
                 .forEach(tripItemRepository::save);
 
         return trip;
@@ -154,26 +160,32 @@ public class TripTemplateService {
     }
 
     private TripItem toTripItem(
-            TripTemplateItem item, Trip trip, LocalDate tripStart) {
+            TripTemplateItem item, Trip trip, LocalDate tripStart, Locale locale) {
+        String name = localizeItem(item, "name", item.getName(), locale);
+        String notes = localizeItem(item, "notes", item.getNotes(), locale);
         TripItem created;
         if ("Activity".equals(item.getItemType())) {
             created = new Activity(
-                    trip, item.getName(), fromOffset(tripStart, item.getDateOffset()),
-                    item.getCost(), item.getCostStatus(), item.getNotes(), item.getLocation(),
+                    trip, name, fromOffset(tripStart, item.getDateOffset()),
+                    item.getCost(), item.getCostStatus(), notes,
+                    localizeItem(item, "location", item.getLocation(), locale),
                     item.getStartTime(), item.getEndTime()
             );
         } else if ("Transportation".equals(item.getItemType())) {
             created = new Transportation(
-                    trip, item.getName(), fromOffset(tripStart, item.getDateOffset()),
-                    item.getCost(), item.getCostStatus(), item.getNotes(),
-                    item.getTransportationType(), item.getDepartureLocation(), item.getArrivalLocation(),
+                    trip, name, fromOffset(tripStart, item.getDateOffset()),
+                    item.getCost(), item.getCostStatus(), notes,
+                    item.getTransportationType(),
+                    localizeItem(item, "departureLocation", item.getDepartureLocation(), locale),
+                    localizeItem(item, "arrivalLocation", item.getArrivalLocation(), locale),
                     fromOffset(tripStart, item.getDepartureDateOffset()), item.getDepartureTime(),
                     fromOffset(tripStart, item.getArrivalDateOffset()), item.getArrivalTime()
             );
         } else if ("Lodging".equals(item.getItemType())) {
             created = new Lodging(
-                    trip, item.getName(), fromOffset(tripStart, item.getDateOffset()),
-                    item.getCost(), item.getCostStatus(), item.getNotes(), item.getLocation(),
+                    trip, name, fromOffset(tripStart, item.getDateOffset()),
+                    item.getCost(), item.getCostStatus(), notes,
+                    localizeItem(item, "location", item.getLocation(), locale),
                     fromOffset(tripStart, item.getCheckInDateOffset()),
                     fromOffset(tripStart, item.getCheckOutDateOffset())
             );
@@ -192,33 +204,41 @@ public class TripTemplateService {
         return offset == null ? null : start.plusDays(offset);
     }
 
-    private TripTemplateResponse toResponse(TripTemplate template) {
+    private TripTemplateResponse toResponse(TripTemplate template, Locale locale) {
         List<TripTemplateItem> items =
                 templateItemRepository.findByTemplate_IdOrderByIdAsc(template.getId());
         Set<String> destinations = new LinkedHashSet<>();
         items.forEach(item -> {
-            addDestination(destinations, item.getLocation());
-            addDestination(destinations, item.getDepartureLocation());
-            addDestination(destinations, item.getArrivalLocation());
+            addDestination(destinations, localizeItem(item, "location", item.getLocation(), locale));
+            addDestination(destinations, localizeItem(
+                    item, "departureLocation", item.getDepartureLocation(), locale));
+            addDestination(destinations, localizeItem(
+                    item, "arrivalLocation", item.getArrivalLocation(), locale));
         });
         List<TripTemplateItemResponse> itemResponses = items.stream()
-                .map(this::toItemResponse).toList();
+                .map(item -> toItemResponse(item, locale)).toList();
         long totalCost = items.stream().filter(item -> item.getCost() != null)
                 .mapToLong(TripTemplateItem::getCost).sum();
         return new TripTemplateResponse(
-                template.getId(), template.getName(), template.getDurationDays(),
-                template.getNotes(), template.isPublicTemplate(), items.size(),
+                template.getId(), localizeTemplate(template, "name", template.getName(), locale),
+                template.getDurationDays(),
+                localizeTemplate(template, "notes", template.getNotes(), locale),
+                template.isPublicTemplate(), items.size(),
                 List.copyOf(destinations), totalCost, itemResponses,
                 template.getCreatedAt(), template.getUpdatedAt()
         );
     }
 
-    private TripTemplateItemResponse toItemResponse(TripTemplateItem item) {
+    private TripTemplateItemResponse toItemResponse(TripTemplateItem item, Locale locale) {
         return new TripTemplateItemResponse(
-                item.getId(), item.getItemType(), item.getName(), item.getDateOffset(),
-                item.getCost(), item.getCostStatus(), item.getNotes(), item.getMapSearchQuery(),
-                item.getLocation(), item.getStartTime(), item.getEndTime(),
-                item.getTransportationType(), item.getDepartureLocation(), item.getArrivalLocation(),
+                item.getId(), item.getItemType(),
+                localizeItem(item, "name", item.getName(), locale), item.getDateOffset(),
+                item.getCost(), item.getCostStatus(),
+                localizeItem(item, "notes", item.getNotes(), locale), item.getMapSearchQuery(),
+                localizeItem(item, "location", item.getLocation(), locale),
+                item.getStartTime(), item.getEndTime(), item.getTransportationType(),
+                localizeItem(item, "departureLocation", item.getDepartureLocation(), locale),
+                localizeItem(item, "arrivalLocation", item.getArrivalLocation(), locale),
                 item.getDepartureDateOffset(), item.getDepartureTime(), item.getArrivalDateOffset(),
                 item.getArrivalTime(), item.getCheckInDateOffset(), item.getCheckOutDateOffset()
         );
@@ -226,5 +246,16 @@ public class TripTemplateService {
 
     private void addDestination(Set<String> destinations, String destination) {
         if (destination != null && !destination.isBlank()) destinations.add(destination.trim());
+    }
+
+    private String localizeTemplate(
+            TripTemplate template, String field, String fallback, Locale locale) {
+        if (!template.isPublicTemplate()) return fallback;
+        return contentLocalizer.localize(template.getPublicKey(), field, fallback, locale);
+    }
+
+    private String localizeItem(
+            TripTemplateItem item, String field, String fallback, Locale locale) {
+        return contentLocalizer.localize(item.getLocalizationKey(), field, fallback, locale);
     }
 }

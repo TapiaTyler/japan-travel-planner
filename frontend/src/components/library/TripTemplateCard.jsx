@@ -4,7 +4,11 @@ import { formatCurrency } from "../../utils/formatters.js";
 
 function itemDetails(item, t) {
     if (item.itemType === "Transportation") {
-        return [item.transportationType, item.departureLocation, item.arrivalLocation]
+        const transportationType = item.transportationType
+            ? t(`transport.${item.transportationType.toLowerCase()}`)
+            : null;
+
+        return [transportationType, item.departureLocation, item.arrivalLocation]
             .filter(Boolean)
             .join(" · ");
     }
