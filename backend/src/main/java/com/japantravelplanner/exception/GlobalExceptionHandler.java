@@ -35,7 +35,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiErrorResponse> handleApiException(ApiException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(toResponse(exception));
+        HttpStatus status = exception.getCode() == ApiErrorCode.TEMPLATE_NOT_FOUND
+                ? HttpStatus.NOT_FOUND
+                : HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(status).body(toResponse(exception));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

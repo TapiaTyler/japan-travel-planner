@@ -130,7 +130,7 @@ public class TripService {
             Trip duplicatedTrip) {
 
         if (originalItem instanceof Activity activity) {
-            return new Activity(
+            Activity duplicatedActivity = new Activity(
                     duplicatedTrip,
                     activity.getName(),
                     activity.getDate(),
@@ -141,10 +141,12 @@ public class TripService {
                     activity.getStartTime(),
                     activity.getEndTime()
             );
+            duplicatedActivity.setMapSearchQuery(activity.getMapSearchQuery());
+            return duplicatedActivity;
         }
 
         if (originalItem instanceof Transportation transportation) {
-            return new Transportation(
+            Transportation duplicatedTransportation = new Transportation(
                     duplicatedTrip,
                     transportation.getName(),
                     transportation.getDate(),
@@ -159,10 +161,12 @@ public class TripService {
                     transportation.getArrivalDate(),
                     transportation.getArrivalTime()
             );
+            duplicatedTransportation.setMapSearchQuery(transportation.getMapSearchQuery());
+            return duplicatedTransportation;
         }
 
         if (originalItem instanceof Lodging lodging) {
-            return new Lodging(
+            Lodging duplicatedLodging = new Lodging(
                     duplicatedTrip,
                     lodging.getName(),
                     lodging.getDate(),
@@ -173,6 +177,8 @@ public class TripService {
                     lodging.getCheckInDate(),
                     lodging.getCheckOutDate()
             );
+            duplicatedLodging.setMapSearchQuery(lodging.getMapSearchQuery());
+            return duplicatedLodging;
         }
 
         throw new ApiException(ApiErrorCode.ITEM_TYPE_UNSUPPORTED);

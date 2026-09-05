@@ -43,6 +43,10 @@ vi.mock("./pages/TripDetailsPage.jsx", () => ({
     ),
 }));
 
+vi.mock("./pages/TripLibraryPage.jsx", () => ({
+    default: () => <section>Public Trip Library</section>,
+}));
+
 function LocationProbe() {
     const location = useLocation();
     return <output aria-label="Current path">{location.pathname}</output>;
@@ -75,6 +79,7 @@ function createTripState(overrides = {}) {
         handleDuplicateTrip: vi.fn(),
         handleConfirmDeleteTrip: vi.fn(),
         handleBackToTrips: vi.fn(),
+        loadTrips: vi.fn(),
         ...overrides,
     };
 }
@@ -137,6 +142,25 @@ describe("application routing", () => {
             .toBeInTheDocument();
         expect(screen.getByLabelText("Current path"))
             .toHaveTextContent("/login");
+    });
+
+    it("allows signed-out visitors to browse the Trip Library", () => {
+        useAuth.mockReturnValue({
+            currentUser: null,
+            checkingSession: false,
+            sessionExpired: false,
+            authMode: "login",
+            setAuthMode: vi.fn(),
+            handleLogin: vi.fn(),
+            handleRegister: vi.fn(),
+            handleLogout: vi.fn(),
+            handleSessionExpired: vi.fn(),
+        });
+
+        renderAt("/library");
+
+        expect(screen.getByText("Public Trip Library")).toBeInTheDocument();
+        expect(screen.getByLabelText("Current path")).toHaveTextContent("/library");
     });
 
     it("restores an itinerary directly from its URL", () => {

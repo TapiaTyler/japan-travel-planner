@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, CircleUserRound, LogOut, Moon, Settings, Sun } from "lucide-react";
-import { Link, useLocation } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import logo from "../../assets/jtp-logo.png";
 
@@ -9,6 +9,7 @@ function AppHeader({
                        handleLogout,
                        theme,
                        onToggleTheme,
+                       onLogin,
                    }) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -64,10 +65,15 @@ function AppHeader({
     return (
         <header className="app-header">
             <div className="app-header-inner">
-                <div className="app-brand">
+                <Link className="app-brand" to={currentUser ? "/trips" : "/library"}>
                     <img src={logo} alt="" className="app-logo" />
                     <h1>{t("app.name")}</h1>
-                </div>
+                </Link>
+
+                <nav className="app-navigation" aria-label={t("navigation.primary")}>
+                    <NavLink to="/library">{t("navigation.library")}</NavLink>
+                    {currentUser && <NavLink to="/trips">{t("navigation.trips")}</NavLink>}
+                </nav>
 
                 <div className="user-controls">
                     <button
@@ -149,6 +155,12 @@ function AppHeader({
                                 </div>
                             )}
                         </div>
+                    )}
+
+                    {!currentUser && location.pathname !== "/login" && (
+                        <button type="button" className="header-login-button" onClick={onLogin}>
+                            {t("auth.login")}
+                        </button>
                     )}
                 </div>
             </div>

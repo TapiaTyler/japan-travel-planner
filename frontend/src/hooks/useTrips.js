@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 
 import {
+    createTemplateFromTrip,
     createTrip,
     deleteTrip,
     duplicateTrip,
@@ -17,6 +18,8 @@ function useTrips(currentUser, selectedTripId) {
     const [addingTrip, setAddingTrip] = useState(false);
     const [editingTrip, setEditingTrip] = useState(null);
     const [tripToDelete, setTripToDelete] = useState(null);
+    const [tripToTemplate, setTripToTemplate] = useState(null);
+    const [savedTemplateName, setSavedTemplateName] = useState("");
     const [tripError, setTripError] = useState("");
 
     const selectedTrip = selectedTripId
@@ -50,6 +53,7 @@ function useTrips(currentUser, selectedTripId) {
         setAddingTrip(false);
         setEditingTrip(null);
         setTripToDelete(null);
+        setTripToTemplate(null);
         setTripError("");
     }
 
@@ -111,9 +115,18 @@ function useTrips(currentUser, selectedTripId) {
         }
     }
 
+    async function handleSaveTripAsTemplate(formData) {
+        const template = await createTemplateFromTrip(tripToTemplate.id, formData);
+        setTripToTemplate(null);
+        setSavedTemplateName(template.name);
+        setTripError("");
+        return template;
+    }
+
     function handleBackToTrips() {
         setEditingTrip(null);
         setTripToDelete(null);
+        setTripToTemplate(null);
         setTripError("");
     }
 
@@ -129,6 +142,8 @@ function useTrips(currentUser, selectedTripId) {
             setAddingTrip(false);
             setEditingTrip(null);
             setTripToDelete(null);
+            setTripToTemplate(null);
+            setSavedTemplateName("");
             setTripError("");
         }
     }, [currentUser]);
@@ -142,18 +157,24 @@ function useTrips(currentUser, selectedTripId) {
         addingTrip,
         editingTrip,
         tripToDelete,
+        tripToTemplate,
+        savedTemplateName,
         tripError,
 
         setAddingTrip,
         setEditingTrip,
         setTripToDelete,
+        setTripToTemplate,
+        setSavedTemplateName,
 
         handleSelectTrip,
         handleAddTrip,
         handleSaveTrip,
         handleDuplicateTrip,
         handleConfirmDeleteTrip,
+        handleSaveTripAsTemplate,
         handleBackToTrips,
+        loadTrips,
     };
 }
 

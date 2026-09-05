@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
     Navigate,
     Route,
@@ -17,6 +17,7 @@ import AuthPage from "./pages/AuthPage.jsx";
 import TripsPage from "./pages/TripsPage.jsx";
 import TripDetailsPage from "./pages/TripDetailsPage.jsx";
 import AccountSettingsPage from "./pages/AccountSettingsPage.jsx";
+import TripLibraryPage from "./pages/TripLibraryPage.jsx";
 import useAuth from "./hooks/useAuth.js";
 import useTrips from "./hooks/useTrips.js";
 import useItinerary from "./hooks/useItinerary.js";
@@ -30,6 +31,8 @@ function App() {
     const tripRoute = useMatch("/trips/:tripId/:slug?");
     const auth = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const [authModalOpen, setAuthModalOpen] = useState(false);
+    const [modalAuthMode, setModalAuthMode] = useState("login");
 
     const tripState = useTrips(
         auth.currentUser,
@@ -69,6 +72,18 @@ function App() {
         return user;
     }
 
+    async function handleModalLogin(username, password) {
+        const user = await auth.handleLogin(username, password);
+        setAuthModalOpen(false);
+        return user;
+    }
+
+    async function handleModalRegister(username, password) {
+        const user = await auth.handleRegister(username, password);
+        setAuthModalOpen(false);
+        return user;
+    }
+
     async function handleLogout() {
         await auth.handleLogout();
         navigate("/login", { replace: true });
@@ -87,6 +102,16 @@ function App() {
     function handleAccountDeleted() {
         auth.handleAccountDeleted();
         navigate("/login", { replace: true });
+    }
+
+    function openAuthModal() {
+        setModalAuthMode("login");
+        setAuthModalOpen(true);
+    }
+
+    async function handleTripCreatedFromTemplate(trip) {
+        await tripState.loadTrips();
+        navigate(getTripPath(trip));
     }
 
     const routedTripState = {
@@ -116,9 +141,13 @@ function App() {
             addingTrip={tripState.addingTrip}
             editingTrip={tripState.editingTrip}
             tripToDelete={tripState.tripToDelete}
+            tripToTemplate={tripState.tripToTemplate}
+            savedTemplateName={tripState.savedTemplateName}
             setAddingTrip={tripState.setAddingTrip}
             setEditingTrip={tripState.setEditingTrip}
             setTripToDelete={tripState.setTripToDelete}
+            setTripToTemplate={tripState.setTripToTemplate}
+            setSavedTemplateName={tripState.setSavedTemplateName}
             handleSelectTrip={handleSelectTrip}
             handleAddTrip={tripState.handleAddTrip}
             handleSaveTrip={tripState.handleSaveTrip}
@@ -126,6 +155,7 @@ function App() {
             handleConfirmDeleteTrip={
                 tripState.handleConfirmDeleteTrip
             }
+            handleSaveTripAsTemplate={tripState.handleSaveTripAsTemplate}
         />
     );
 
@@ -169,6 +199,7 @@ function App() {
                 handleLogout={handleLogout}
                 theme={theme}
                 onToggleTheme={toggleTheme}
+                onLogin={openAuthModal}
             />
 
             {auth.sessionExpired && (
@@ -191,6 +222,21 @@ function App() {
                 </Modal>
             )}
 
+            {authModalOpen && !auth.currentUser && (
+                <Modal
+                    title={t("library.signInRequired")}
+                    onClose={() => setAuthModalOpen(false)}
+                    className="auth-modal"
+                >
+                    <AuthPage
+                        authMode={modalAuthMode}
+                        setAuthMode={setModalAuthMode}
+                        handleLogin={handleModalLogin}
+                        handleRegister={handleModalRegister}
+                    />
+                </Modal>
+            )}
+
             <div className="main-wrapper">
                 <Routes>
                     <Route
@@ -206,6 +252,17 @@ function App() {
                                     handleRegister={handleRegister}
                                 />
                             )
+                        }
+                    />
+
+                    <Route
+                        path="/library"
+                        element={
+                            <TripLibraryPage
+                                currentUser={auth.currentUser}
+                                onRequireAuth={openAuthModal}
+                                onTripCreated={handleTripCreatedFromTemplate}
+                            />
                         }
                     />
 
@@ -252,7 +309,7 @@ function App() {
                                 to={
                                     auth.currentUser
                                         ? "/trips"
-                                        : "/login"
+                                        : "/library"
                                 }
                                 replace
                             />

@@ -1,0 +1,115 @@
+.library-page { display: grid; gap: 2.5rem; }
+
+.library-hero {
+    display: grid;
+    gap: 0.65rem;
+    max-width: 760px;
+    padding: 2.5rem 0 0.5rem;
+}
+
+.library-hero h2 { font-size: clamp(2rem, 5vw, 3.5rem); }
+.library-hero > p:last-child,
+.library-section-heading p,
+.template-description,
+.template-form > p { color: var(--text-muted); }
+.library-hero > p:last-child { font-size: 1.1rem; }
+
+.template-eyebrow {
+    color: var(--link-color);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.library-section { display: grid; gap: 1rem; }
+.library-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+.library-section-heading h3 { margin-bottom: 0.3rem; font-size: 1.55rem; }
+
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+    gap: 1rem;
+}
+
+.template-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 1.35rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.template-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.template-card-header h3 { margin-top: 0.25rem; font-size: 1.3rem; }
+.template-duration { display: inline-flex; align-items: center; flex: 0 0 auto; gap: 0.4rem; color: var(--text-muted); font-weight: 700; }
+.template-description { margin-top: 0.85rem; }
+
+.template-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1rem;
+    margin: 1rem 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.template-meta span { display: inline-flex; align-items: center; gap: 0.3rem; }
+
+.template-preview { margin-bottom: 1rem; border-block: 1px solid var(--border); }
+.template-preview summary { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 0; color: var(--link-color); font-weight: 700; cursor: pointer; list-style: none; }
+.template-preview summary::-webkit-details-marker { display: none; }
+.template-preview[open] summary svg { transform: rotate(180deg); }
+.template-preview summary svg { transition: transform 180ms ease; }
+.template-preview ol { display: grid; gap: 0.75rem; margin: 0; padding: 0 0 1rem; list-style: none; }
+.template-preview li { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 0.75rem; }
+.template-preview li > span:last-child { display: grid; gap: 0.1rem; min-width: 0; }
+.template-preview small { overflow-wrap: anywhere; color: var(--text-muted); }
+.template-item-day { color: var(--text-muted); font-size: 0.85rem; font-weight: 700; }
+
+.template-actions { display: flex; align-items: center; gap: 0.65rem; margin-top: auto; }
+.template-actions button { margin: 0; }
+.template-delete-button { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--danger-dark); }
+.template-form { width: 100%; }
+
+.library-empty-state {
+    display: grid;
+    gap: 0.4rem;
+    padding: 1.5rem;
+    background: var(--surface-color);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+}
+
+.page-success {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
+    background: var(--confirmed-soft);
+    border: 1px solid var(--confirmed-color);
+    border-radius: var(--radius-sm);
+    color: var(--confirmed-color);
+    font-weight: 700;
+}
+.page-success .notice-dismiss { margin: 0; padding: 0.15rem 0.5rem; background: transparent; border: none; color: inherit; font-size: 1.2rem; }
+.auth-modal .login-form h2 { font-size: 1.15rem; }
+
+@media (max-width: 640px) {
+    .library-page { gap: 2rem; }
+    .library-hero { padding-top: 1.25rem; }
+    .template-card { padding: 1.1rem; }
+    .template-card-header { flex-direction: column; gap: 0.6rem; }
+    .template-actions { align-items: stretch; flex-direction: column; }
+    .template-actions button { width: 100%; }
+    .template-preview li { grid-template-columns: 72px minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .template-preview summary svg { transition: none; }
+}

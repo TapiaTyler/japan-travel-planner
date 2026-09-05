@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -41,16 +42,22 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/templates/public",
+                                "/api/templates/public/**"
+                        ).permitAll()
+                        .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/csrf"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/auth/logout",
-                        "/api/auth/me"
+                                "/api/auth/me"
                         ).authenticated()
                         .requestMatchers("/api/account/**").authenticated()
                         .requestMatchers("/api/trips/**").authenticated()
+                        .requestMatchers("/api/templates/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(exception -> exception

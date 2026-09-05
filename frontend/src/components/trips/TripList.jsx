@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
     Copy,
+    LibraryBig,
     Pencil,
     Trash2,
 } from "lucide-react";
@@ -14,6 +15,7 @@ function TripList({
                       onEditTrip,
                       onDuplicateTrip,
                       onDeleteTrip,
+                      onSaveAsTemplate,
                   }) {
     const { t, i18n } = useTranslation();
     const [openMenuId, setOpenMenuId] = useState(null);
@@ -166,6 +168,18 @@ function TripList({
                                                 aria-hidden="true"
                                             />
                                             {t("common.edit")}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            disabled={duplicatingTripId !== null}
+                                            onClick={() => {
+                                                setOpenMenuId(null);
+                                                onSaveAsTemplate(trip);
+                                            }}
+                                        >
+                                            <LibraryBig size={16} aria-hidden="true" />
+                                            {t("library.saveAsTemplate")}
                                         </button>
 
                                         <button

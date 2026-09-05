@@ -538,6 +538,82 @@ export async function changePassword(currentPassword, newPassword) {
     return response.json();
 }
 
+export async function getPublicTemplates() {
+    const response = await fetch(`${API_BASE_URL}/api/templates/public`, {
+        credentials: "include",
+    });
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATES_LOAD"));
+    }
+
+    return response.json();
+}
+
+export async function getMyTemplates() {
+    const response = await fetch(`${API_BASE_URL}/api/templates/mine`, {
+        credentials: "include",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATES_LOAD"));
+    }
+
+    return response.json();
+}
+
+export async function createTemplateFromTrip(tripId, template) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/templates/from-trip/${tripId}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(template),
+        }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATE_CREATE"));
+    }
+
+    return response.json();
+}
+
+export async function instantiateTemplate(templateId, trip) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/templates/${templateId}/instantiate`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(trip),
+        }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATE_USE"));
+    }
+
+    return response.json();
+}
+
+export async function deleteTemplate(templateId) {
+    const response = await csrfFetch(`${API_BASE_URL}/api/templates/${templateId}`, {
+        method: "DELETE",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATE_DELETE"));
+    }
+}
+
 export async function deleteAccount(currentPassword) {
     const response = await csrfFetch(
         `${API_BASE_URL}/api/account`,

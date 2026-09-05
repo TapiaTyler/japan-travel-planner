@@ -32,6 +32,17 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void returnsNotFoundForUnavailableTemplates() {
+        ResponseEntity<ApiErrorResponse> response = handler.handleApiException(
+                new ApiException(ApiErrorCode.TEMPLATE_NOT_FOUND)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("TEMPLATE_NOT_FOUND", response.getBody().code());
+    }
+
+    @Test
     void returnsStableCodeForRateLimitedLogins() {
         ResponseEntity<ApiErrorResponse> response = handler.handleLoginRateLimitException(
                 new LoginRateLimitException()
