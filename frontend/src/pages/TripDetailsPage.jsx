@@ -1,16 +1,20 @@
 // Imports
+import { useEffect, useState } from "react";
 import {
     formatDateHeading,
     formatDateLabel,
 } from "../utils/itineraryUtils.js";
 import {
+    ChevronDown,
     FileText,
     Pencil,
     Printer,
+    SlidersHorizontal,
 } from "lucide-react";
 
 import Modal from "../components/common/Modal.jsx";
 import ConfirmDialog from "../components/common/ConfirmDialog.jsx";
+import LoadingState from "../components/common/LoadingState.jsx";
 
 import EditTripForm from "../components/trips/EditTripForm.jsx";
 
@@ -20,15 +24,21 @@ import GroupToggle from "../components/itinerary/GroupToggle.jsx";
 import QuickJumpNav from "../components/itinerary/QuickJumpNav.jsx";
 import ItineraryItem from "../components/itinerary/ItineraryItem.jsx";
 import CostSummary from "../components/itinerary/CostSummary.jsx";
+import ItineraryFilters from "../components/itinerary/ItineraryFilters.jsx";
 
 import PrintableItinerary from "../components/reports/PrintableItinerary.jsx";
 import PrintableItineraryOptions
     from "../components/reports/PrintableItineraryOptions.jsx";
+import { useTranslation } from "react-i18next";
 
 function TripDetailsPage({
                              tripState,
                              itinerary,
                          }) {
+    const { t, i18n } = useTranslation();
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [activeGroup, setActiveGroup] = useState(null);
+
     // Trip State
     const {
         selectedTrip,
@@ -43,6 +53,8 @@ function TripDetailsPage({
     // Itinerary State
     const {
         displayItems,
+        loadingItems,
+        hasLoadedItems,
         groupedByDate,
         groupedByLocation,
         outsideTripItemCount,
@@ -50,12 +62,15 @@ function TripDetailsPage({
         addingItem,
         editingItem,
         itemToDelete,
+        savedLibraryItemName,
 
         groupBy,
 
-        searchQuery,
         activeSearchQuery,
-        searching,
+        filters,
+        availableLocations,
+        activeFilterCount,
+        itineraryError,
 
         printModalOpen,
         printOptions,
@@ -63,10 +78,9 @@ function TripDetailsPage({
         setAddingItem,
         setEditingItem,
         setItemToDelete,
+        setSavedLibraryItemName,
 
         setGroupBy,
-        setSearchQuery,
-
         setPrintModalOpen,
         setPrintOptions,
 
@@ -74,10 +88,54 @@ function TripDetailsPage({
         handleEditItem,
         handleSaveItem,
         handleConfirmDeleteItem,
+        handleSaveItemToLibrary,
 
         handleSearch,
         handleClearSearch,
+        handleFiltersChange,
+        handleResetFilters,
     } = itinerary;
+
+    useEffect(() => {
+        function updateActiveGroup() {
+            const groups = [...document.querySelectorAll(".itinerary-group")];
+
+            if (groups.length === 0) {
+                setActiveGroup(null);
+                return;
+            }
+
+            const stickyNav = document.querySelector(".group-toggle-container");
+            const activationLine = (stickyNav?.offsetHeight ?? 0) + 16;
+            let currentGroup = groups[0];
+
+            groups.forEach((group) => {
+                if (group.getBoundingClientRect().top <= activationLine) {
+                    currentGroup = group;
+                }
+            });
+
+            setActiveGroup(currentGroup.id.replace("group-", ""));
+        }
+
+        updateActiveGroup();
+        window.addEventListener("scroll", updateActiveGroup, { passive: true });
+        window.addEventListener("resize", updateActiveGroup);
+
+        return () => {
+            window.removeEventListener("scroll", updateActiveGroup);
+            window.removeEventListener("resize", updateActiveGroup);
+        };
+    }, [displayItems, groupBy]);
+
+    if (!hasLoadedItems) {
+        return (
+            <LoadingState
+                title={t("itinerary.loading")}
+                message={t("itinerary.loadingMessage")}
+            />
+        );
+    }
 
     // Functions
     function scrollToGroup(groupKey) {
@@ -114,12 +172,38 @@ function TripDetailsPage({
     // Render
     return (
         <>
+            {loadingItems && (
+                <p className="refresh-status" role="status">
+                    {t("itinerary.refreshing")}
+                </p>
+            )}
+
+            {itineraryError && (
+                <p className="page-error" role="alert">
+                    {itineraryError}
+                </p>
+            )}
+
+            {savedLibraryItemName && (
+                <div className="page-success" role="status">
+                    <span>{t("libraryItems.saved", { name: savedLibraryItemName })}</span>
+                    <button
+                        type="button"
+                        className="notice-dismiss"
+                        aria-label={t("common.close")}
+                        onClick={() => setSavedLibraryItemName("")}
+                    >
+                        ×
+                    </button>
+                </div>
+            )}
+
             <button
                 className="back-to-trips"
                 type="button"
                 onClick={handleBackToTrips}
             >
-                ← Back to Trips
+                ← {t("trips.back")}
             </button>
 
             <section className="trip-header">
@@ -131,11 +215,11 @@ function TripDetailsPage({
 
                         <p>
                             {formatDateLabel(
-                                selectedTrip.startDate
+                                selectedTrip.startDate, i18n.resolvedLanguage
                             )}
                             {" - "}
                             {formatDateLabel(
-                                selectedTrip.endDate
+                                selectedTrip.endDate, i18n.resolvedLanguage
                             )}
                         </p>
 
@@ -158,14 +242,14 @@ function TripDetailsPage({
                             className="button-lucide-icon"
                             aria-hidden="true"
                         />
-                        Edit Trip Details
+                        {t("itinerary.editTripDetails")}
                     </button>
                 </div>
             </section>
 
             {editingTrip && (
                 <Modal
-                    title={`Edit ${editingTrip.name}`}
+                    title={t("trips.editNamed", { name: editingTrip.name })}
                     onClose={() =>
                         setEditingTrip(null)
                     }
@@ -182,11 +266,7 @@ function TripDetailsPage({
 
             {outsideTripItemCount > 0 && (
                 <div className="trip-date-warning">
-                    ⚠ {outsideTripItemCount} itinerary{" "}
-                    {outsideTripItemCount === 1
-                        ? "item falls"
-                        : "items fall"}{" "}
-                    outside the current trip dates.
+                    ⚠ {t("itinerary.outsideCount", { count: outsideTripItemCount })}
                 </div>
             )}
 
@@ -194,8 +274,8 @@ function TripDetailsPage({
                 <Modal
                     title={
                         printOptions
-                            ? "Printable Itinerary Preview"
-                            : "Printable Itinerary Options"
+                            ? t("report.preview")
+                            : t("report.options")
                     }
                     onClose={() => {
                         setPrintModalOpen(false);
@@ -209,6 +289,7 @@ function TripDetailsPage({
                 >
                     {!printOptions ? (
                         <PrintableItineraryOptions
+                            baseItemCount={displayItems.length}
                             onCancel={() => {
                                 setPrintModalOpen(false);
                                 setPrintOptions(null);
@@ -230,7 +311,7 @@ function TripDetailsPage({
                                         )
                                     }
                                 >
-                                    Back to Options
+                                    {t("report.backToOptions")}
                                 </button>
 
                                 <button
@@ -244,7 +325,7 @@ function TripDetailsPage({
                                         className="button-lucide-icon"
                                         aria-hidden="true"
                                     />
-                                    Print / Save as PDF
+                                    {t("report.print")}
                                 </button>
                             </div>
 
@@ -260,7 +341,7 @@ function TripDetailsPage({
 
             {addingItem && (
                 <Modal
-                    title="Add Itinerary Item"
+                    title={t("itinerary.addItineraryItem")}
                     onClose={() =>
                         setAddingItem(false)
                     }
@@ -276,7 +357,7 @@ function TripDetailsPage({
 
             {editingItem && (
                 <Modal
-                    title={`Edit ${editingItem.name}`}
+                    title={t("itinerary.editNamed", { name: editingItem.name })}
                     onClose={() =>
                         setEditingItem(null)
                     }
@@ -293,19 +374,19 @@ function TripDetailsPage({
 
             {itemToDelete && (
                 <Modal
-                    title="Delete Itinerary Item"
+                    title={t("itinerary.deleteItineraryItem")}
                     onClose={() =>
                         setItemToDelete(null)
                     }
                 >
                     <ConfirmDialog
                         message={
-                            `Permanently delete "${itemToDelete.name}"?`
+                            t("itinerary.deleteNamed", { name: itemToDelete.name })
                         }
                         warning={
-                            "This itinerary item will be permanently deleted. This action cannot be undone."
+                            t("itinerary.deleteWarning")
                         }
-                        confirmLabel="Delete Item"
+                        confirmLabel={t("itinerary.deleteItem")}
                         onCancel={() =>
                             setItemToDelete(null)
                         }
@@ -322,27 +403,45 @@ function TripDetailsPage({
                     className="itinerary-search"
                 >
                     <label>
-                        Search Itinerary
+                        {t("itinerary.search")}
 
                         <input
                             type="search"
-                            value={searchQuery}
-                            onChange={(event) =>
-                                setSearchQuery(
-                                    event.target.value
-                                )
-                            }
-                            placeholder="Search by name, notes, or location"
+                            name="query"
+                            key={activeSearchQuery}
+                            defaultValue={activeSearchQuery}
+                            placeholder={t("itinerary.searchPlaceholder")}
                         />
                     </label>
 
                     <button
                         type="submit"
-                        disabled={searching}
                     >
-                        {searching
-                            ? "Searching..."
-                            : "Search"}
+                        {t("itinerary.searchButton")}
+                    </button>
+
+                    <button
+                        type="button"
+                        aria-expanded={filtersOpen}
+                        aria-controls="itinerary-filters"
+                        onClick={() => setFiltersOpen((open) => !open)}
+                    >
+                        <SlidersHorizontal
+                            className="filter-toggle-icon"
+                            size={16}
+                            aria-hidden="true"
+                        />
+                        {t("itinerary.filters")}
+                        {activeFilterCount > 0 && ` (${activeFilterCount})`}
+                        <ChevronDown
+                            className={
+                                filtersOpen
+                                    ? "filter-chevron filter-chevron-open"
+                                    : "filter-chevron"
+                            }
+                            size={16}
+                            aria-hidden="true"
+                        />
                     </button>
 
                     {activeSearchQuery && (
@@ -352,7 +451,7 @@ function TripDetailsPage({
                                 handleClearSearch
                             }
                         >
-                            Clear
+                            {t("itinerary.clear")}
                         </button>
                     )}
                 </form>
@@ -369,7 +468,7 @@ function TripDetailsPage({
                             className="button-lucide-icon"
                             aria-hidden="true"
                         />
-                        Generate Printable Itinerary
+                        {t("itinerary.generate")}
                     </button>
 
                     {!addingItem &&
@@ -389,11 +488,20 @@ function TripDetailsPage({
                                 <span className="button-icon">
                                     +
                                 </span>{" "}
-                                Add Item
+                                {t("itinerary.addItem")}
                             </button>
                         )}
                 </div>
             </div>
+
+            {filtersOpen && (
+                <ItineraryFilters
+                    filters={filters}
+                    locations={availableLocations}
+                    onChange={handleFiltersChange}
+                    onReset={handleResetFilters}
+                />
+            )}
 
             <div className="group-toggle-container">
                 <GroupToggle
@@ -403,6 +511,7 @@ function TripDetailsPage({
 
                 <QuickJumpNav
                     groupBy={groupBy}
+                    activeGroup={activeGroup}
                     groupedByDate={
                         groupedByDate
                     }
@@ -415,34 +524,29 @@ function TripDetailsPage({
 
             <div className="itinerary-layout">
                 <div className="itinerary-main">
-                    {displayItems.length === 0 && (
+                    {displayItems.length === 0 && !itineraryError && (
                         <div className="itinerary-empty-state">
-                            {activeSearchQuery ? (
+                            {activeSearchQuery || activeFilterCount > 0 ? (
                                 <>
-                                    <h3>No matching itinerary items</h3>
+                                    <h3>{t("itinerary.noMatches")}</h3>
 
                                     <p>
-                                        No itinerary items matched
-                                        {" "}
-                                        <strong>
-                                            "{activeSearchQuery}"
-                                        </strong>.
+                                        {t("itinerary.noMatchesHint")}
                                     </p>
                                 </>
                             ) : (
                                 <>
-                                    <h3>No itinerary items yet</h3>
+                                    <h3>{t("itinerary.empty")}</h3>
 
                                     <p>
-                                        Start building your trip by adding
-                                        your first itinerary item.
+                                        {t("itinerary.emptyHint")}
                                     </p>
 
                                     <button
                                         type="button"
                                         className="empty-state-add-button"
-                                        aria-label="Add itinerary item"
-                                        title="Add itinerary item"
+                                        aria-label={t("itinerary.addItineraryItem")}
+                                        title={t("itinerary.addItineraryItem")}
                                         onClick={() => {
                                             setEditingItem(null);
                                             setAddingItem(true);
@@ -480,13 +584,13 @@ function TripDetailsPage({
                                         <h3 className="itinerary-group-heading">
                                             {date ===
                                             "Unscheduled"
-                                                ? "Unscheduled"
+                                                ? t("common.unscheduled")
                                                 : outsideTripDates
-                                                    ? `${formatDateLabel(date)} · Outside trip dates`
+                                                    ? `${formatDateLabel(date, i18n.resolvedLanguage)} · ${t("itinerary.outsideTripDates")}`
                                                     : formatDateHeading(
                                                         date,
-                                                        dateItems[0]
-                                                            .dayNumber
+                                                        t("itinerary.day", { count: dateItems[0].dayNumber }),
+                                                        i18n.resolvedLanguage
                                                     )}
                                         </h3>
 
@@ -505,6 +609,7 @@ function TripDetailsPage({
                                                     onDelete={
                                                         setItemToDelete
                                                     }
+                                                    onSaveToLibrary={handleSaveItemToLibrary}
                                                 />
                                             )
                                         )}
@@ -527,7 +632,9 @@ function TripDetailsPage({
                                     className="itinerary-group"
                                 >
                                     <h3 className="itinerary-group-heading">
-                                        {location}
+                                        {location === "Other / Unspecified"
+                                            ? t("common.otherUnspecified")
+                                            : location}
                                     </h3>
 
                                     {locationItems.map(
@@ -545,6 +652,7 @@ function TripDetailsPage({
                                                 onDelete={
                                                     setItemToDelete
                                                 }
+                                                onSaveToLibrary={handleSaveItemToLibrary}
                                             />
                                         )
                                     )}
@@ -558,6 +666,7 @@ function TripDetailsPage({
                     searchQuery={
                         activeSearchQuery
                     }
+                    hasActiveFilters={activeFilterCount > 0}
                 />
             </div>
         </>

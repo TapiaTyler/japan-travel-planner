@@ -1,0 +1,126 @@
+.itinerary-filters {
+    margin: 0 0 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--secondary-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 1.25rem;
+}
+
+.filter-grid fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.filter-grid legend {
+    margin-bottom: 0.6rem;
+    font-weight: 700;
+}
+
+.filter-select-all {
+    margin: 0 0 0.65rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--link-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.filter-select-all:hover {
+    border: 0;
+    text-decoration: underline;
+}
+
+.filter-select-all:active {
+    background: transparent;
+    color: var(--link-color);
+}
+
+.filter-select-all:disabled {
+    color: var(--text-muted);
+    cursor: default;
+    opacity: 0.65;
+    text-decoration: none;
+}
+
+.filter-grid fieldset > label:not(.filter-checkbox) {
+    display: grid;
+    gap: 0.25rem;
+    margin-bottom: 0.6rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.filter-checkbox-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+}
+
+.filter-checkbox input {
+    width: auto;
+    margin: 0;
+}
+
+.filter-empty {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.filter-toggle-icon {
+    margin-right: 0.4rem;
+    vertical-align: middle;
+}
+
+.filter-chevron {
+    margin-left: 0.35rem;
+    vertical-align: middle;
+    transition: transform 180ms ease;
+}
+
+.filter-chevron-open {
+    transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .filter-chevron {
+        transition: none;
+    }
+}
+
+@media (max-width: 850px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .itinerary-filters {
+        padding: 1rem;
+    }
+}

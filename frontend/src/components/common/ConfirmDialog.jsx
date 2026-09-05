@@ -1,13 +1,31 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
 function ConfirmDialog({
                            message,
                            warning,
-                           confirmLabel = "Confirm",
-                           cancelLabel = "Cancel",
+                           confirmLabel,
+                           cancelLabel,
                            onConfirm,
                            onCancel,
                        }) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { t } = useTranslation();
+
+    async function handleConfirm() {
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
+
+        try {
+            await onConfirm();
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
+
     return (
-        <div className="confirm-dialog">
+        <div className="confirm-dialog" aria-busy={isSubmitting}>
             <p>{message}</p>
 
             {warning && (
@@ -20,16 +38,18 @@ function ConfirmDialog({
                 <button
                     type="button"
                     onClick={onCancel}
+                    disabled={isSubmitting}
                 >
-                    {cancelLabel}
+                    {cancelLabel ?? t("common.cancel")}
                 </button>
 
                 <button
                     type="button"
                     className="danger-button"
-                    onClick={onConfirm}
+                    onClick={handleConfirm}
+                    disabled={isSubmitting}
                 >
-                    {confirmLabel}
+                    {isSubmitting ? t("common.deleting") : (confirmLabel ?? t("common.delete"))}
                 </button>
             </div>
         </div>

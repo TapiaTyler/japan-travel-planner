@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function EditTripForm({ trip, onCancel, onSave }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: trip.name ?? "",
         startDate: trip.startDate ?? "",
@@ -9,6 +11,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
     });
 
     const [formError, setFormError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -21,27 +24,33 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
     async function handleSubmit(event) {
         event.preventDefault();
+
+        if (isSubmitting) return;
+
         setFormError("");
+        setIsSubmitting(true);
 
         try {
             await onSave(formData);
         } catch (error) {
             setFormError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} aria-busy={isSubmitting}>
 
             {formError && (
-                <p className="form-error">
+                <p className="form-error" role="alert">
                     {formError}
                 </p>
             )}
 
             <div>
                 <label>
-                    Trip Name
+                    {t("trips.name")}
                     <input
                         type="text"
                         name="name"
@@ -53,7 +62,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Start Date
+                    {t("trips.startDate")}
                     <input
                         type="date"
                         name="startDate"
@@ -65,7 +74,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
             <div>
                 <label>
-                    End Date
+                    {t("trips.endDate")}
                     <input
                         type="date"
                         name="endDate"
@@ -77,7 +86,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Notes
+                    {t("trips.notes")}
                     <textarea
                         name="notes"
                         value={formData.notes}
@@ -89,15 +98,17 @@ function EditTripForm({ trip, onCancel, onSave }) {
             <button
                 className="add-button"
                 type="submit"
+                disabled={isSubmitting}
             >
-                Save
+                {isSubmitting ? t("common.saving") : t("common.save")}
             </button>
 
             <button
                 type="button"
                 onClick={onCancel}
+                disabled={isSubmitting}
             >
-                Cancel
+                {t("common.cancel")}
             </button>
         </form>
     );

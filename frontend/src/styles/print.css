@@ -14,22 +14,32 @@
 
 .printable-itinerary {
     padding: 1.5rem;
-    border: 1px solid #ddd;
-    background: white;
+    border: 1px solid var(--print-border);
+    background: var(--print-surface);
+    color: var(--print-text);
 }
 
 .printable-itinerary table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     margin-bottom: 1.5rem;
 }
 
+.printable-itinerary th:nth-child(1) { width: 24%; }
+.printable-itinerary th:nth-child(2) { width: 17%; }
+.printable-itinerary th:nth-child(3) { width: 30%; }
+.printable-itinerary th:nth-child(4) { width: 14%; }
+.printable-itinerary th:nth-child(5) { width: 15%; }
+
 .printable-itinerary th,
 .printable-itinerary td {
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--print-border);
     text-align: left;
     vertical-align: top;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .print-day {
@@ -38,6 +48,27 @@
 
 .print-cost-summary {
     margin-top: 2rem;
+}
+
+@media (max-width: 600px) {
+    .printable-itinerary {
+        padding: 1rem;
+    }
+
+    .printable-itinerary th,
+    .printable-itinerary td {
+        padding: 0.35rem;
+        font-size: 0.82rem;
+    }
+
+    .print-preview-actions {
+        flex-wrap: wrap;
+    }
+
+    .print-preview-actions button {
+        flex: 1 1 160px;
+        margin: 0;
+    }
 }
 
 @media print {
@@ -111,7 +142,25 @@
 
     .printable-itinerary table {
         width: 100%;
+        table-layout: auto;
         border-collapse: collapse;
+    }
+
+    .printable-itinerary th,
+    .printable-itinerary td {
+        padding: 0.35rem;
+        font-size: 9pt;
+    }
+
+    .printable-itinerary th:nth-child(2),
+    .printable-itinerary td:nth-child(2),
+    .printable-itinerary th:nth-child(4),
+    .printable-itinerary td:nth-child(4),
+    .printable-itinerary th:nth-child(5),
+    .printable-itinerary td:nth-child(5) {
+        width: auto;
+        white-space: nowrap;
+        overflow-wrap: normal;
     }
 
     .print-day {

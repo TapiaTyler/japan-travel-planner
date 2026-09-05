@@ -1,11 +1,15 @@
+import { useTranslation } from "react-i18next";
+
 function Modal({
                    title,
                    children,
                    onClose,
-                   closeLabel = "Close",
+                   closeLabel,
                    showCloseButton = true,
                    className = "",
                }) {
+    const { t } = useTranslation();
+    const resolvedCloseLabel = closeLabel ?? t("common.close");
     return (
         <div className="modal-backdrop" role="presentation">
             <section
@@ -22,8 +26,8 @@ function Modal({
                             type="button"
                             className="modal-close"
                             onClick={onClose}
-                            aria-label={closeLabel}
-                            title={closeLabel}
+                            aria-label={resolvedCloseLabel}
+                            title={resolvedCloseLabel}
                         >
                             ×
                         </button>

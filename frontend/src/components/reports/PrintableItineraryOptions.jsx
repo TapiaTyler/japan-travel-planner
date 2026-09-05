@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function PrintableItineraryOptions({
+                                       baseItemCount,
                                        onCancel,
                                        onGenerate,
                                    }) {
+    const { t } = useTranslation();
     const [options, setOptions] = useState({
         activities: true,
         transportation: true,
@@ -11,6 +14,7 @@ function PrintableItineraryOptions({
         confirmed: true,
         estimated: true,
         unknown: true,
+        includeItemsWithoutCost: true,
         includeNotes: true,
         includeCostSummary: true,
     });
@@ -34,8 +38,12 @@ function PrintableItineraryOptions({
             className="print-options"
             onSubmit={handleSubmit}
         >
+            <p className="print-source-summary">
+                {t("report.sourceSummary", { count: baseItemCount })}
+            </p>
+
             <div className="print-options-section">
-                <h3>Itinerary Items</h3>
+                <h3>{t("report.itineraryItems")}</h3>
 
                 <div className="print-options-grid">
                     <label className="print-option">
@@ -45,7 +53,7 @@ function PrintableItineraryOptions({
                             checked={options.activities}
                             onChange={handleCheckboxChange}
                         />
-                        Activities
+                        {t("cost.activities")}
                     </label>
 
                     <label className="print-option">
@@ -55,7 +63,7 @@ function PrintableItineraryOptions({
                             checked={options.transportation}
                             onChange={handleCheckboxChange}
                         />
-                        Transportation
+                        {t("cost.transportation")}
                     </label>
 
                     <label className="print-option">
@@ -65,13 +73,13 @@ function PrintableItineraryOptions({
                             checked={options.lodging}
                             onChange={handleCheckboxChange}
                         />
-                        Lodging
+                        {t("cost.lodging")}
                     </label>
                 </div>
             </div>
 
             <div className="print-options-section">
-                <h3>Cost Status</h3>
+                <h3>{t("cost.status")}</h3>
 
                 <div className="print-options-grid">
                     <label className="print-option">
@@ -81,7 +89,7 @@ function PrintableItineraryOptions({
                             checked={options.confirmed}
                             onChange={handleCheckboxChange}
                         />
-                        Confirmed
+                        {t("cost.confirmed")}
                     </label>
 
                     <label className="print-option">
@@ -91,7 +99,7 @@ function PrintableItineraryOptions({
                             checked={options.estimated}
                             onChange={handleCheckboxChange}
                         />
-                        Estimated
+                        {t("cost.estimated")}
                     </label>
 
                     <label className="print-option">
@@ -101,15 +109,25 @@ function PrintableItineraryOptions({
                             checked={options.unknown}
                             onChange={handleCheckboxChange}
                         />
-                        Unknown
+                        {t("cost.unknown")}
                     </label>
                 </div>
             </div>
 
             <div className="print-options-section">
-                <h3>Additional Information</h3>
+                <h3>{t("report.additionalInformation")}</h3>
 
                 <div className="print-options-grid">
+                    <label className="print-option">
+                        <input
+                            type="checkbox"
+                            name="includeItemsWithoutCost"
+                            checked={options.includeItemsWithoutCost}
+                            onChange={handleCheckboxChange}
+                        />
+                        {t("report.includeNoCost")}
+                    </label>
+
                     <label className="print-option">
                         <input
                             type="checkbox"
@@ -117,7 +135,7 @@ function PrintableItineraryOptions({
                             checked={options.includeNotes}
                             onChange={handleCheckboxChange}
                         />
-                        Include notes
+                        {t("report.includeNotes")}
                     </label>
 
                     <label className="print-option">
@@ -127,7 +145,7 @@ function PrintableItineraryOptions({
                             checked={options.includeCostSummary}
                             onChange={handleCheckboxChange}
                         />
-                        Include cost summary
+                        {t("report.includeSummary")}
                     </label>
                 </div>
             </div>
@@ -137,14 +155,14 @@ function PrintableItineraryOptions({
                     type="button"
                     onClick={onCancel}
                 >
-                    Cancel
+                    {t("common.cancel")}
                 </button>
 
                 <button
                     className="add-button"
                     type="submit"
                 >
-                    Generate Preview
+                    {t("report.generatePreview")}
                 </button>
             </div>
         </form>

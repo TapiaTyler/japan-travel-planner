@@ -65,6 +65,13 @@ function useAuth() {
         setAuthError("");
     }
 
+    function handleAccountDeleted() {
+        setCurrentUser(null);
+        setAuthMode("login");
+        setAuthError("");
+        setSessionExpired(false);
+    }
+
     // Effects
     useEffect(() => {
         async function restoreSession() {
@@ -118,6 +125,7 @@ function useAuth() {
         handleRegister,
         handleLogout,
         handleSessionExpired,
+        handleAccountDeleted,
     };
 }
 

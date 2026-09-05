@@ -21,8 +21,8 @@ button:hover {
 }
 
 button:active {
-    background-color: var(--primary-color);
-    color: var(--text-light);
+    background-color: var(--active-control-bg);
+    color: var(--active-control-text);
 }
 
 .app-header button {
@@ -49,8 +49,101 @@ button:active {
 }
 
 .add-button {
-    background-color: var(--primary-color);
+    background-color: var(--brand-color);
     color: var(--text-light);
+}
+
+.app-header .header-login-button {
+    margin: 0;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--text-light) 45%, transparent);
+    border-radius: var(--radius-sm);
+}
+
+.user-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.55rem 0.65rem;
+    border-radius: var(--radius-sm);
+}
+
+.language-switch {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+    width: 72px;
+    height: 34px;
+    margin: 0 0.35rem 0 0;
+    padding: 2px;
+    background-color: color-mix(in srgb, var(--text-light) 14%, transparent) !important;
+    border: 1px solid color-mix(in srgb, var(--text-light) 35%, transparent) !important;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.language-switch::before {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    background: var(--secondary-color);
+    border-radius: 999px;
+    box-shadow: var(--shadow-card);
+    content: "";
+    transition: transform 180ms ease;
+}
+
+.language-switch.japanese::before { transform: translateX(100%); }
+.language-switch span { z-index: 1; color: color-mix(in srgb, var(--text-light) 72%, transparent); font-size: 0.72rem; }
+.language-switch span:last-child { transform: translateX(1px); }
+.language-switch span.active { color: var(--primary-color); }
+
+.user-menu-trigger[aria-expanded="true"] { background-color: color-mix(in srgb, var(--text-light) 12%, transparent); }
+.user-menu-username { font-weight: 700; }
+.user-menu-chevron { transition: transform 180ms ease; }
+.user-menu-chevron.open { transform: rotate(180deg); }
+
+.app-header .user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-height: 42px;
+    margin: 0;
+    padding: 0.65rem 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+}
+
+.app-header .user-menu-item:hover,
+.app-header .user-menu-item:focus-visible {
+    background-color: var(--background-color);
+    color: var(--link-color);
+}
+
+.theme-menu-item .theme-switch { margin-left: auto; }
+.theme-switch { display: inline-flex; align-items: center; width: 36px; height: 20px; padding: 2px; background: var(--border-strong); border-radius: 999px; transition: background-color 180ms ease; }
+.theme-switch-thumb { width: 16px; height: 16px; background: var(--secondary-color); border-radius: 50%; transition: transform 180ms ease; }
+.theme-menu-item[aria-checked="true"] .theme-switch { background: var(--brand-color); }
+.theme-menu-item[aria-checked="true"] .theme-switch-thumb { transform: translateX(16px); }
+.app-header .logout-menu-item { color: var(--danger-dark); }
+
+@media (prefers-reduced-motion: reduce) {
+    .language-switch::before,
+    .user-menu-chevron,
+    .theme-switch,
+    .theme-switch-thumb { transition: none; }
 }
 
 .add-button:active {
@@ -82,9 +175,13 @@ button:active {
 }
 
 .group-toggle button {
-    background-color: inherit;
+    z-index: 1;
+    flex: 1;
+    margin: 0;
+    background-color: transparent;
     border: none;
     color: var(--text-muted);
+    padding: 0.75rem 1rem;
     border-radius: 0;
 }
 
@@ -97,6 +194,15 @@ button:active {
 }
 
 .group-toggle button.active-tab {
-    border-bottom: 1px solid var(--primary-color);
-    color: var(--primary-color);
+    color: var(--active-control-text);
+}
+
+.group-toggle button:disabled {
+    opacity: 1;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
 }

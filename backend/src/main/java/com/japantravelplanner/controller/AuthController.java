@@ -4,6 +4,7 @@ import com.japantravelplanner.dto.LoginRequest;
 import com.japantravelplanner.dto.RegisterRequest;
 import com.japantravelplanner.model.User;
 import com.japantravelplanner.service.UserService;
+import com.japantravelplanner.service.LoginAttemptService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -27,10 +28,15 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final LoginAttemptService loginAttemptService;
 
-    public AuthController(UserService userService, AuthenticationManager authenticationManager) {
+    public AuthController(
+            UserService userService,
+            AuthenticationManager authenticationManager,
+            LoginAttemptService loginAttemptService) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @PostMapping("/register")
@@ -52,13 +58,25 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest httpRequest) {
 
-        Authentication authentication =
-                authenticationManager.authenticate(
+        String clientIp = httpRequest.getRemoteAddr();
+        loginAttemptService.checkAllowed(request.getUsername(), clientIp);
+
+        Authentication authentication;
+
+        try {
+            authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 request.getUsername(),
                                 request.getPassword()
                         )
                 );
+        } catch (org.springframework.security.core.AuthenticationException exception) {
+            loginAttemptService.recordFailure(request.getUsername(), clientIp);
+            loginAttemptService.checkAllowed(request.getUsername(), clientIp);
+            throw exception;
+        }
+
+        loginAttemptService.clearUsernameFailures(request.getUsername());
 
         SecurityContext securityContext =
                 SecurityContextHolder.createEmptyContext();

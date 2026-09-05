@@ -2,6 +2,8 @@ package com.japantravelplanner.service;
 
 import com.japantravelplanner.dto.TripRequest;
 import com.japantravelplanner.dto.TripResponse;
+import com.japantravelplanner.exception.ApiErrorCode;
+import com.japantravelplanner.exception.ApiException;
 import com.japantravelplanner.exception.TripNotFoundException;
 import com.japantravelplanner.model.*;
 import com.japantravelplanner.repository.TripItemRepository;
@@ -75,7 +77,7 @@ public class TripService {
         if (trip.getStartDate() != null
                 && trip.getEndDate() != null
                 && trip.getEndDate().isBefore(trip.getStartDate())) {
-            throw new IllegalArgumentException("Start date cannot be after end date.");
+            throw new ApiException(ApiErrorCode.TRIP_DATES_INVALID);
         }
     }
 
@@ -128,7 +130,7 @@ public class TripService {
             Trip duplicatedTrip) {
 
         if (originalItem instanceof Activity activity) {
-            return new Activity(
+            Activity duplicatedActivity = new Activity(
                     duplicatedTrip,
                     activity.getName(),
                     activity.getDate(),
@@ -139,10 +141,12 @@ public class TripService {
                     activity.getStartTime(),
                     activity.getEndTime()
             );
+            duplicatedActivity.setMapSearchQuery(activity.getMapSearchQuery());
+            return duplicatedActivity;
         }
 
         if (originalItem instanceof Transportation transportation) {
-            return new Transportation(
+            Transportation duplicatedTransportation = new Transportation(
                     duplicatedTrip,
                     transportation.getName(),
                     transportation.getDate(),
@@ -157,10 +161,12 @@ public class TripService {
                     transportation.getArrivalDate(),
                     transportation.getArrivalTime()
             );
+            duplicatedTransportation.setMapSearchQuery(transportation.getMapSearchQuery());
+            return duplicatedTransportation;
         }
 
         if (originalItem instanceof Lodging lodging) {
-            return new Lodging(
+            Lodging duplicatedLodging = new Lodging(
                     duplicatedTrip,
                     lodging.getName(),
                     lodging.getDate(),
@@ -171,11 +177,11 @@ public class TripService {
                     lodging.getCheckInDate(),
                     lodging.getCheckOutDate()
             );
+            duplicatedLodging.setMapSearchQuery(lodging.getMapSearchQuery());
+            return duplicatedLodging;
         }
 
-        throw new IllegalArgumentException(
-                "Unsupported itinerary item type."
-        );
+        throw new ApiException(ApiErrorCode.ITEM_TYPE_UNSUPPORTED);
     }
 
     private List<String> getDestinations(List<TripItem> tripItems) {

@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function RegisterForm({ onRegister, onCancel }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         username: "",
         password: "",
+        confirmPassword: "",
     });
 
     const [formError, setFormError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -20,7 +24,16 @@ function RegisterForm({ onRegister, onCancel }) {
     async function handleSubmit(event) {
         event.preventDefault();
 
+        if (isSubmitting) return;
+
         setFormError("");
+
+        if (formData.password !== formData.confirmPassword) {
+            setFormError(t("auth.passwordMismatch"));
+            return;
+        }
+
+        setIsSubmitting(true);
 
         try {
             await onRegister(
@@ -29,22 +42,24 @@ function RegisterForm({ onRegister, onCancel }) {
             );
         } catch (error) {
             setFormError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
     return (
-        <form className="login-form" onSubmit={handleSubmit}>
-            <h2>Create Account</h2>
+        <form className="login-form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
+            <h2>{t("auth.createAccount")}</h2>
 
             {formError && (
-                <p className="form-error">
+                <p className="form-error" role="alert">
                     {formError}
                 </p>
             )}
 
             <div>
                 <label>
-                    Username
+                    {t("auth.username")}
                     <input
                         type="text"
                         name="username"
@@ -57,7 +72,7 @@ function RegisterForm({ onRegister, onCancel }) {
 
             <div>
                 <label>
-                    Password
+                    {t("auth.password")}
                     <input
                         type="password"
                         name="password"
@@ -68,18 +83,33 @@ function RegisterForm({ onRegister, onCancel }) {
                 </label>
             </div>
 
+            <div>
+                <label>
+                    {t("auth.confirmPassword")}
+                    <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        autoComplete="new-password"
+                    />
+                </label>
+            </div>
+
             <button
                 type="submit"
                 className="add-button"
+                disabled={isSubmitting}
             >
-                Create Account
+                {isSubmitting ? t("auth.creatingAccount") : t("auth.createAccount")}
             </button>
 
             <button
                 type="button"
                 onClick={onCancel}
+                disabled={isSubmitting}
             >
-                Back to Login
+                {t("auth.backToLogin")}
             </button>
         </form>
     );

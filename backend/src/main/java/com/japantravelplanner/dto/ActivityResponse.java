@@ -15,6 +15,7 @@ public class ActivityResponse {
     private Long cost;
     private CostStatus costStatus;
     private String notes;
+    private String mapSearchQuery;
     private String location;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -33,6 +34,7 @@ public class ActivityResponse {
             Long cost,
             CostStatus costStatus,
             String notes,
+            String mapSearchQuery,
             String location,
             LocalTime startTime,
             LocalTime endTime,
@@ -46,6 +48,7 @@ public class ActivityResponse {
         this.cost = cost;
         this.costStatus = costStatus;
         this.notes = notes;
+        this.mapSearchQuery = mapSearchQuery;
         this.location = location;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -79,6 +82,10 @@ public class ActivityResponse {
 
     public String getNotes() {
         return notes;
+    }
+
+    public String getMapSearchQuery() {
+        return mapSearchQuery;
     }
 
     public String getLocation() {

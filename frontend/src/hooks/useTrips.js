@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 
 import {
+    createTemplateFromTrip,
     createTrip,
     deleteTrip,
     duplicateTrip,
@@ -9,17 +10,28 @@ import {
     updateTrip,
 } from "../api/api.js";
 
-function useTrips(currentUser) {
+function useTrips(currentUser, selectedTripId) {
     // States
     const [trips, setTrips] = useState([]);
-    const [selectedTrip, setSelectedTrip] = useState(null);
+    const [loadingTrips, setLoadingTrips] = useState(false);
+    const [hasLoadedTrips, setHasLoadedTrips] = useState(false);
     const [addingTrip, setAddingTrip] = useState(false);
     const [editingTrip, setEditingTrip] = useState(null);
     const [tripToDelete, setTripToDelete] = useState(null);
+    const [tripToTemplate, setTripToTemplate] = useState(null);
+    const [savedTemplateName, setSavedTemplateName] = useState("");
     const [tripError, setTripError] = useState("");
+
+    const selectedTrip = selectedTripId
+        ? trips.find(
+            (trip) => String(trip.id) === selectedTripId
+        ) ?? null
+        : null;
 
     // Functions
     async function loadTrips() {
+        setLoadingTrips(true);
+
         try {
             const data = await getTrips();
 
@@ -30,16 +42,18 @@ function useTrips(currentUser) {
         } catch (error) {
             setTripError(error.message);
             throw error;
+        } finally {
+            setLoadingTrips(false);
+            setHasLoadedTrips(true);
         }
     }
 
     // Handlers
-    function handleSelectTrip(trip) {
-        setSelectedTrip(trip);
-
+    function handleSelectTrip() {
         setAddingTrip(false);
         setEditingTrip(null);
         setTripToDelete(null);
+        setTripToTemplate(null);
         setTripError("");
     }
 
@@ -65,10 +79,6 @@ function useTrips(currentUser) {
                     : trip
             )
         );
-
-        if (selectedTrip?.id === updatedTrip.id) {
-            setSelectedTrip(updatedTrip);
-        }
 
         setEditingTrip(null);
         setTripError("");
@@ -105,10 +115,18 @@ function useTrips(currentUser) {
         }
     }
 
+    async function handleSaveTripAsTemplate(formData) {
+        const template = await createTemplateFromTrip(tripToTemplate.id, formData);
+        setTripToTemplate(null);
+        setSavedTemplateName(template.name);
+        setTripError("");
+        return template;
+    }
+
     function handleBackToTrips() {
-        setSelectedTrip(null);
         setEditingTrip(null);
         setTripToDelete(null);
+        setTripToTemplate(null);
         setTripError("");
     }
 
@@ -116,13 +134,16 @@ function useTrips(currentUser) {
     useEffect(() => {
         if (currentUser) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
-            loadTrips();
+            loadTrips().catch(() => {});
         } else {
             setTrips([]);
-            setSelectedTrip(null);
+            setLoadingTrips(false);
+            setHasLoadedTrips(false);
             setAddingTrip(false);
             setEditingTrip(null);
             setTripToDelete(null);
+            setTripToTemplate(null);
+            setSavedTemplateName("");
             setTripError("");
         }
     }, [currentUser]);
@@ -131,21 +152,29 @@ function useTrips(currentUser) {
     return {
         trips,
         selectedTrip,
+        loadingTrips,
+        hasLoadedTrips,
         addingTrip,
         editingTrip,
         tripToDelete,
+        tripToTemplate,
+        savedTemplateName,
         tripError,
 
         setAddingTrip,
         setEditingTrip,
         setTripToDelete,
+        setTripToTemplate,
+        setSavedTemplateName,
 
         handleSelectTrip,
         handleAddTrip,
         handleSaveTrip,
         handleDuplicateTrip,
         handleConfirmDeleteTrip,
+        handleSaveTripAsTemplate,
         handleBackToTrips,
+        loadTrips,
     };
 }
 

@@ -1,34 +1,55 @@
+import i18n from "../i18n/index.js";
+
 const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ??
-    "http://localhost:8080";
+    "";
 
 // Errors
 export class SessionExpiredError extends Error {
     constructor() {
-        super("Your session has expired.");
+        super(i18n.t("status.sessionExpiredMessage"));
         this.name = "SessionExpiredError";
     }
 }
 
-async function getErrorMessage(response, fallbackMessage) {
+function translateErrorCode(code) {
+    const key = `apiErrors.${code}`;
+    return code && i18n.exists(key) ? i18n.t(key) : null;
+}
+
+async function getErrorMessage(response, fallbackCode) {
     try {
         const errorData = await response.json();
 
-        if (errorData.message) {
-            return errorData.message;
-        }
-
-        const validationMessages = Object.values(errorData).filter(
-            (value) => typeof value === "string"
-        );
+        const validationMessages = Object.values(errorData.fieldErrors ?? {})
+            .map(translateErrorCode)
+            .filter(Boolean);
 
         if (validationMessages.length > 0) {
             return validationMessages.join(" ");
         }
 
-        return fallbackMessage;
+        const codedMessage = translateErrorCode(errorData.code);
+        if (codedMessage) return codedMessage;
+
+        if (errorData.message) {
+            return errorData.message;
+        }
+
+        const legacyValidationMessages = Object.entries(errorData)
+            .filter(([key, value]) =>
+                !["code", "message", "fieldErrors"].includes(key)
+                && typeof value === "string"
+            )
+            .map(([, value]) => value);
+
+        if (legacyValidationMessages.length > 0) {
+            return legacyValidationMessages.join(" ");
+        }
+
+        return i18n.t(`apiErrors.${fallbackCode}`);
     } catch {
-        return fallbackMessage;
+        return i18n.t(`apiErrors.${fallbackCode}`);
     }
 }
 
@@ -53,7 +74,7 @@ async function getCsrfToken() {
 
     if (!response.ok) {
         throw new Error(
-            "Unable to initialize security token."
+            i18n.t("apiErrors.CSRF_INIT")
         );
     }
 
@@ -91,7 +112,7 @@ export async function register(username, password) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to create account. Please check the information provided."
+            "REGISTER"
         );
 
         throw new Error(message);
@@ -113,7 +134,14 @@ export async function login(username, password) {
     });
 
     if (!response.ok) {
-        throw new Error("Unable to sign in. Please check your username and password.");
+        if (response.status === 429) {
+            throw new Error(await getErrorMessage(
+                response,
+                "LOGIN"
+            ));
+        }
+
+        throw new Error(await getErrorMessage(response, "LOGIN"));
     }
 
     return response.json();
@@ -134,7 +162,7 @@ export async function getCurrentUser() {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to verify the current session."
+            "SESSION_VERIFY"
         );
 
         throw new Error(message);
@@ -154,7 +182,7 @@ export async function logout() {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to log out."
+            "LOGOUT"
         );
 
         throw new Error(message);
@@ -180,7 +208,7 @@ export async function createTrip(trip) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to create trip."
+            "TRIP_CREATE"
         );
 
         throw new Error(message);
@@ -206,7 +234,7 @@ export async function updateTrip(tripId, trip) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to update trip."
+            "TRIP_UPDATE"
         );
 
         throw new Error(message);
@@ -228,7 +256,7 @@ export async function duplicateTrip(tripId) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to duplicate trip."
+            "TRIP_DUPLICATE"
         );
 
         throw new Error(message);
@@ -250,7 +278,7 @@ export async function deleteTrip(tripId) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "The trip could not be deleted. Please try again."
+            "TRIP_DELETE"
         );
 
         throw new Error(message);
@@ -270,7 +298,7 @@ export async function getTrips() {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to load trips."
+            "TRIPS_LOAD"
         );
 
         throw new Error(message);
@@ -290,7 +318,7 @@ export async function getTripItems(tripId) {
     checkForExpiredSession(response);
 
     if (!response.ok) {
-        throw new Error("Unable to load itinerary items.");
+        throw new Error(await getErrorMessage(response, "ITEMS_LOAD"));
     }
 
     return response.json();
@@ -313,7 +341,7 @@ export async function createActivity(tripId, activity) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to create activity."
+            "ACTIVITY_CREATE"
         );
 
         throw new Error(message);
@@ -339,7 +367,7 @@ export async function createTransportation(tripId, transportation) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to create transportation."
+            "TRANSPORTATION_CREATE"
         );
 
         throw new Error(message);
@@ -365,7 +393,7 @@ export async function createLodging(tripId, lodging) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to create lodging."
+            "LODGING_CREATE"
         );
 
         throw new Error(message);
@@ -391,7 +419,7 @@ export async function updateActivity(tripId, itemId, activity) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to update activity."
+            "ACTIVITY_UPDATE"
         );
 
         throw new Error(message);
@@ -421,7 +449,7 @@ export async function updateTransportation(
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to update transportation."
+            "TRANSPORTATION_UPDATE"
         );
 
         throw new Error(message);
@@ -447,7 +475,7 @@ export async function updateLodging(tripId, itemId, lodging) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to update lodging."
+            "LODGING_UPDATE"
         );
 
         throw new Error(message);
@@ -467,7 +495,7 @@ export async function deleteTripItem(tripId, itemId) {
     checkForExpiredSession(response);
 
     if (!response.ok) {
-        throw new Error("Unable to delete itinerary item.");
+        throw new Error(await getErrorMessage(response, "ITEM_DELETE"));
     }
 }
 
@@ -484,10 +512,178 @@ export async function searchTripItems(tripId, query) {
     if (!response.ok) {
         const message = await getErrorMessage(
             response,
-            "Unable to search itinerary items."
+            "ITEM_SEARCH"
         );
 
         throw new Error(message);
+    }
+
+    return response.json();
+}
+
+export async function changePassword(currentPassword, newPassword) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/account/password`,
+        {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ currentPassword, newPassword }),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "PASSWORD_UPDATE"));
+    }
+
+    return response.json();
+}
+
+export async function getPublicTemplates() {
+    const response = await fetch(`${API_BASE_URL}/api/templates/public`, {
+        credentials: "include",
+    });
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATES_LOAD"));
+    }
+
+    return response.json();
+}
+
+export async function getMyTemplates() {
+    const response = await fetch(`${API_BASE_URL}/api/templates/mine`, {
+        credentials: "include",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATES_LOAD"));
+    }
+
+    return response.json();
+}
+
+export async function createTemplateFromTrip(tripId, template) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/templates/from-trip/${tripId}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(template),
+        }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATE_CREATE"));
+    }
+
+    return response.json();
+}
+
+export async function instantiateTemplate(templateId, trip) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/templates/${templateId}/instantiate`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(trip),
+        }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATE_USE"));
+    }
+
+    return response.json();
+}
+
+export async function deleteTemplate(templateId) {
+    const response = await csrfFetch(`${API_BASE_URL}/api/templates/${templateId}`, {
+        method: "DELETE",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "TEMPLATE_DELETE"));
+    }
+}
+
+export async function getSavedItineraryItems() {
+    const response = await fetch(`${API_BASE_URL}/api/library-items`, {
+        credentials: "include",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEMS_LOAD"));
+    }
+
+    return response.json();
+}
+
+export async function saveItineraryItemToLibrary(tripId, itemId) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/library-items/from-trip/${tripId}/items/${itemId}`,
+        { method: "POST" }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEM_SAVE"));
+    }
+
+    return response.json();
+}
+
+export async function addSavedItemToTrip(savedItemId, tripId, date) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/library-items/${savedItemId}/add-to-trip/${tripId}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date }),
+        }
+    );
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEM_ADD"));
+    }
+}
+
+export async function deleteSavedItineraryItem(savedItemId) {
+    const response = await csrfFetch(`${API_BASE_URL}/api/library-items/${savedItemId}`, {
+        method: "DELETE",
+    });
+
+    checkForExpiredSession(response);
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "LIBRARY_ITEM_DELETE"));
+    }
+}
+
+export async function deleteAccount(currentPassword) {
+    const response = await csrfFetch(
+        `${API_BASE_URL}/api/account`,
+        {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ currentPassword }),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(await getErrorMessage(response, "ACCOUNT_DELETE"));
     }
 
     return response.json();

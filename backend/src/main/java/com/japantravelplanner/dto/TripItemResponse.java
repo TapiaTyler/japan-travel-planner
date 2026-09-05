@@ -15,6 +15,7 @@ public class TripItemResponse {
     private Long cost;
     private CostStatus costStatus;
     private String notes;
+    private String mapSearchQuery;
 
     private String location;
     private LocalTime startTime;
@@ -95,6 +96,14 @@ public class TripItemResponse {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getMapSearchQuery() {
+        return mapSearchQuery;
+    }
+
+    public void setMapSearchQuery(String mapSearchQuery) {
+        this.mapSearchQuery = mapSearchQuery;
     }
 
     public String getLocation() {

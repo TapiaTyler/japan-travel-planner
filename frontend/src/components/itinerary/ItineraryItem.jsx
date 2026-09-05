@@ -4,7 +4,9 @@ import {
     BedDouble,
     BusFront,
     CarTaxiFront,
+    MapPinned,
     MapPin,
+    LibraryBig,
     Pencil,
     Plane,
     Route,
@@ -13,6 +15,9 @@ import {
     TramFront,
     Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { formatCurrency } from "../../utils/formatters.js";
+import { buildGoogleMapsSearchUrl } from "../../utils/mapUrls.js";
 
 // Components
 function ItemIcon({ item }) {
@@ -57,9 +62,24 @@ function ItemIcon({ item }) {
     return <Route {...iconProps} />;
 }
 
-function ItineraryItem({ item, onEdit, onDelete }) {
+function ItineraryItem({ item, onEdit, onDelete, onSaveToLibrary }) {
     // States
     const [menuOpen, setMenuOpen] = useState(false);
+    const [isSavingToLibrary, setIsSavingToLibrary] = useState(false);
+    const { t, i18n } = useTranslation();
+    const mapsUrl = buildGoogleMapsSearchUrl(item.mapSearchQuery);
+
+    async function handleSaveToLibrary() {
+        if (isSavingToLibrary) return;
+        setIsSavingToLibrary(true);
+
+        try {
+            const savedItem = await onSaveToLibrary(item);
+            if (savedItem) setMenuOpen(false);
+        } finally {
+            setIsSavingToLibrary(false);
+        }
+    }
 
     function renderDetails() {
         if (item.itemType === "Activity") {
@@ -82,8 +102,8 @@ function ItineraryItem({ item, onEdit, onDelete }) {
 
                     {(item.departureLocation || item.arrivalLocation) && (
                         <p>
-                            {item.departureLocation ?? "Unknown"} →{" "}
-                            {item.arrivalLocation ?? "Unknown"}
+                            {item.departureLocation ?? t("status.unknown")} →{" "}
+                            {item.arrivalLocation ?? t("status.unknown")}
                         </p>
                     )}
 
@@ -109,8 +129,7 @@ function ItineraryItem({ item, onEdit, onDelete }) {
 
                     {item.numberOfNights !== null && (
                         <p>
-                            {item.numberOfNights}{" "}
-                            {item.numberOfNights === 1 ? "night" : "nights"}
+                            {t("itinerary.durationNights", { count: item.numberOfNights })}
                         </p>
                     )}
                 </>
@@ -129,11 +148,11 @@ function ItineraryItem({ item, onEdit, onDelete }) {
             </div>
 
             <div className="itinerary-item-content">
-                <strong>{item.name}</strong>
+                <strong className="itinerary-item-name">{item.name}</strong>
 
                 {item.outsideTripDates && (
                     <p className="item-date-warning">
-                        Date falls outside the current trip dates.
+                        {t("status.outsideDates")}
                     </p>
                 )}
 
@@ -144,55 +163,81 @@ function ItineraryItem({ item, onEdit, onDelete }) {
 
             {item.cost !== null && (
                 <div className="item-cost">
-                    <p className="item-cost-amount">¥{item.cost.toLocaleString()}</p>
+                    <p className="item-cost-amount">{formatCurrency(item.cost, i18n.resolvedLanguage)}</p>
                     <p className={`cost-status-${item.costStatus.toLowerCase()}`}>
-                        {item.costStatus.charAt(0) + item.costStatus.slice(1).toLowerCase()}
+                        {t(`cost.${item.costStatus.toLowerCase()}`)}
                     </p>
                 </div>
             )}
 
-            <div className="itinerary-item-actions">
-                <button
-                    type="button"
-                    aria-label={`Options for ${item.name}`}
-                    title="Item options"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                >
-                    ⋮
-                </button>
-
-                {menuOpen && (
-                    <div className="item-menu">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setMenuOpen(false);
-                                onEdit(item);
-                            }}
-                        >
-                            <Pencil
-                                size={16}
-                                aria-hidden="true"
-                            />
-                            Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            className="item-menu-delete"
-                            onClick={() => {
-                                setMenuOpen(false);
-                                onDelete(item);
-                            }}
-                        >
-                            <Trash2
-                                size={16}
-                                aria-hidden="true"
-                            />
-                            Delete
-                        </button>
-                    </div>
+            <div className="item-card-controls">
+                {mapsUrl && (
+                    <a
+                        className="item-map-link"
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={t("itinerary.openInMaps")}
+                        title={t("itinerary.openInMaps")}
+                    >
+                        <MapPinned size={20} aria-hidden="true" />
+                    </a>
                 )}
+
+                <div className="itinerary-item-actions">
+                    <button
+                        type="button"
+                        aria-label={t("menu.optionsFor", { name: item.name })}
+                        title={t("menu.itemOptions")}
+                        onClick={() => setMenuOpen(!menuOpen)}
+                    >
+                        ⋮
+                    </button>
+
+                    {menuOpen && (
+                        <div className="item-menu">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    onEdit(item);
+                                }}
+                            >
+                                <Pencil
+                                    size={16}
+                                    aria-hidden="true"
+                                />
+                                {t("common.edit")}
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={isSavingToLibrary}
+                                onClick={handleSaveToLibrary}
+                            >
+                                <LibraryBig size={16} aria-hidden="true" />
+                                {isSavingToLibrary
+                                    ? t("libraryItems.saving")
+                                    : t("libraryItems.save")}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="item-menu-delete"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    onDelete(item);
+                                }}
+                            >
+                                <Trash2
+                                    size={16}
+                                    aria-hidden="true"
+                                />
+                                {t("common.delete")}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

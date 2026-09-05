@@ -5,19 +5,42 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
+    --brand-color: #00173b;
     --primary-color: #00173b;
+    --active-control-bg: #00173b;
+    --active-control-text: #ffffff;
     --secondary-color: #ffffff;
     --tertiary-color: #adb1bf;
 
     --background-color: #f6f8fc;
+    --surface-color: #ffffff;
+    --surface-hover: #f2eeee;
 
     --border: #e4dfdc;
     --border-strong: #d4cdca;
+    --border-input-hover: #b8afab;
 
     --text-main: #0a0a0a;
     --text-muted: #555555;
     --text-light: #ffffff;
     --link-color: #0648ae;
+    --overlay-color: rgba(32, 27, 29, 0.52);
+
+    --activity-color: #9a3f4d;
+    --activity-soft: #faecee;
+    --transportation-color: #245b91;
+    --transportation-soft: #e8f1fa;
+    --lodging-color: #5b3a86;
+    --lodging-soft: #f1ebf8;
+    --map-color: #137333;
+    --map-soft: #e6f4ea;
+
+    --confirmed-color: #006400;
+    --confirmed-soft: #dbffdb;
+    --estimated-color: #d54303;
+    --estimated-soft: #ffebde;
+    --unknown-color: #404040;
+    --unknown-soft: #e6e6e6;
 
     --warning-bg: #fff7df;
     --warning-border: #e8c76d;
@@ -26,8 +49,17 @@
     --danger: #b33a3a;
     --danger-dark: #8e2d2d;
     --danger-soft: #fbeaea;
+    --danger-text: #b42318;
 
     --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-soft: 0 4px 16px rgba(0, 23, 59, 0.06);
+    --shadow-card: 0 3px 12px rgba(0, 23, 59, 0.05);
+
+    /* Reports intentionally keep a paper-like light theme. */
+    --print-surface: #ffffff;
+    --print-text: #0a0a0a;
+    --print-border: #dddddd;
+    --print-muted: #f6f8fc;
 
     --radius-sm: 6px;
     --radius-md: 10px;
@@ -48,7 +80,9 @@ body {
 }
 
 .main-wrapper {
-    padding: 1em 2em;
+    width: min(100%, 1480px);
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
 }
 
 h1,
@@ -72,4 +106,64 @@ p {
 
 a {
     color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--primary-color);
+}
+
+:root[data-theme="dark"] {
+    --primary-color: #78a9e8;
+    --active-control-bg: #376fae;
+    --active-control-text: #ffffff;
+    --secondary-color: #172235;
+    --tertiary-color: #65738a;
+    --background-color: #0d1522;
+    --surface-color: #172235;
+    --surface-hover: #243149;
+    --border: #303d52;
+    --border-strong: #46566f;
+    --border-input-hover: #71829d;
+    --text-main: #f2f5f9;
+    --text-muted: #b8c2d1;
+    --link-color: #8ab8f4;
+    --overlay-color: rgba(2, 7, 15, 0.72);
+    --activity-color: #ef9eaa;
+    --activity-soft: #3b2229;
+    --transportation-color: #8fc2f3;
+    --transportation-soft: #172f47;
+    --lodging-color: #c6a6eb;
+    --lodging-soft: #302442;
+    --map-color: #81c995;
+    --map-soft: #183a25;
+    --confirmed-color: #72d572;
+    --confirmed-soft: #17351f;
+    --estimated-color: #ff9b69;
+    --estimated-soft: #40271c;
+    --unknown-color: #d1d7e0;
+    --unknown-soft: #343d4a;
+    --warning-bg: #3a3018;
+    --warning-border: #a98b3c;
+    --warning-text: #f0d486;
+    --danger: #e06a6a;
+    --danger-dark: #ff9999;
+    --danger-soft: #3d2025;
+    --danger-text: #ff9999;
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.36);
+    --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.24);
+    --shadow-card: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 640px) {
+    .main-wrapper {
+        padding: 1rem 1rem 3rem;
+    }
 }

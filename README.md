@@ -1,29 +1,83 @@
-<strong>**DO NOT DISTRIBUTE OR PUBLICLY POST SOLUTIONS TO THESE LABS. MAKE ALL FORKS OF THIS REPOSITORY WITH SOLUTION CODE PRIVATE. PLEASE REFER TO THE STUDENT CODE OF CONDUCT AND ETHICAL EXPECTATIONS FOR COLLEGE OF INFORMATION TECHNOLOGY STUDENTS FOR SPECIFICS. **</strong>
+# Japan Travel Planner
 
-# WESTERN GOVERNORS UNIVERSITY 
-## D424 – SOFTWARE ENGINEERING CAPSTONE
-Welcome to Software Engineering Capstone! This is an opportunity for students to develop full stack software engineering documentation and applications. They will execute documentation, unit testing, revision of software applications, and deploy software applications with scripts and containers on a cloud platform.
+A full-stack itinerary planner designed for travel within Japan. Users can organize trips, filter scheduled items, track costs in Japanese yen, reuse templates, open destinations in their preferred map application, and generate printable itineraries. The interface is responsive, supports English and Japanese, and includes light and dark themes.
 
-FOR SPECIFIC TASK INSTRUCTIONS AND REQUIREMENTS FOR THIS ASSESSMENT, PLEASE REFER TO THE COURSE PAGE.
-BASIC INSTRUCTIONS
-For this assessment, you will deploy your developed full stack software product to a web service of your choice.
+This project began as a WGU software engineering capstone and is being developed into a production-style portfolio application.
 
+## Highlights
 
-## SUPPLEMENTAL RESOURCES  
-1.	How to clone a project to IntelliJ using Git?
+- Session-based registration and authentication with CSRF protection and login rate limiting
+- Trip and itinerary CRUD for activities, lodging, and transportation
+- Search and advanced filtering by date, location, type, cost, and transportation mode
+- Public trip-template library plus private reusable trips and itinerary items
+- Filter-aware printable itinerary generation
+- English/Japanese localization, responsive layouts, and theme preferences
+- PostgreSQL schema management through versioned Flyway migrations
 
-> Ensure that you have Git installed on your system and that IntelliJ is installed using [Toolbox](https://www.jetbrains.com/toolbox-app/). Make sure that you are using version 2022.3.2. Once this has been confirmed, click the clone button and use the 'IntelliJ IDEA (HTTPS)' button. This will open IntelliJ with a prompt to clone the proejct. Save it in a safe location for the directory and press clone. IntelliJ will prompt you for your credentials. Enter in your WGU Credentials and the project will be cloned onto your local machine.  
+## Technology
 
-2. How to create a branch and start Development?
+| Layer | Tools |
+| --- | --- |
+| Frontend | React 19, Vite, React Router, i18next, Vitest |
+| Backend | Java 21, Spring Boot, Spring Security, Spring Data JPA |
+| Data | PostgreSQL, Flyway |
+| Delivery | Docker, Railway |
 
-- GitLab method
-> Press the '+' button located near your branch name. In the dropdown list, press the 'New branch' button. This will allow you to create a name for your branch. Once the branch has been named, you can select 'Create Branch' to push the branch to your repository.
+Production uses a single container: Vite builds the React application, Spring Boot serves the static files and REST API, and Railway supplies PostgreSQL. See [Architecture](docs/ARCHITECTURE.md) for details.
 
-- IntelliJ method
-> In IntelliJ, Go to the 'Git' button on the top toolbar. Select the new branch option and create a name for the branch. Make sure checkout branch is selected and press create. You can now add a commit message and push the new branch to the local repo.
+## Local Development
 
-## SUPPORT
-If you need additional support, please navigate to the course page and reach out to your course instructor.
+Prerequisites: Java 21, Node.js 22, PostgreSQL, and Git. IntelliJ IDEA is the recommended IDE.
 
-## FUTURE USE
-Take this opportunity to create or add to a simple resume portfolio to highlight and showcase your work for future use in career search, experience, and education!
+1. Create an empty PostgreSQL database named `japan_travel_planner`.
+2. Configure the backend run configuration in IntelliJ with:
+
+   ```text
+   DB_URL=jdbc:postgresql://localhost:5432/japan_travel_planner
+   DB_USERNAME=your_postgres_user
+   DB_PASSWORD=your_postgres_password
+   ```
+
+3. Start the backend. Flyway creates or upgrades the schema automatically:
+
+   ```powershell
+   cd backend
+   .\mvnw.cmd spring-boot:run
+   ```
+
+4. Copy `frontend/.env.example` to `frontend/.env`, then start Vite:
+
+   ```powershell
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+Open `http://localhost:5173`. Never commit local `.env` files or database credentials.
+
+## Verification
+
+```powershell
+cd frontend
+npm run lint
+npm test
+npm run build
+
+cd ..\backend
+.\mvnw.cmd test
+```
+
+Build the production image from the repository root with `docker build -t japan-travel-planner .`. Deployment instructions and required variables are in [Railway Deployment](docs/DEPLOYMENT.md). Existing pre-Flyway databases require the one-time procedure in [Database Migrations](backend/MIGRATIONS.md).
+
+## Repository Layout
+
+```text
+frontend/                 React UI, tests, translations, and styles
+backend/                  Spring API, domain model, tests, and migrations
+backend/src/main/resources/db/migration/
+                          Ordered PostgreSQL migrations
+docs/                     Architecture and deployment guidance
+Dockerfile                Production full-stack image
+```
+
+Contribution conventions are documented in [CONTRIBUTING.md](CONTRIBUTING.md).

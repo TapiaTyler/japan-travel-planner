@@ -16,6 +16,7 @@ public class TransportationResponse {
     private Long cost;
     private CostStatus costStatus;
     private String notes;
+    private String mapSearchQuery;
     private TransportationType transportationType;
     private String departureLocation;
     private String arrivalLocation;
@@ -38,6 +39,7 @@ public class TransportationResponse {
             Long cost,
             CostStatus costStatus,
             String notes,
+            String mapSearchQuery,
             TransportationType transportationType,
             String departureLocation,
             String arrivalLocation,
@@ -54,6 +56,7 @@ public class TransportationResponse {
         this.cost = cost;
         this.costStatus = costStatus;
         this.notes = notes;
+        this.mapSearchQuery = mapSearchQuery;
         this.transportationType = transportationType;
         this.departureLocation = departureLocation;
         this.arrivalLocation = arrivalLocation;
@@ -119,6 +122,14 @@ public class TransportationResponse {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getMapSearchQuery() {
+        return mapSearchQuery;
+    }
+
+    public void setMapSearchQuery(String mapSearchQuery) {
+        this.mapSearchQuery = mapSearchQuery;
     }
 
     public TransportationType getTransportationType() {
