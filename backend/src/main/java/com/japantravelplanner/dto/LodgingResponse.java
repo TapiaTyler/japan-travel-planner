@@ -14,6 +14,7 @@ public class LodgingResponse {
     private Long cost;
     private CostStatus costStatus;
     private String notes;
+    private String mapSearchQuery;
     private String location;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
@@ -33,6 +34,7 @@ public class LodgingResponse {
             Long cost,
             CostStatus costStatus,
             String notes,
+            String mapSearchQuery,
             String location,
             LocalDate checkInDate,
             LocalDate checkOutDate,
@@ -47,6 +49,7 @@ public class LodgingResponse {
         this.cost = cost;
         this.costStatus = costStatus;
         this.notes = notes;
+        this.mapSearchQuery = mapSearchQuery;
         this.location = location;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
@@ -81,6 +84,10 @@ public class LodgingResponse {
 
     public String getNotes() {
         return notes;
+    }
+
+    public String getMapSearchQuery() {
+        return mapSearchQuery;
     }
 
     public String getLocation() {

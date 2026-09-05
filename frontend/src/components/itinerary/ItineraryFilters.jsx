@@ -3,6 +3,7 @@ import {
     ITEM_TYPE_OPTIONS,
     TRANSPORTATION_TYPE_OPTIONS,
 } from "../../config/options.js";
+import { useTranslation } from "react-i18next";
 
 function ItineraryFilters({
                               filters,
@@ -10,6 +11,7 @@ function ItineraryFilters({
                               onChange,
                               onReset,
                           }) {
+    const { t } = useTranslation();
     function toggleValue(key, value, allValues) {
         const currentValues = filters[key].length === 0
             ? allValues
@@ -48,7 +50,7 @@ function ItineraryFilters({
                         allValues
                     )}
                 />
-                {option.label}
+                {option.labelKey ? t(option.labelKey) : option.label}
             </label>
         ));
     }
@@ -61,7 +63,7 @@ function ItineraryFilters({
                 disabled={disabled || filters[key].length === 0}
                 onClick={() => onChange({ ...filters, [key]: [] })}
             >
-                Select All {label}
+                {t("filters.selectAllGroup", { group: label })}
             </button>
         );
     }
@@ -70,13 +72,13 @@ function ItineraryFilters({
         <section
             id="itinerary-filters"
             className="itinerary-filters"
-            aria-label="Itinerary filters"
+            aria-label={t("filters.label")}
         >
             <div className="filter-grid">
                 <fieldset>
-                    <legend>Date Range</legend>
+                    <legend>{t("filters.dateRange")}</legend>
                     <label>
-                        From
+                        {t("filters.from")}
                         <input
                             type="date"
                             max={filters.dateTo || undefined}
@@ -88,7 +90,7 @@ function ItineraryFilters({
                         />
                     </label>
                     <label>
-                        To
+                        {t("filters.to")}
                         <input
                             type="date"
                             min={filters.dateFrom || undefined}
@@ -102,10 +104,10 @@ function ItineraryFilters({
                 </fieldset>
 
                 <fieldset>
-                    <legend>Locations</legend>
+                    <legend>{t("filters.locations")}</legend>
                     {renderSelectAll(
                         "locations",
-                        "Locations",
+                        t("filters.locations"),
                         locations.length === 0
                     )}
                     <div className="filter-checkbox-list">
@@ -113,30 +115,32 @@ function ItineraryFilters({
                             ? renderCheckboxes(
                                 locations.map((location) => ({
                                     value: location,
-                                    label: location,
+                                    label: location === "Other / Unspecified"
+                                        ? t("common.otherUnspecified")
+                                        : location,
                                 })),
                                 "locations"
                             )
-                            : <span className="filter-empty">No locations available</span>}
+                            : <span className="filter-empty">{t("filters.noLocations")}</span>}
                     </div>
                 </fieldset>
 
                 <fieldset>
-                    <legend>Item Types</legend>
-                    {renderSelectAll("itemTypes", "Item Types")}
+                    <legend>{t("filters.itemTypes")}</legend>
+                    {renderSelectAll("itemTypes", t("filters.itemTypes"))}
                     {renderCheckboxes(ITEM_TYPE_OPTIONS, "itemTypes")}
                 </fieldset>
 
                 <fieldset>
-                    <legend>Cost Status</legend>
-                    {renderSelectAll("costStatuses", "Cost Statuses")}
+                    <legend>{t("cost.status")}</legend>
+                    {renderSelectAll("costStatuses", t("filters.costStatuses"))}
                     {renderCheckboxes(COST_STATUS_OPTIONS, "costStatuses")}
                 </fieldset>
 
                 <fieldset>
-                    <legend>Cost Range (¥)</legend>
+                    <legend>{t("filters.costRange")}</legend>
                     <label>
-                        Minimum
+                        {t("filters.minimum")}
                         <input
                             type="number"
                             min="0"
@@ -149,7 +153,7 @@ function ItineraryFilters({
                         />
                     </label>
                     <label>
-                        Maximum
+                        {t("filters.maximum")}
                         <input
                             type="number"
                             min={filters.minCost || "0"}
@@ -163,10 +167,10 @@ function ItineraryFilters({
                 </fieldset>
 
                 <fieldset>
-                    <legend>Transportation Types</legend>
+                    <legend>{t("filters.transportationTypes")}</legend>
                     {renderSelectAll(
                         "transportationTypes",
-                        "Transportation Types"
+                        t("filters.transportationTypes")
                     )}
                     <div className="filter-checkbox-list">
                         {renderCheckboxes(
@@ -179,7 +183,7 @@ function ItineraryFilters({
 
             <div className="filter-actions">
                 <button type="button" onClick={onReset}>
-                    Reset filters
+                    {t("filters.reset")}
                 </button>
             </div>
         </section>

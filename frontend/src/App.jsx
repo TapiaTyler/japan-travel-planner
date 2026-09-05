@@ -22,8 +22,10 @@ import useTrips from "./hooks/useTrips.js";
 import useItinerary from "./hooks/useItinerary.js";
 import useTheme from "./hooks/useTheme.js";
 import { getTripPath, getTripSlug } from "./utils/routingUtils.js";
+import { useTranslation } from "react-i18next";
 
 function App() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const tripRoute = useMatch("/trips/:tripId/:slug?");
     const auth = useAuth();
@@ -96,8 +98,8 @@ function App() {
         return (
             <main>
                 <LoadingState
-                    title="Japan Travel Planner"
-                    message="Restoring your session..."
+                    title={t("app.name")}
+                    message={t("status.restoring")}
                     fullPage
                     showBrand
                 />
@@ -135,8 +137,8 @@ function App() {
     ) {
         tripDetailsPage = (
             <LoadingState
-                title="Loading Trip"
-                message="Retrieving your trip details..."
+                title={t("status.loadingTrip")}
+                message={t("status.loadingTripMessage")}
             />
         );
     } else if (tripState.selectedTrip) {
@@ -149,12 +151,12 @@ function App() {
     } else {
         tripDetailsPage = (
             <section className="route-status">
-                <h2>Trip not found</h2>
+                <h2>{t("status.tripNotFound")}</h2>
                 <p>
-                    This trip may not exist or may not belong to your account.
+                    {t("status.tripNotFoundMessage")}
                 </p>
                 <button type="button" onClick={handleBackToTrips}>
-                    Back to Trips
+                    {t("account.backToTrips")}
                 </button>
             </section>
         );
@@ -171,20 +173,19 @@ function App() {
 
             {auth.sessionExpired && (
                 <Modal
-                    title="Session Expired"
+                    title={t("status.sessionExpired")}
                     onClose={auth.handleSessionExpired}
                 >
                     <div className="session-expired-message">
                         <p>
-                            Your session has expired. Please sign in again to
-                            continue.
+                            {t("status.sessionExpiredMessage")}
                         </p>
 
                         <button
                             type="button"
                             onClick={auth.handleSessionExpired}
                         >
-                            Go to Login
+                            {t("status.goToLogin")}
                         </button>
                     </div>
                 </Modal>

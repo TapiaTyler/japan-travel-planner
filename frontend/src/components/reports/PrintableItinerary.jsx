@@ -2,9 +2,13 @@ import {
     formatDateHeading,
     formatDateLabel,
 } from "../../utils/itineraryUtils.js";
+import { useTranslation } from "react-i18next";
+import { formatCurrency, formatDateTime } from "../../utils/formatters.js";
 
 function PrintableItinerary({ trip, items, options }) {
-    const generatedAt = new Date().toLocaleString("en-US");
+    const { t, i18n } = useTranslation();
+    const language = i18n.resolvedLanguage;
+    const generatedAt = formatDateTime(new Date(), language);
 
     const filteredItems = items.filter((item) => {
         const typeIncluded =
@@ -59,17 +63,17 @@ function PrintableItinerary({ trip, items, options }) {
     return (
         <section className="printable-itinerary">
             <header className="print-report-header">
-                <h1>Japan Travel Planner</h1>
+                <h1>{t("app.name")}</h1>
 
                 <div className="print-report-trip-details">
                     <h2>{trip.name}</h2>
 
                     <p>
-                        {formatDateLabel(trip.startDate)} -{" "}
-                        {formatDateLabel(trip.endDate)}
+                        {formatDateLabel(trip.startDate, language)} -{" "}
+                        {formatDateLabel(trip.endDate, language)}
                     </p>
 
-                    <p>Generated: {generatedAt}</p>
+                    <p>{t("report.generated", { date: generatedAt })}</p>
 
                     {options.includeNotes && trip.notes && (
                         <p>{trip.notes}</p>
@@ -85,23 +89,24 @@ function PrintableItinerary({ trip, items, options }) {
                     >
                         <h3>
                             {date === "Unscheduled"
-                                ? "Unscheduled"
+                                ? t("common.unscheduled")
                                 : dateItems[0].outsideTripDates
-                                    ? `${formatDateLabel(date)} · Outside trip dates`
+                                    ? `${formatDateLabel(date, language)} · ${t("itinerary.outsideTripDates")}`
                                     : formatDateHeading(
                                         date,
-                                        dateItems[0].dayNumber
+                                        t("itinerary.day", { count: dateItems[0].dayNumber }),
+                                        language
                                     )}
                         </h3>
 
                         <table>
                             <thead>
                             <tr>
-                                <th>Item</th>
-                                <th>Type</th>
-                                <th>Details</th>
-                                <th>Cost</th>
-                                <th>Status</th>
+                                <th>{t("report.item")}</th>
+                                <th>{t("report.type")}</th>
+                                <th>{t("report.details")}</th>
+                                <th>{t("itinerary.cost")}</th>
+                                <th>{t("report.status")}</th>
                             </tr>
                             </thead>
 
@@ -112,23 +117,21 @@ function PrintableItinerary({ trip, items, options }) {
                                         <div>{item.name}</div>
                                     </td>
 
-                                    <td>{item.itemType}</td>
+                                    <td>{t(`itinerary.${item.itemType.toLowerCase()}`)}</td>
 
                                     <td>
-                                        {getItemDetails(item)}
+                                        {getItemDetails(item, t)}
                                     </td>
 
                                     <td>
                                         {item.cost !== null
-                                            ? `¥${Number(
-                                                item.cost
-                                            ).toLocaleString()}`
+                                            ? formatCurrency(item.cost, language)
                                             : "—"}
                                     </td>
 
                                     <td>
                                         {item.cost !== null
-                                            ? item.costStatus
+                                            ? t(`cost.${item.costStatus.toLowerCase()}`)
                                             : "—"}
                                     </td>
                                 </tr>
@@ -138,7 +141,7 @@ function PrintableItinerary({ trip, items, options }) {
                         {options.includeNotes &&
                             dateItems.some((item) => item.notes) && (
                                 <div className="print-notes">
-                                    <h4>Notes</h4>
+                                    <h4>{t("itinerary.notes")}</h4>
 
                                     {dateItems
                                         .filter((item) => item.notes)
@@ -155,18 +158,17 @@ function PrintableItinerary({ trip, items, options }) {
 
             {filteredItems.length === 0 && (
                 <p>
-                    No itinerary items match the selected
-                    report options.
+                    {t("report.noMatches")}
                 </p>
             )}
 
             {options.includeCostSummary && (
                 <section className="print-cost-summary">
-                    <h3>Cost Summary</h3>
+                    <h3>{t("cost.summary")}</h3>
 
                     <p>
-                        <strong>Total Planned Cost:</strong>{" "}
-                        ¥{totalCost.toLocaleString()}
+                        <strong>{t("report.totalPlannedCost")}</strong>{" "}
+                        {formatCurrency(totalCost, language)}
                     </p>
                 </section>
             )}
@@ -174,7 +176,7 @@ function PrintableItinerary({ trip, items, options }) {
     );
 }
 
-function getItemDetails(item) {
+function getItemDetails(item, t) {
     if (item.itemType === "Activity") {
         const parts = [
             item.location,
@@ -207,7 +209,7 @@ function getItemDetails(item) {
                 : null;
 
         return [
-            item.transportationType,
+            item.transportationType ? t(`transport.${item.transportationType.toLowerCase()}`) : null,
             route,
             times,
         ]
@@ -225,11 +227,7 @@ function getItemDetails(item) {
 
         const nights =
             item.numberOfNights !== null
-                ? `${item.numberOfNights} ${
-                    item.numberOfNights === 1
-                        ? "night"
-                        : "nights"
-                }`
+                ? t("itinerary.durationNights", { count: item.numberOfNights })
                 : null;
 
         return [item.location, stay, nights]

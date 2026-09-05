@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function RegisterForm({ onRegister, onCancel }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         username: "",
         password: "",
@@ -27,7 +29,7 @@ function RegisterForm({ onRegister, onCancel }) {
         setFormError("");
 
         if (formData.password !== formData.confirmPassword) {
-            setFormError("Passwords do not match.");
+            setFormError(t("auth.passwordMismatch"));
             return;
         }
 
@@ -47,7 +49,7 @@ function RegisterForm({ onRegister, onCancel }) {
 
     return (
         <form className="login-form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
-            <h2>Create Account</h2>
+            <h2>{t("auth.createAccount")}</h2>
 
             {formError && (
                 <p className="form-error" role="alert">
@@ -57,7 +59,7 @@ function RegisterForm({ onRegister, onCancel }) {
 
             <div>
                 <label>
-                    Username
+                    {t("auth.username")}
                     <input
                         type="text"
                         name="username"
@@ -70,7 +72,7 @@ function RegisterForm({ onRegister, onCancel }) {
 
             <div>
                 <label>
-                    Password
+                    {t("auth.password")}
                     <input
                         type="password"
                         name="password"
@@ -83,7 +85,7 @@ function RegisterForm({ onRegister, onCancel }) {
 
             <div>
                 <label>
-                    Confirm Password
+                    {t("auth.confirmPassword")}
                     <input
                         type="password"
                         name="confirmPassword"
@@ -99,7 +101,7 @@ function RegisterForm({ onRegister, onCancel }) {
                 className="add-button"
                 disabled={isSubmitting}
             >
-                {isSubmitting ? "Creating Account..." : "Create Account"}
+                {isSubmitting ? t("auth.creatingAccount") : t("auth.createAccount")}
             </button>
 
             <button
@@ -107,7 +109,7 @@ function RegisterForm({ onRegister, onCancel }) {
                 onClick={onCancel}
                 disabled={isSubmitting}
             >
-                Back to Login
+                {t("auth.backToLogin")}
             </button>
         </form>
     );

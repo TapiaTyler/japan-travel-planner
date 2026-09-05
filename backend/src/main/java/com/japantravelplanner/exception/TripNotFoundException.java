@@ -1,10 +1,10 @@
 package com.japantravelplanner.exception;
 
-public class TripNotFoundException extends RuntimeException {
+public class TripNotFoundException extends ApiException {
 
     public TripNotFoundException() {
 
-        super("The requested trip could not be found.");
+        super(ApiErrorCode.TRIP_NOT_FOUND);
     }
 
 }

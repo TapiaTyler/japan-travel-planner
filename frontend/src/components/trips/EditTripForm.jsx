@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function EditTripForm({ trip, onCancel, onSave }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: trip.name ?? "",
         startDate: trip.startDate ?? "",
@@ -48,7 +50,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Trip Name
+                    {t("trips.name")}
                     <input
                         type="text"
                         name="name"
@@ -60,7 +62,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Start Date
+                    {t("trips.startDate")}
                     <input
                         type="date"
                         name="startDate"
@@ -72,7 +74,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
             <div>
                 <label>
-                    End Date
+                    {t("trips.endDate")}
                     <input
                         type="date"
                         name="endDate"
@@ -84,7 +86,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Notes
+                    {t("trips.notes")}
                     <textarea
                         name="notes"
                         value={formData.notes}
@@ -98,7 +100,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
                 type="submit"
                 disabled={isSubmitting}
             >
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
             </button>
 
             <button
@@ -106,7 +108,7 @@ function EditTripForm({ trip, onCancel, onSave }) {
                 onClick={onCancel}
                 disabled={isSubmitting}
             >
-                Cancel
+                {t("common.cancel")}
             </button>
         </form>
     );

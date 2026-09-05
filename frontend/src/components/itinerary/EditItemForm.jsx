@@ -3,8 +3,10 @@ import {
     COST_STATUS_OPTIONS,
     TRANSPORTATION_TYPE_OPTIONS,
 } from "../../config/options.js";
+import { useTranslation } from "react-i18next";
 
 function EditItemForm({ item, onCancel, onSave }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         ...item,
     });
@@ -49,7 +51,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Name
+                    {t("itinerary.name")}
                     <input
                         type="text"
                         name="name"
@@ -63,7 +65,7 @@ function EditItemForm({ item, onCancel, onSave }) {
                 <>
                     <div>
                         <label>
-                            Location
+                            {t("itinerary.location")}
                             <input
                                 type="text"
                                 name="location"
@@ -75,7 +77,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Date
+                            {t("itinerary.date")}
                             <input
                                 type="date"
                                 name="date"
@@ -87,7 +89,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Start Time
+                            {t("form.startTime")}
                             <input
                                 type="time"
                                 name="startTime"
@@ -99,7 +101,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            End Time
+                            {t("form.endTime")}
                             <input
                                 type="time"
                                 name="endTime"
@@ -115,20 +117,20 @@ function EditItemForm({ item, onCancel, onSave }) {
                 <>
                     <div>
                         <label>
-                            Type
+                            {t("form.type")}
                             <select
                                 name="transportationType"
                                 value={formData.transportationType ?? ""}
                                 onChange={handleChange}
                             >
-                                <option value="">Select type</option>
+                                <option value="">{t("form.selectType")}</option>
 
                                 {TRANSPORTATION_TYPE_OPTIONS.map((option) => (
                                     <option
                                         key={option.value}
                                         value={option.value}
                                     >
-                                        {option.label}
+                                        {t(option.labelKey)}
                                     </option>
                                 ))}
                             </select>
@@ -137,7 +139,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Departure Location
+                            {t("transport.departure")}
                             <input
                                 type="text"
                                 name="departureLocation"
@@ -149,7 +151,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Arrival Location
+                            {t("transport.arrival")}
                             <input
                                 type="text"
                                 name="arrivalLocation"
@@ -161,7 +163,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Departure Date
+                            {t("form.departureDate")}
                             <input
                                 type="date"
                                 name="departureDate"
@@ -173,7 +175,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Departure Time
+                            {t("transport.departureTime")}
                             <input
                                 type="time"
                                 name="departureTime"
@@ -185,7 +187,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Arrival Date
+                            {t("form.arrivalDate")}
                             <input
                                 type="date"
                                 name="arrivalDate"
@@ -197,7 +199,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Arrival Time
+                            {t("transport.arrivalTime")}
                             <input
                                 type="time"
                                 name="arrivalTime"
@@ -213,7 +215,7 @@ function EditItemForm({ item, onCancel, onSave }) {
                 <>
                     <div>
                         <label>
-                            Location
+                            {t("itinerary.location")}
                             <input
                                 type="text"
                                 name="location"
@@ -225,7 +227,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Check-In Date
+                            {t("form.checkInDate")}
                             <input
                                 type="date"
                                 name="checkInDate"
@@ -237,7 +239,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
                     <div>
                         <label>
-                            Check-Out Date
+                            {t("form.checkOutDate")}
                             <input
                                 type="date"
                                 name="checkOutDate"
@@ -251,7 +253,23 @@ function EditItemForm({ item, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Cost
+                    {t("itinerary.mapLocation")}
+                    <input
+                        type="text"
+                        name="mapSearchQuery"
+                        value={formData.mapSearchQuery ?? ""}
+                        onChange={handleChange}
+                        maxLength={500}
+                    />
+                    <span className="form-helper">
+                        {t("itinerary.mapLocationHint")}
+                    </span>
+                </label>
+            </div>
+
+            <div>
+                <label>
+                    {t("itinerary.cost")}
                     <input
                         type="number"
                         name="cost"
@@ -260,14 +278,14 @@ function EditItemForm({ item, onCancel, onSave }) {
                         onChange={handleChange}
                     />
                     <span className="form-helper">
-                        Leave blank if this item has no tracked cost.
+                        {t("itinerary.noCostHint")}
                     </span>
                 </label>
             </div>
 
             <div>
                 <label>
-                    Cost Status
+                    {t("itinerary.costStatus")}
                     <select
                         name="costStatus"
                         value={formData.costStatus ?? "UNKNOWN"}
@@ -279,7 +297,7 @@ function EditItemForm({ item, onCancel, onSave }) {
                                 key={option.value}
                                 value={option.value}
                             >
-                                {option.label}
+                                {t(option.labelKey)}
                             </option>
                         ))}
                     </select>
@@ -288,7 +306,7 @@ function EditItemForm({ item, onCancel, onSave }) {
 
             <div>
                 <label>
-                    Notes
+                    {t("itinerary.notes")}
                     <textarea
                         name="notes"
                         value={formData.notes ?? ""}
@@ -302,7 +320,7 @@ function EditItemForm({ item, onCancel, onSave }) {
                 type="submit"
                 disabled={isSubmitting}
             >
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t("common.saving") : t("common.save")}
             </button>
 
             <button
@@ -310,7 +328,7 @@ function EditItemForm({ item, onCancel, onSave }) {
                 onClick={onCancel}
                 disabled={isSubmitting}
             >
-                Cancel
+                {t("common.cancel")}
             </button>
         </form>
     );

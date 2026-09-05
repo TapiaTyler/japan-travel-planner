@@ -36,6 +36,7 @@ public class TripItemController {
         response.setCost(tripItem.getCost());
         response.setCostStatus(tripItem.getCostStatus());
         response.setNotes(tripItem.getNotes());
+        response.setMapSearchQuery(tripItem.getMapSearchQuery());
         response.setCreatedAt(tripItem.getCreatedAt());
         response.setUpdatedAt(tripItem.getUpdatedAt());
 
@@ -153,6 +154,7 @@ public class TripItemController {
                 activity.getCost(),
                 activity.getCostStatus(),
                 activity.getNotes(),
+                activity.getMapSearchQuery(),
                 activity.getLocation(),
                 activity.getStartTime(),
                 activity.getEndTime(),
@@ -210,6 +212,7 @@ public class TripItemController {
                 transportation.getCost(),
                 transportation.getCostStatus(),
                 transportation.getNotes(),
+                transportation.getMapSearchQuery(),
                 transportation.getTransportationType(),
                 transportation.getDepartureLocation(),
                 transportation.getArrivalLocation(),
@@ -279,6 +282,7 @@ public class TripItemController {
                 lodging.getCost(),
                 lodging.getCostStatus(),
                 lodging.getNotes(),
+                lodging.getMapSearchQuery(),
                 lodging.getLocation(),
                 lodging.getCheckInDate(),
                 lodging.getCheckOutDate(),

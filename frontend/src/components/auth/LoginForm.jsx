@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function LoginForm({ onLogin, onShowRegister }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         username: "",
         password: "",
@@ -40,7 +42,7 @@ function LoginForm({ onLogin, onShowRegister }) {
 
     return (
         <form className="login-form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
-            <h2>Login</h2>
+            <h2>{t("auth.login")}</h2>
 
             {formError && (
                 <p className="form-error" role="alert">
@@ -50,7 +52,7 @@ function LoginForm({ onLogin, onShowRegister }) {
 
             <div>
                 <label>
-                    Username
+                    {t("auth.username")}
                     <input
                         type="text"
                         name="username"
@@ -63,7 +65,7 @@ function LoginForm({ onLogin, onShowRegister }) {
 
             <div>
                 <label>
-                    Password
+                    {t("auth.password")}
                     <input
                         type="password"
                         name="password"
@@ -79,7 +81,7 @@ function LoginForm({ onLogin, onShowRegister }) {
                 className="add-button"
                 disabled={isSubmitting}
             >
-                {isSubmitting ? "Signing In..." : "Login"}
+                {isSubmitting ? t("auth.signingIn") : t("auth.login")}
             </button>
 
             <button
@@ -87,7 +89,7 @@ function LoginForm({ onLogin, onShowRegister }) {
                 onClick={onShowRegister}
                 disabled={isSubmitting}
             >
-                Create Account
+                {t("auth.createAccount")}
             </button>
         </form>
     );

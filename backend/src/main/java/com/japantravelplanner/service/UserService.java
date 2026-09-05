@@ -1,5 +1,7 @@
 package com.japantravelplanner.service;
 
+import com.japantravelplanner.exception.ApiErrorCode;
+import com.japantravelplanner.exception.ApiException;
 import com.japantravelplanner.model.User;
 import com.japantravelplanner.repository.UserRepository;
 import com.japantravelplanner.repository.TripItemRepository;
@@ -30,7 +32,7 @@ public class UserService {
     public User registerUser(String username, String password) {
 
         if (userRepository.findByUsername(username).isPresent()) {
-            throw new IllegalArgumentException("Username is already in use.");
+            throw new ApiException(ApiErrorCode.USERNAME_ALREADY_EXISTS);
         }
 
         String passwordHash = passwordEncoder.encode(password);
@@ -60,7 +62,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User account could not be found."));
 
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Current password is incorrect.");
+            throw new ApiException(ApiErrorCode.CURRENT_PASSWORD_INCORRECT);
         }
 
         return user;

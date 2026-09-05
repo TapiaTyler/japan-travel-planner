@@ -4,6 +4,8 @@ import {
     Pencil,
     Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { formatCurrency, formatDate } from "../../utils/formatters.js";
 
 function TripList({
                       trips,
@@ -13,6 +15,7 @@ function TripList({
                       onDuplicateTrip,
                       onDeleteTrip,
                   }) {
+    const { t, i18n } = useTranslation();
     const [openMenuId, setOpenMenuId] = useState(null);
     const [duplicatingTripId, setDuplicatingTripId] = useState(null);
 
@@ -44,9 +47,7 @@ function TripList({
     }
 
     function formatTripDate(date) {
-        return new Date(
-            `${date}T00:00:00Z`
-        ).toLocaleDateString("en-US", {
+        return formatDate(date, i18n.resolvedLanguage, {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -57,30 +58,30 @@ function TripList({
     return (
         <section>
             <div className="trip-list-header">
-                <h2>My Trips</h2>
+                <h2>{t("trips.title")}</h2>
 
                 <button
                     className="add-button"
                     type="button"
                     onClick={onAddTrip}
                 >
-                    <span className="button-icon">+</span> New Trip
+                    <span className="button-icon">+</span> {t("trips.new")}
                 </button>
             </div>
 
             {trips.length === 0 ? (
                 <div className="trip-empty-state">
-                    <h3>No trips yet</h3>
+                    <h3>{t("trips.empty")}</h3>
 
                     <p>
-                        Start planning by creating your first trip.
+                        {t("trips.emptyHint")}
                     </p>
 
                     <button
                         type="button"
                         className="empty-state-add-button"
-                        aria-label="Create new trip"
-                        title="Create new trip"
+                        aria-label={t("trips.createNew")}
+                        title={t("trips.createNew")}
                         onClick={onAddTrip}
                     >
                         +
@@ -110,26 +111,24 @@ function TripList({
                                                 {" – "}
                                                 {formatTripDate(trip.endDate)}
                                                 {" · "}
-                                                {getTripLength(
+                                                {t("trips.days", { count: getTripLength(
                                                     trip.startDate,
                                                     trip.endDate
-                                                )} days
+                                                ) })}
                                             </p>
 
                                             <p className="trip-card-locations">
                                                 {trip.destinations?.length > 0
                                                     ? trip.destinations.join(", ")
-                                                    : "No destinations added"}
+                                                    : t("trips.noDestinations")}
                                             </p>
                                         </div>
 
                                         <div className="trip-card-cost">
-                                            <span>Total (Est.)</span>
+                                            <span>{t("trips.totalEstimated")}</span>
 
                                             <strong>
-                                                ¥{Number(
-                                                trip.totalCost ?? 0
-                                                ).toLocaleString()}
+                                                {formatCurrency(trip.totalCost ?? 0, i18n.resolvedLanguage)}
                                             </strong>
                                         </div>
                                     </div>
@@ -139,8 +138,8 @@ function TripList({
                             <div className="trip-card-actions">
                                 <button
                                     type="button"
-                                    aria-label={`Options for ${trip.name}`}
-                                    title="Trip options"
+                                    aria-label={t("trips.options", { name: trip.name })}
+                                    title={t("trips.menuTitle")}
                                     onClick={() =>
                                         setOpenMenuId((current) =>
                                             current === trip.id
@@ -166,7 +165,7 @@ function TripList({
                                                 size={16}
                                                 aria-hidden="true"
                                             />
-                                            Edit
+                                            {t("common.edit")}
                                         </button>
 
                                         <button
@@ -179,8 +178,8 @@ function TripList({
                                                 aria-hidden="true"
                                             />
                                             {duplicatingTripId === trip.id
-                                                ? "Duplicating..."
-                                                : "Duplicate"}
+                                                ? t("trips.duplicating")
+                                                : t("trips.duplicate")}
                                         </button>
 
                                         <button
@@ -196,7 +195,7 @@ function TripList({
                                                 size={16}
                                                 aria-hidden="true"
                                             />
-                                            Delete
+                                            {t("common.delete")}
                                         </button>
                                     </div>
                                 )}

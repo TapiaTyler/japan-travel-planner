@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+import { formatDate } from "../../utils/formatters.js";
+
 function QuickJumpNav({
                           groupBy,
                           groupedByDate,
@@ -5,6 +8,7 @@ function QuickJumpNav({
                           activeGroup,
                           onJump,
                       }) {
+    const { t, i18n } = useTranslation();
     return (
         <div className="quick-jump-nav">
             {groupBy === "date" &&
@@ -17,8 +21,8 @@ function QuickJumpNav({
                         onClick={() => onJump(date)}
                     >
                         {date === "Unscheduled"
-                            ? "Unscheduled"
-                            : new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+                            ? t("common.unscheduled")
+                            : formatDate(date, i18n.resolvedLanguage, {
                                 month: "short",
                                 day: "numeric",
                             })}
@@ -34,7 +38,9 @@ function QuickJumpNav({
                         aria-current={activeGroup === location ? "location" : undefined}
                         onClick={() => onJump(location)}
                     >
-                        {location}
+                        {location === "Other / Unspecified"
+                            ? t("common.otherUnspecified")
+                            : location}
                     </button>
                 ))}
         </div>

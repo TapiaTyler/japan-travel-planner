@@ -5,6 +5,7 @@ import AddTripForm from "../components/trips/AddTripForm.jsx";
 import EditTripForm from "../components/trips/EditTripForm.jsx";
 import ConfirmDialog from "../components/common/ConfirmDialog.jsx";
 import LoadingState from "../components/common/LoadingState.jsx";
+import { useTranslation } from "react-i18next";
 
 function TripsPage({
                        trips,
@@ -25,11 +26,12 @@ function TripsPage({
                        handleDuplicateTrip,
                        handleConfirmDeleteTrip,
                    }) {
+    const { t } = useTranslation();
     if (!hasLoadedTrips) {
         return (
             <LoadingState
-                title="Loading Trips"
-                message="Retrieving your saved trips..."
+                title={t("trips.loading")}
+                message={t("trips.loadingMessage")}
             />
         );
     }
@@ -39,7 +41,7 @@ function TripsPage({
         <>
             {loadingTrips && (
                 <p className="refresh-status" role="status">
-                    Refreshing trips...
+                    {t("trips.refreshing")}
                 </p>
             )}
 
@@ -68,7 +70,7 @@ function TripsPage({
 
             {addingTrip && (
                 <Modal
-                    title="New Trip"
+                    title={t("trips.new")}
                     onClose={() => setAddingTrip(false)}
                 >
                     <AddTripForm
@@ -80,7 +82,7 @@ function TripsPage({
 
             {editingTrip && (
                 <Modal
-                    title={`Edit ${editingTrip.name}`}
+                    title={t("trips.editNamed", { name: editingTrip.name })}
                     onClose={() => setEditingTrip(null)}
                 >
                     <EditTripForm
@@ -93,15 +95,13 @@ function TripsPage({
 
             {tripToDelete && (
                 <Modal
-                    title="Delete Trip"
+                    title={t("trips.delete")}
                     onClose={() => setTripToDelete(null)}
                 >
                     <ConfirmDialog
-                        message={`Permanently delete "${tripToDelete.name}"?`}
-                        warning={
-                            "This will permanently delete the trip and all of its itinerary items. This action cannot be undone."
-                        }
-                        confirmLabel="Delete Trip"
+                        message={t("trips.deleteNamed", { name: tripToDelete.name })}
+                        warning={t("trips.deleteWarning")}
+                        confirmLabel={t("trips.delete")}
                         onCancel={() => setTripToDelete(null)}
                         onConfirm={handleConfirmDeleteTrip}
                     />

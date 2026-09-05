@@ -1,78 +1,90 @@
 package com.japantravelplanner.exception;
 
+import com.japantravelplanner.dto.ApiErrorResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(LoginRateLimitException.class)
-    public ResponseEntity<Map<String, String>> handleLoginRateLimitException(
+    public ResponseEntity<ApiErrorResponse> handleLoginRateLimitException(
             LoginRateLimitException exception) {
 
         return ResponseEntity
                 .status(HttpStatus.TOO_MANY_REQUESTS)
                 .header(HttpHeaders.CACHE_CONTROL, "no-store")
-                .body(Map.of("message", exception.getMessage()));
+                .body(toResponse(exception));
     }
 
     @ExceptionHandler(TripNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleTripNotFoundException(TripNotFoundException exception) {
+    public ResponseEntity<ApiErrorResponse> handleTripNotFoundException(
+            TripNotFoundException exception) {
 
-        Map<String, String> errorResponse = Map.of("message", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(toResponse(exception));
+    }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiErrorResponse> handleApiException(ApiException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(toResponse(exception));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException exception) {
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(
+            IllegalArgumentException exception) {
 
-        Map<String, String> errorResponse = Map.of("message", exception.getMessage());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiErrorResponse("BAD_REQUEST", "The request could not be completed.")
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationException(
+    public ResponseEntity<ApiErrorResponse> handleValidationException(
             MethodArgumentNotValidException exception) {
 
-        Map<String, String> errorResponse = new LinkedHashMap<>();
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        exception.getBindingResult().getFieldErrors().forEach(error -> {
+            String constraint = error.getCode() == null ? "INVALID" : error.getCode();
+            String code = "VALIDATION_"
+                    + toUpperSnakeCase(error.getField())
+                    + "_"
+                    + toUpperSnakeCase(constraint);
+            fieldErrors.putIfAbsent(error.getField(), code);
+        });
 
-        exception.getBindingResult()
-                .getFieldErrors()
-                .forEach(error ->
-                        errorResponse.put(
-                                error.getField(),
-                                error.getDefaultMessage()
-                        )
-                );
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse);
+        ApiErrorCode code = ApiErrorCode.VALIDATION_FAILED;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiErrorResponse(code.name(), code.getDefaultMessage(), fieldErrors)
+        );
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, String>> handleAuthenticationException(
+    public ResponseEntity<ApiErrorResponse> handleAuthenticationException(
             AuthenticationException exception) {
 
-        Map<String, String> errorResponse = Map.of(
-                "message", "Invalid username or password."
+        ApiErrorCode code = ApiErrorCode.AUTH_INVALID_CREDENTIALS;
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new ApiErrorResponse(code.name(), code.getDefaultMessage())
         );
-
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(errorResponse);
     }
 
+    private ApiErrorResponse toResponse(ApiException exception) {
+        return new ApiErrorResponse(exception.getCode().name(), exception.getMessage());
+    }
+
+    private String toUpperSnakeCase(String value) {
+        return value
+                .replaceAll("([a-z0-9])([A-Z])", "$1_$2")
+                .replaceAll("[^A-Za-z0-9]+", "_")
+                .toUpperCase(Locale.ROOT);
+    }
 }

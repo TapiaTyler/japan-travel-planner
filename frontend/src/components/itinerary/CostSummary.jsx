@@ -1,6 +1,9 @@
 import { BedDouble, MapPin, Route } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { formatCurrency } from "../../utils/formatters.js";
 
 function CostSummary({ items, searchQuery, hasActiveFilters }) {
+    const { t, i18n } = useTranslation();
     const summary = items.reduce(
         (result, item) => {
             if (item.cost !== null) {
@@ -30,78 +33,70 @@ function CostSummary({ items, searchQuery, hasActiveFilters }) {
         }
     );
 
-    function formatYen(amount) {
-        return `¥${amount.toLocaleString()}`;
-    }
-
-    function formatItemCount(count) {
-        return `${count} ${count === 1 ? "item" : "items"}`;
-    }
-
     return (
         <aside className="cost-summary">
             <h3>
-                Cost Summary
+                {t("cost.summary")}
                 {searchQuery.trim() && <> ({<em>{searchQuery.trim()}</em>})</>}
             </h3>
 
             {hasActiveFilters && (
                 <p className="cost-summary-context">
-                    Totals reflect the current filters.
+                    {t("cost.filtered")}
                 </p>
             )}
 
             <div className="cost-summary-row">
                 <span className="cost-summary-label item-type-activity">
-                    <MapPin size={18} aria-hidden="true" /> Activities
+                    <MapPin size={18} aria-hidden="true" /> {t("cost.activities")}
                 </span>
-                <strong>{formatYen(summary.activities)}</strong>
+                <strong>{formatCurrency(summary.activities, i18n.resolvedLanguage)}</strong>
             </div>
 
             <div className="cost-summary-row">
                 <span className="cost-summary-label item-type-transportation">
-                    <Route size={18} aria-hidden="true" /> Transportation
+                    <Route size={18} aria-hidden="true" /> {t("cost.transportation")}
                 </span>
-                <strong>{formatYen(summary.transportation)}</strong>
+                <strong>{formatCurrency(summary.transportation, i18n.resolvedLanguage)}</strong>
             </div>
 
             <div className="cost-summary-row">
                 <span className="cost-summary-label item-type-lodging">
-                    <BedDouble size={18} aria-hidden="true" /> Lodging
+                    <BedDouble size={18} aria-hidden="true" /> {t("cost.lodging")}
                 </span>
-                <strong>{formatYen(summary.lodging)}</strong>
+                <strong>{formatCurrency(summary.lodging, i18n.resolvedLanguage)}</strong>
             </div>
 
             <hr />
 
             <div className="cost-summary-total">
-                <strong>Total</strong>
-                <strong>{formatYen(summary.total)}</strong>
+                <strong>{t("cost.total")}</strong>
+                <strong>{formatCurrency(summary.total, i18n.resolvedLanguage)}</strong>
             </div>
 
             <hr />
 
-            <h4 className="cost-summary-status-heading">Cost Status</h4>
+            <h4 className="cost-summary-status-heading">{t("cost.status")}</h4>
 
             <div className="cost-summary-row">
                 <span className="cost-summary-status cost-status-confirmed">
-                    <span className="cost-status-dot" aria-hidden="true" /> Confirmed
+                    <span className="cost-status-dot" aria-hidden="true" /> {t("cost.confirmed")}
                 </span>
-                <span>{formatItemCount(summary.confirmed)}</span>
+                <span>{t("common.items", { count: summary.confirmed })}</span>
             </div>
 
             <div className="cost-summary-row">
                 <span className="cost-summary-status cost-status-estimated">
-                    <span className="cost-status-dot" aria-hidden="true" /> Estimated
+                    <span className="cost-status-dot" aria-hidden="true" /> {t("cost.estimated")}
                 </span>
-                <span>{formatItemCount(summary.estimated)}</span>
+                <span>{t("common.items", { count: summary.estimated })}</span>
             </div>
 
             <div className="cost-summary-row">
                 <span className="cost-summary-status cost-status-unknown">
-                    <span className="cost-status-dot" aria-hidden="true" /> Unknown
+                    <span className="cost-status-dot" aria-hidden="true" /> {t("cost.unknown")}
                 </span>
-                <span>{formatItemCount(summary.unknown)}</span>
+                <span>{t("common.items", { count: summary.unknown })}</span>
             </div>
         </aside>
     );

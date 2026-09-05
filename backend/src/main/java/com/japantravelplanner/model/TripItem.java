@@ -30,6 +30,9 @@ public abstract class TripItem {
     @Column(length = 2000)
     private String notes;
 
+    @Column(length = 500)
+    private String mapSearchQuery;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -104,6 +107,16 @@ public abstract class TripItem {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getMapSearchQuery() {
+        return mapSearchQuery;
+    }
+
+    public void setMapSearchQuery(String mapSearchQuery) {
+        this.mapSearchQuery = mapSearchQuery == null || mapSearchQuery.isBlank()
+                ? null
+                : mapSearchQuery.trim();
     }
 
     public LocalDateTime getCreatedAt() {

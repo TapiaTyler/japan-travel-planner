@@ -1,11 +1,13 @@
 import logo from "../../assets/jtp-logo.png";
+import { useTranslation } from "react-i18next";
 
 function LoadingState({
-                          title = "Loading",
-                          message = "Please wait...",
+                          title,
+                          message,
                           fullPage = false,
                           showBrand = false,
                       }) {
+    const { t } = useTranslation();
     return (
         <section
             className={
@@ -27,8 +29,8 @@ function LoadingState({
             )}
 
             <span className="loading-spinner" aria-hidden="true" />
-            <h2>{title}</h2>
-            <p>{message}</p>
+            <h2>{title ?? t("common.loading")}</h2>
+            {message && <p>{message}</p>}
         </section>
     );
 }

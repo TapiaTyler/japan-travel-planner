@@ -20,6 +20,9 @@ public class TransportationRequest {
     @Size(max = 2000, message = "Notes must be 2000 characters or fewer.")
     private String notes;
 
+    @Size(max = 500, message = "Map location must be 500 characters or fewer.")
+    private String mapSearchQuery;
+
     private TransportationType transportationType;
 
     private String departureLocation;
@@ -65,6 +68,14 @@ public class TransportationRequest {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getMapSearchQuery() {
+        return mapSearchQuery;
+    }
+
+    public void setMapSearchQuery(String mapSearchQuery) {
+        this.mapSearchQuery = mapSearchQuery;
     }
 
     public TransportationType getTransportationType() {

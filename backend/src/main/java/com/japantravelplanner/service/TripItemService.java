@@ -3,6 +3,8 @@ package com.japantravelplanner.service;
 import com.japantravelplanner.dto.ActivityRequest;
 import com.japantravelplanner.dto.LodgingRequest;
 import com.japantravelplanner.dto.TransportationRequest;
+import com.japantravelplanner.exception.ApiErrorCode;
+import com.japantravelplanner.exception.ApiException;
 import com.japantravelplanner.exception.TripNotFoundException;
 import com.japantravelplanner.model.*;
 import com.japantravelplanner.repository.TripItemRepository;
@@ -111,6 +113,8 @@ public class TripItemService {
                 request.getEndTime()
         );
 
+        activity.setMapSearchQuery(request.getMapSearchQuery());
+
         validateActivity(activity);
 
         return tripItemRepository.save(activity);
@@ -141,6 +145,8 @@ public class TripItemService {
                 request.getArrivalTime()
         );
 
+        transportation.setMapSearchQuery(request.getMapSearchQuery());
+
         validateTransportation(transportation);
 
         return tripItemRepository.save(transportation);
@@ -166,6 +172,8 @@ public class TripItemService {
                 request.getCheckInDate(),
                 request.getCheckOutDate()
         );
+
+        lodging.setMapSearchQuery(request.getMapSearchQuery());
 
         validateLodging(lodging);
 
@@ -211,15 +219,11 @@ public class TripItemService {
                 );
 
         if (!tripItem.getTrip().getId().equals(trip.getId())) {
-            throw new IllegalArgumentException(
-                    "The requested itinerary item could not be found."
-            );
+            throw new ApiException(ApiErrorCode.ITEM_NOT_FOUND);
         }
 
         if (!(tripItem instanceof Activity activity)) {
-            throw new IllegalArgumentException(
-                    "The requested itinerary item is not an activity."
-            );
+            throw new ApiException(ApiErrorCode.ITEM_NOT_ACTIVITY);
         }
 
         activity.setName(request.getName());
@@ -227,6 +231,7 @@ public class TripItemService {
         activity.setCost(request.getCost());
         activity.setCostStatus(request.getCostStatus());
         activity.setNotes(request.getNotes());
+        activity.setMapSearchQuery(request.getMapSearchQuery());
         activity.setLocation(request.getLocation());
         activity.setStartTime(request.getStartTime());
         activity.setEndTime(request.getEndTime());
@@ -255,21 +260,18 @@ public class TripItemService {
                 );
 
         if (!tripItem.getTrip().getId().equals(trip.getId())) {
-            throw new IllegalArgumentException(
-                    "The requested itinerary item could not be found."
-            );
+            throw new ApiException(ApiErrorCode.ITEM_NOT_FOUND);
         }
 
         if (!(tripItem instanceof Transportation transportation)) {
-            throw new IllegalArgumentException(
-                    "The requested itinerary item is not transportation."
-            );
+            throw new ApiException(ApiErrorCode.ITEM_NOT_TRANSPORTATION);
         }
 
         transportation.setName(request.getName());
         transportation.setCost(request.getCost());
         transportation.setCostStatus(request.getCostStatus());
         transportation.setNotes(request.getNotes());
+        transportation.setMapSearchQuery(request.getMapSearchQuery());
         transportation.setTransportationType(request.getTransportationType());
         transportation.setDepartureLocation(request.getDepartureLocation());
         transportation.setArrivalLocation(request.getArrivalLocation());
@@ -302,21 +304,18 @@ public class TripItemService {
                 );
 
         if (!tripItem.getTrip().getId().equals(trip.getId())) {
-            throw new IllegalArgumentException(
-                    "The requested itinerary item could not be found."
-            );
+            throw new ApiException(ApiErrorCode.ITEM_NOT_FOUND);
         }
 
         if (!(tripItem instanceof Lodging lodging)) {
-            throw new IllegalArgumentException(
-                    "The requested itinerary item is not lodging."
-            );
+            throw new ApiException(ApiErrorCode.ITEM_NOT_LODGING);
         }
 
         lodging.setName(request.getName());
         lodging.setCost(request.getCost());
         lodging.setCostStatus(request.getCostStatus());
         lodging.setNotes(request.getNotes());
+        lodging.setMapSearchQuery(request.getMapSearchQuery());
         lodging.setLocation(request.getLocation());
         lodging.setCheckInDate(request.getCheckInDate());
         lodging.setCheckOutDate(request.getCheckOutDate());
@@ -342,9 +341,7 @@ public class TripItemService {
                 );
 
         if (!tripItem.getTrip().getId().equals(trip.getId())) {
-            throw new IllegalArgumentException(
-                    "The requested itinerary item could not be found."
-            );
+            throw new ApiException(ApiErrorCode.ITEM_NOT_FOUND);
         }
 
         tripItemRepository.delete(tripItem);
@@ -399,7 +396,7 @@ public class TripItemService {
         }
 
         if (date.isBefore(trip.getStartDate()) || date.isAfter(trip.getEndDate())) {
-            throw new IllegalArgumentException("The item date must fall within the trip dates.");
+            throw new ApiException(ApiErrorCode.ITEM_DATE_OUTSIDE_TRIP);
         }
 
     }
@@ -412,7 +409,7 @@ public class TripItemService {
 
         if (activity.getStartTime() != null && activity.getEndTime() != null
                 && activity.getEndTime().isBefore(activity.getStartTime())) {
-            throw new IllegalArgumentException("Activity end time cannot be before the start time.");
+            throw new ApiException(ApiErrorCode.ACTIVITY_TIME_INVALID);
         }
 
     }
@@ -441,9 +438,7 @@ public class TripItemService {
                 && arrivalDate != null
                 && arrivalDate.isBefore(departureDate)) {
 
-            throw new IllegalArgumentException(
-                    "Transportation arrival date cannot be before the departure date."
-            );
+            throw new ApiException(ApiErrorCode.TRANSPORTATION_DATE_INVALID);
         }
 
         if (transportation.getTransportationType() != TransportationType.FLIGHT
@@ -454,9 +449,7 @@ public class TripItemService {
                 && transportation.getArrivalTime()
                 .isBefore(transportation.getDepartureTime())) {
 
-            throw new IllegalArgumentException(
-                    "Transportation arrival time cannot be before the departure time."
-            );
+            throw new ApiException(ApiErrorCode.TRANSPORTATION_TIME_INVALID);
         }
     }
 
@@ -483,27 +476,21 @@ public class TripItemService {
                 && checkOutDate != null
                 && checkOutDate.isBefore(checkInDate)) {
 
-            throw new IllegalArgumentException(
-                    "Lodging check-out date cannot be before the check-in date."
-            );
+            throw new ApiException(ApiErrorCode.LODGING_DATES_INVALID);
         }
     }
 
     private void validateCost(TripItem tripItem) {
 
         if (tripItem.getCost() != null && tripItem.getCost() < 0) {
-            throw new IllegalArgumentException(
-                    "Cost cannot be negative."
-            );
+            throw new ApiException(ApiErrorCode.COST_NEGATIVE);
         }
 
         if ((tripItem.getCostStatus() == CostStatus.CONFIRMED
                 || tripItem.getCostStatus() == CostStatus.ESTIMATED)
                 && tripItem.getCost() == null) {
 
-            throw new IllegalArgumentException(
-                    "A cost is required when the cost status is Confirmed or Estimated."
-            );
+            throw new ApiException(ApiErrorCode.COST_REQUIRED_FOR_STATUS);
         }
     }
 

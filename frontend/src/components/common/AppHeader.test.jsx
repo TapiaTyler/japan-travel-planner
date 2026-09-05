@@ -63,6 +63,18 @@ describe("AppHeader user menu", () => {
         expect(themeToggle).toHaveAttribute("aria-checked", "true");
     });
 
+    it("offers language switching before authentication", async () => {
+        const user = userEvent.setup();
+        renderHeader({ currentUser: null });
+
+        const languageSwitch = screen.getByRole("switch", { name: "Switch to Japanese" });
+        expect(languageSwitch).toHaveAttribute("aria-checked", "false");
+        await user.click(languageSwitch);
+
+        expect(screen.getByRole("heading", { name: "日本旅行プランナー" })).toBeInTheDocument();
+        expect(screen.getByRole("switch", { name: "英語に切り替える" })).toHaveAttribute("aria-checked", "true");
+    });
+
     it("closes when the user clicks outside it", async () => {
         const user = userEvent.setup();
         renderHeader();

@@ -1,8 +1,8 @@
 package com.japantravelplanner.exception;
 
-public class LoginRateLimitException extends RuntimeException {
+public class LoginRateLimitException extends ApiException {
 
     public LoginRateLimitException() {
-        super("Too many login attempts. Please try again later.");
+        super(ApiErrorCode.AUTH_RATE_LIMITED);
     }
 }

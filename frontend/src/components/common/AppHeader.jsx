@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, CircleUserRound, LogOut, Moon, Settings, Sun } from "lucide-react";
 import { Link, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
 import logo from "../../assets/jtp-logo.png";
 
 function AppHeader({
@@ -14,6 +15,8 @@ function AppHeader({
     const userMenuRef = useRef(null);
     const userMenuTriggerRef = useRef(null);
     const location = useLocation();
+    const { t, i18n } = useTranslation();
+    const isJapanese = i18n.resolvedLanguage?.startsWith("ja");
 
     useEffect(() => {
         if (!isUserMenuOpen) return undefined;
@@ -53,16 +56,33 @@ function AppHeader({
         }
     }
 
+    function toggleLanguage() {
+        void i18n.changeLanguage(isJapanese ? "en" : "ja");
+    }
+
     // Render
     return (
         <header className="app-header">
             <div className="app-header-inner">
                 <div className="app-brand">
                     <img src={logo} alt="" className="app-logo" />
-                    <h1>Japan Travel Planner</h1>
+                    <h1>{t("app.name")}</h1>
                 </div>
 
                 <div className="user-controls">
+                    <button
+                        type="button"
+                        className={isJapanese ? "language-switch japanese" : "language-switch"}
+                        onClick={toggleLanguage}
+                        role="switch"
+                        aria-checked={isJapanese}
+                        aria-label={t("language.switchTo")}
+                        title={t("language.switchTo")}
+                    >
+                        <span className={!isJapanese ? "active" : ""}>EN</span>
+                        <span className={isJapanese ? "active" : ""}>JP</span>
+                    </button>
+
                     {currentUser && (
                         <div className="user-menu" ref={userMenuRef}>
                             <button
@@ -84,7 +104,7 @@ function AppHeader({
                             </button>
 
                             {isUserMenuOpen && (
-                                <div id="user-menu-panel" className="user-menu-panel" role="menu" aria-label="User menu">
+                                <div id="user-menu-panel" className="user-menu-panel" role="menu" aria-label={t("userMenu.label")}>
                                     <Link
                                         className="user-menu-item"
                                         to="/account"
@@ -93,7 +113,7 @@ function AppHeader({
                                         onClick={() => setIsUserMenuOpen(false)}
                                     >
                                         <Settings size={18} aria-hidden="true" />
-                                        <span>Account Settings</span>
+                                        <span>{t("userMenu.account")}</span>
                                     </Link>
 
                                     <button
@@ -108,7 +128,7 @@ function AppHeader({
                                         ) : (
                                             <Sun size={18} aria-hidden="true" />
                                         )}
-                                        <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+                                        <span>{theme === "dark" ? t("userMenu.lightMode") : t("userMenu.darkMode")}</span>
                                         <span className="theme-switch" aria-hidden="true">
                                             <span className="theme-switch-thumb" />
                                         </span>
@@ -124,7 +144,7 @@ function AppHeader({
                                         disabled={isLoggingOut}
                                     >
                                         <LogOut size={18} aria-hidden="true" />
-                                        <span>{isLoggingOut ? "Logging Out..." : "Logout"}</span>
+                                        <span>{isLoggingOut ? t("userMenu.loggingOut") : t("userMenu.logout")}</span>
                                     </button>
                                 </div>
                             )}

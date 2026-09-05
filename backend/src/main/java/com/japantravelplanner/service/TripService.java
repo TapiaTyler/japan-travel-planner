@@ -2,6 +2,8 @@ package com.japantravelplanner.service;
 
 import com.japantravelplanner.dto.TripRequest;
 import com.japantravelplanner.dto.TripResponse;
+import com.japantravelplanner.exception.ApiErrorCode;
+import com.japantravelplanner.exception.ApiException;
 import com.japantravelplanner.exception.TripNotFoundException;
 import com.japantravelplanner.model.*;
 import com.japantravelplanner.repository.TripItemRepository;
@@ -75,7 +77,7 @@ public class TripService {
         if (trip.getStartDate() != null
                 && trip.getEndDate() != null
                 && trip.getEndDate().isBefore(trip.getStartDate())) {
-            throw new IllegalArgumentException("Start date cannot be after end date.");
+            throw new ApiException(ApiErrorCode.TRIP_DATES_INVALID);
         }
     }
 
@@ -173,9 +175,7 @@ public class TripService {
             );
         }
 
-        throw new IllegalArgumentException(
-                "Unsupported itinerary item type."
-        );
+        throw new ApiException(ApiErrorCode.ITEM_TYPE_UNSUPPORTED);
     }
 
     private List<String> getDestinations(List<TripItem> tripItems) {

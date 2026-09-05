@@ -20,6 +20,9 @@ public class ActivityRequest {
     @Size(max = 2000, message = "Notes must be 2000 characters or fewer.")
     private String notes;
 
+    @Size(max = 500, message = "Map location must be 500 characters or fewer.")
+    private String mapSearchQuery;
+
     private String location;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -66,6 +69,14 @@ public class ActivityRequest {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getMapSearchQuery() {
+        return mapSearchQuery;
+    }
+
+    public void setMapSearchQuery(String mapSearchQuery) {
+        this.mapSearchQuery = mapSearchQuery;
     }
 
     public String getLocation() {

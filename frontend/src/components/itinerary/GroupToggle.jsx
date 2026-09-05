@@ -1,8 +1,11 @@
+import { useTranslation } from "react-i18next";
+
 function GroupToggle({ groupBy, onChange }) {
+    const { t } = useTranslation();
     return (
         <div
             className={`group-toggle group-toggle-${groupBy}`}
-            aria-label="Group itinerary by"
+            aria-label={t("navigation.groupBy")}
         >
             <button
                 type="button"
@@ -10,7 +13,7 @@ function GroupToggle({ groupBy, onChange }) {
                 onClick={() => onChange("date")}
                 disabled={groupBy === "date"}
             >
-                Date
+                {t("itinerary.date")}
             </button>
 
             <button
@@ -19,7 +22,7 @@ function GroupToggle({ groupBy, onChange }) {
                 onClick={() => onChange("location")}
                 disabled={groupBy === "location"}
             >
-                Location
+                {t("itinerary.location")}
             </button>
         </div>
     );

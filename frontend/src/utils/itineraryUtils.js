@@ -1,25 +1,25 @@
-export function formatDateHeading(date, dayNumber) {
+import { formatDate } from "./formatters.js";
+
+export function formatDateHeading(date, dayLabel, language = "en") {
     if (!date) {
         return "Unscheduled";
     }
 
-    return `${formatDateLabel(date)} · Day ${dayNumber}`;
+    return `${formatDateLabel(date, language)} · ${dayLabel}`;
 }
 
-export function formatDateLabel(date) {
+export function formatDateLabel(date, language = "en") {
     if (!date) {
         return "";
     }
 
-    const parsedDate = new Date(`${date}T00:00:00`);
-
-    const formattedDate = parsedDate.toLocaleDateString("en-US", {
+    const formattedDate = formatDate(date, language, {
         month: "short",
         day: "numeric",
         year: "numeric",
     });
 
-    const weekday = parsedDate.toLocaleDateString("en-US", {
+    const weekday = formatDate(date, language, {
         weekday: "short",
     });
 

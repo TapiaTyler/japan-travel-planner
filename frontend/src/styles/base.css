@@ -32,6 +32,8 @@
     --transportation-soft: #e8f1fa;
     --lodging-color: #5b3a86;
     --lodging-soft: #f1ebf8;
+    --map-color: #137333;
+    --map-soft: #e6f4ea;
 
     --confirmed-color: #006400;
     --confirmed-soft: #dbffdb;
@@ -140,6 +142,8 @@ input[type="radio"] {
     --transportation-soft: #172f47;
     --lodging-color: #c6a6eb;
     --lodging-soft: #302442;
+    --map-color: #81c995;
+    --map-soft: #183a25;
     --confirmed-color: #72d572;
     --confirmed-soft: #17351f;
     --estimated-color: #ff9b69;

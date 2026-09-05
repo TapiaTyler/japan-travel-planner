@@ -14,6 +14,7 @@ import com.japantravelplanner.repository.TripRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class TripItemServiceTest {
@@ -44,6 +46,51 @@ class TripItemServiceTest {
     private TripItemService tripItemService;
 
     // Tests
+    @Test
+    void createActivityStoresNormalizedMapSearchQuery() {
+        User user = new User(
+                "testuser",
+                "hashedPassword"
+        );
+
+        Trip trip = new Trip(
+                user,
+                "Japan Trip",
+                LocalDate.of(2026, 10, 10),
+                LocalDate.of(2026, 10, 20),
+                null
+        );
+
+        when(
+                tripRepository.findByIdAndUser_Username(
+                        1L,
+                        "testuser"
+                )
+        ).thenReturn(Optional.of(trip));
+
+        when(activityRequest.getName())
+                .thenReturn("Tokyo Tower");
+        when(activityRequest.getDate())
+                .thenReturn(LocalDate.of(2026, 10, 11));
+        when(activityRequest.getMapSearchQuery())
+                .thenReturn("  Tokyo Tower, Tokyo  ");
+
+        tripItemService.createActivity(
+                1L,
+                "testuser",
+                activityRequest
+        );
+
+        ArgumentCaptor<Activity> activityCaptor =
+                ArgumentCaptor.forClass(Activity.class);
+        verify(tripItemRepository).save(activityCaptor.capture());
+
+        assertEquals(
+                "Tokyo Tower, Tokyo",
+                activityCaptor.getValue().getMapSearchQuery()
+        );
+    }
+
     @Test
     void createActivityRejectsDateOutsideTripDates() {
         User user = new User(
