@@ -3,3 +3,8 @@
 
 # Local agent instructions
 AGENTS.md
+
+# Local environment configuration
+.env
+.env.*
+!.env.example

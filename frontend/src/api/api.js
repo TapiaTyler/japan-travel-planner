@@ -2,7 +2,7 @@ import i18n from "../i18n/index.js";
 
 const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ??
-    "http://localhost:8080";
+    "";
 
 // Errors
 export class SessionExpiredError extends Error {

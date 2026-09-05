@@ -41,6 +41,7 @@ public class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/templates/public",
@@ -128,13 +129,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CookieCsrfTokenRepository csrfTokenRepository() {
+    public CookieCsrfTokenRepository csrfTokenRepository(
+            @Value("${app.security.csrf.cookie-secure}") boolean cookieSecure,
+            @Value("${app.security.csrf.cookie-same-site}") String cookieSameSite) {
         CookieCsrfTokenRepository repository =
                 CookieCsrfTokenRepository.withHttpOnlyFalse();
 
         repository.setCookieCustomizer(cookie -> cookie
-                .sameSite("None")
-                .secure(true)
+                .sameSite(cookieSameSite)
+                .secure(cookieSecure)
         );
 
         return repository;
