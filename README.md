@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/TapiaTyler/japan-travel-planner/actions/workflows/ci.yml/badge.svg)](https://github.com/TapiaTyler/japan-travel-planner/actions/workflows/ci.yml)
 
-**[View the live application](https://japan-travel-planner-production.up.railway.app/)**
+**[View the live application](https://japan-travel-planner-ggev.onrender.com/)**
 
 A full-stack itinerary planner designed for travel within Japan. Users can organize trips, filter scheduled items, track costs in Japanese yen, reuse templates, open destinations in their preferred map application, and generate printable itineraries. The interface is responsive, supports English and Japanese, and includes light and dark themes.
 
